@@ -19,7 +19,7 @@ app.directive('registered', function() {
 
 app.controller('IndexController', ['$scope', '$mdSidenav', function($scope, $mdSidenav) {
 
-  self.tomTitle = "Screen Dramatist"
+  var self = this
 
    self.toggleLeftMenu = function () {
      $mdSidenav('left').toggle();
@@ -36,8 +36,6 @@ app.controller('AttendanceController', ['$scope', '$log', '$mdSidenav', function
       this.selectedMode = 'md-fling'
       this.availableDirections = ['up', 'down', 'left', 'right']
       this.selectedDirection = 'up'
-
-      self.tomTitle = $scope.tomTitle
 
      self.title = "Extra Special Guy"
    }
