@@ -1,0 +1,35 @@
+@media only screen and (min-width: 768px) {
+  #bodyContent {
+    width: 70%;
+    margin: auto auto;
+  }
+}
+
+.speedDialButton {
+  height: 36px !important;
+  width: 36px !important;
+  z-index: 0 !important;
+  box-shadow: 0 0 0 0 !important;
+}
+
+#speedDialTriggerButton {
+  background-color: #00897B;
+}
+
+.listIconContainer {
+  display: flex !important;
+  height: auto;
+  min-width: 30px;
+  min-height: 30px;
+  margin: auto auto;
+}
+
+#listButtonIcon {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex !important;
+}
+
+.iconSetContainer {
+  margin:auto auto;
+}
