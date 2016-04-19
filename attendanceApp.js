@@ -9,15 +9,42 @@ app.config(function($mdThemingProvider) {
 app.directive('registered', function() {
   return {
     restrict: 'E',
-    scope: {},
     templateUrl: 'attendanceTabControllers/registered.html',
     controller: 'AttendanceController'
   }
-  })
+})
+
+app.directive('checkedin', function() {
+  return {
+    restrict: 'E',
+    templateUrl: 'attendanceTabControllers/checkedIn.html',
+    controller: 'AttendanceController'
+  }
+})
+
+app.directive('assigned', function() {
+  return {
+    restrict: 'E',
+    templateUrl: 'attendanceTabControllers/assigned.html',
+    controller: 'AttendanceController'
+  }
+})
+
+app.factory('sitePickerGenerator', ['$mdBottomSheet', function($mdBottomSheet) {
+
+  return function() {
+    $mdBottomSheet.show({
+      controller: 'SitePickerSheetController',
+      templateUrl: 'sitePickerSheetTemplate.html'
+    }).then(function(selectedSite) {
+      alert(selectedSite['name'] + ' clicked!')
+    })
+  }
+}])
 
 app.controller('IndexController', ['$scope', '$mdSidenav', function($scope, $mdSidenav) {
 
-  $scope.tomsTitle = 'Mission Impossible'
+  $scope.tomsTitle = "Mission Impossible"
 
    $scope.toggleLeftMenu = function () {
      $mdSidenav('left').toggle();
@@ -25,29 +52,13 @@ app.controller('IndexController', ['$scope', '$mdSidenav', function($scope, $mdS
 
 }])
 
-app.controller('AttendanceController', ['$scope', '$log', '$mdSidenav', '$mdBottomSheet', function($scope, $log, $mdSidenav, $mdBottomSheet) {
-
-      $scope.topDirections = ['left', 'up']
-      $scope.bottomDirections = ['down', 'right']
-      $scope.isOpen = false
-      $scope.availableModes = ['md-fling', 'md-scale']
-      $scope.selectedMode = 'md-fling'
-      $scope.availableDirections = ['up', 'down', 'left', 'right']
-      $scope.selectedDirection = 'up'
+app.controller('AttendanceController', ['$scope', '$log', 'sitePickerGenerator', function($scope, $log, sitePickerGenerator) {
 
      $scope.title = "Extra Special Guy"
 
-     $scope.alert = ''
      $scope.showSitePicker = function() {
-       $scope.alert = ''
-       $mdBottomSheet.show({
-         controller: 'SitePickerSheetController',
-         templateUrl: 'sitePickerSheetTemplate.html'
-       }).then(function(selectedSite) {
-         alert(selectedSite['name'] + ' clicked!')
-       })
+       sitePickerGenerator()
      }
-
    }
 ])
 
