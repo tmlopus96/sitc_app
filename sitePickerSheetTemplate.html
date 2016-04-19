@@ -1,0 +1,38 @@
+<md-bottom-sheet class="md-list md-has-header" ng-cloak>
+  <md-subheader>Assign to Site</md-subheader>
+  <md-list>
+    <md-list-item ng-repeat="site in sites">
+      <md-button
+          ng-click="listItemClick($index)"
+          md-autofocus="$index == 2"
+          class="md-list-item-content" >
+        <md-icon class="material-icons">{{ site.icon }}</md-icon>
+        <span class="md-inline-list-icon-label">{{ site.name }}</span>
+      </md-button>
+    </md-list-item>
+    <!--<md-list-item>
+      <md-button ng-click="listItemClick(0)" class="md-list-item-content">
+        <md-icon class="material-icons">assignment_turned_in</md-icon>
+        <span class="md-inline-list-icon-label">NWAC</span>
+      </md-button>
+    </md-list-item>
+    <md-list-item>
+      <md-button ng-click="listItemClick(1)" class="md-list-item-content">
+        <md-icon class="material-icons">assignment_turned_in</md-icon>
+        <span class="md-inline-list-icon-label">Clark Park</span>
+      </md-button>
+    </md-list-item>
+    <md-list-item>
+      <md-button ng-click="listItemClick(2)" class="md-list-item-content">
+        <md-icon class="material-icons">assignment_turned_in</md-icon>
+        <span class="md-inline-list-icon-label">Delray</span>
+      </md-button>
+    </md-list-item>
+    <md-list-item>
+      <md-button ng-click="listItemClick(3)" class="md-list-item-content">
+        <md-icon class="material-icons">assignment_turned_in</md-icon>
+        <span class="md-inline-list-icon-label">Hamtramck</span>
+      </md-button>
+    </md-list-item>-->
+  </md-list>
+</md-bottom-sheet>

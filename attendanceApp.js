@@ -11,32 +11,57 @@ app.directive('registered', function() {
     restrict: 'E',
     scope: {},
     templateUrl: 'attendanceTabControllers/registered.html',
-    bindToController: true,
-    controllerAs: 'ctrl',
     controller: 'AttendanceController'
   }
   })
 
 app.controller('IndexController', ['$scope', '$mdSidenav', function($scope, $mdSidenav) {
 
-  var self = this
+  $scope.tomsTitle = 'Mission Impossible'
 
-   self.toggleLeftMenu = function () {
+   $scope.toggleLeftMenu = function () {
      $mdSidenav('left').toggle();
    }
+
 }])
 
-app.controller('AttendanceController', ['$scope', '$log', '$mdSidenav', function($scope, $log, $mdSidenav) {
-     var self = this
+app.controller('AttendanceController', ['$scope', '$log', '$mdSidenav', '$mdBottomSheet', function($scope, $log, $mdSidenav, $mdBottomSheet) {
 
-      this.topDirections = ['left', 'up']
-      this.bottomDirections = ['down', 'right']
-      this.isOpen = false
-      this.availableModes = ['md-fling', 'md-scale']
-      this.selectedMode = 'md-fling'
-      this.availableDirections = ['up', 'down', 'left', 'right']
-      this.selectedDirection = 'up'
+      $scope.topDirections = ['left', 'up']
+      $scope.bottomDirections = ['down', 'right']
+      $scope.isOpen = false
+      $scope.availableModes = ['md-fling', 'md-scale']
+      $scope.selectedMode = 'md-fling'
+      $scope.availableDirections = ['up', 'down', 'left', 'right']
+      $scope.selectedDirection = 'up'
 
-     self.title = "Extra Special Guy"
+     $scope.title = "Extra Special Guy"
+
+     $scope.alert = ''
+     $scope.showSitePicker = function() {
+       $scope.alert = ''
+       $mdBottomSheet.show({
+         controller: 'SitePickerSheetController',
+         templateUrl: 'sitePickerSheetTemplate.html'
+       }).then(function(selectedSite) {
+         alert(selectedSite['name'] + ' clicked!')
+       })
+     }
+
    }
 ])
+
+app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', function($scope, $log, $mdBottomSheet) {
+  $log.log('site picker sheet controller is alive')
+
+  $scope.sites = [
+    { name: 'NWAC', icon: 'assignment_turned_in' },
+    { name: 'Clark Park', icon: 'headset_mic' },
+    { name: 'Delray', icon: 'headset_mic' },
+    { name: 'Hamtramck', icon: 'assignment_turned_in' }
+  ];
+  $scope.listItemClick = function($index) {
+    var selectedSite = $scope.sites[$index];
+    $mdBottomSheet.hide(selectedSite);
+  };
+}])
