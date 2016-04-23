@@ -1,10 +1,18 @@
 <md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0" ng-cloak>
   <md-subheader>Assign to Site</md-subheader>
   <md-list>
+    <md-list-item>
+      <md-button
+          ng-click="listItemClick('allSites')"
+          class="md-list-item-content" >
+        <md-icon class="material-icons">{{allSitesDefault.icon}}</md-icon>
+        <span class="md-inline-list-icon-label">All Sites</span>
+      </md-button>
+    </md-list-item>
     <md-list-item ng-repeat="site in sites">
       <md-button
           ng-click="listItemClick($index)"
-          class="md-list-item-content" >
+          class="md-list-item-content">
         <md-icon class="material-icons">{{ site.icon }}</md-icon>
         <span class="md-inline-list-icon-label">{{ site.name }}</span>
       </md-button>

@@ -54,20 +54,20 @@
         <md-tab label="Registered">
           <h1>All of the peoples who've registered at this carpool site</h1>
           <p>
-            {{persons[1].firstName}}
+            {{persons[24].firstName}}
           </p>
           <p>
             {{tomsTitle}}
           </p>
-          <registered show-site-picker="showSitePicker()" persons="persons"></registered>
+          <registered persons="persons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></registered>
         </md-tab>
         <md-tab label="Checked-In">
           <h1>All of the peoples who've been checked in but aren't assigned to a site</h1>
-          <checkedin show-site-picker="showSitePicker()" persons="persons"></checkedin>
+          <checkedin persons="persons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></checkedin>
         </md-tab>
         <md-tab label="Assigned">
           <h1>All of the peoples who've been assigned to a site</h1>
-          <assigned show-site-picker="showSitePicker()" persons="persons"></assigned>
+          <assigned persons="persons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></assigned>
         </md-tab>
       </md-tabs>
 
