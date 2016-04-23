@@ -25,6 +25,7 @@ app.directive('checkedin', function() {
 app.directive('assigned', function() {
   return {
     restrict: 'E',
+    scope: false,
     templateUrl: 'attendanceTabControllers/assigned.html',
     controller: 'AttendanceController'
   }
