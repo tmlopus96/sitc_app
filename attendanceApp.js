@@ -9,6 +9,10 @@ app.config(function($mdThemingProvider) {
 app.directive('registered', function() {
   return {
     restrict: 'E',
+    scope: {
+      showSitePicker: '&',
+      persons: '='
+    },
     templateUrl: 'attendanceTabControllers/registered.html',
     controller: 'AttendanceController'
   }
@@ -17,6 +21,10 @@ app.directive('registered', function() {
 app.directive('checkedin', function() {
   return {
     restrict: 'E',
+    scope: {
+      showSitePicker: '&',
+      persons: '='
+    },
     templateUrl: 'attendanceTabControllers/checkedIn.html',
     controller: 'AttendanceController'
   }
@@ -25,7 +33,10 @@ app.directive('checkedin', function() {
 app.directive('assigned', function() {
   return {
     restrict: 'E',
-    scope: false,
+    scope: {
+      showSitePicker: '&',
+      persons: '='
+    },
     templateUrl: 'attendanceTabControllers/assigned.html',
     controller: 'AttendanceController'
   }
@@ -43,13 +54,30 @@ app.factory('sitePickerGenerator', ['$mdBottomSheet', function($mdBottomSheet) {
   }
 }])
 
-app.controller('IndexController', ['$scope', '$mdSidenav', function($scope, $mdSidenav) {
+app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sitePickerGenerator', function($scope, $http, $mdSidenav, $log, sitePickerGenerator) {
 
   $scope.tomsTitle = "Mission Impossible"
+
+  //TODO make this load from user defaults
+  $scope.carpoolSite = "nf";
 
    $scope.toggleLeftMenu = function () {
      $mdSidenav('left').toggle();
    }
+
+   $scope.showSitePicker = function() {
+     sitePickerGenerator()
+   }
+
+   $http({
+     method: "GET",
+     url: "appServer/getRegistered.php",
+     params: {carpoolSite: $scope.carpoolSite}
+   }).then(function mySuccess(response) {
+     $scope.persons = response.data;
+     // MARK debug statement
+     //$log.log('mySuccess ran! person 1 is ' + $scope.persons[0].firstName);
+   })
 
 }])
 
@@ -57,9 +85,7 @@ app.controller('AttendanceController', ['$scope', '$log', 'sitePickerGenerator',
 
      $scope.title = "Extra Special Guy"
 
-     $scope.showSitePicker = function() {
-       sitePickerGenerator()
-     }
+
    }
 ])
 

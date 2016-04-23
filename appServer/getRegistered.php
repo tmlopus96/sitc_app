@@ -1,7 +1,3 @@
-<!doctype html>
-<head>
-
-</head>
 <?php
 
   require_once 'sitc_workforce_creds.php';
@@ -27,5 +23,3 @@
   echo json_encode($personsArr);
 
 ?>
-
-</html>

@@ -53,15 +53,21 @@
       <md-tabs md-dynamic-height md-border-bottom md-center-tabs>
         <md-tab label="Registered">
           <h1>All of the peoples who've registered at this carpool site</h1>
-          <registered></registered>
+          <p>
+            {{persons[1].firstName}}
+          </p>
+          <p>
+            {{tomsTitle}}
+          </p>
+          <registered show-site-picker="showSitePicker()" persons="persons"></registered>
         </md-tab>
         <md-tab label="Checked-In">
           <h1>All of the peoples who've been checked in but aren't assigned to a site</h1>
-          <checkedin></checkedin>
+          <checkedin show-site-picker="showSitePicker()" persons="persons"></checkedin>
         </md-tab>
         <md-tab label="Assigned">
           <h1>All of the peoples who've been assigned to a site</h1>
-          <assigned></assigned>
+          <assigned show-site-picker="showSitePicker()" persons="persons"></assigned>
         </md-tab>
       </md-tabs>
 
