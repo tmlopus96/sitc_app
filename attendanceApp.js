@@ -11,6 +11,7 @@ app.directive('registered', function() {
     restrict: 'E',
     scope: {
       persons: '=',
+      registeredPersons: '=',
       projectsWithPersons: '=',
       projectSitesWithPersons: '='
     },
@@ -24,6 +25,7 @@ app.directive('checkedin', function() {
     restrict: 'E',
     scope: {
       persons: '=',
+      registeredPersons: '=',
       projectsWithPersons: '=',
       projectSitesWithPersons: '='
     },
@@ -37,6 +39,7 @@ app.directive('assigned', function() {
     restrict: 'E',
     scope: {
       persons: '=',
+      registeredPersons: '=',
       projectsWithPersons: '=',
       projectSitesWithPersons: '='
     },
@@ -69,7 +72,8 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
   //containers for persons
   $scope.persons = {};
   //TODO have active projects and sites dynamically load from logistics report
-  $scope.projectsWithPersons = {all: ['hey there!']}
+  $scope.registeredPersons = {};
+  $scope.projectsWithPersons = {all: []}
   $scope.projectSitesWithPersons = {};
 
   //TODO make this load from user defaults
@@ -88,7 +92,8 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
      response.data.forEach(function(currentPerson) {
        var myId = currentPerson["person_id"];
        $scope.persons[myId] = currentPerson;
-       //TODO put pre-assigned people directly into respective project/site containers
+       //TODO put pre-assigned people directly into respective project/site containers; eventually everyone will automatically get put in persons but not necessarily registered
+       $scope.registeredPersons[myId] = currentPerson;
 
      });
      // MARK debug statement
@@ -118,6 +123,7 @@ app.controller('AttendanceController', ['$scope', '$log', '$q', 'sitePickerGener
         $log.log('received promise with selectedSite ' + selectedSite + ' and selectedProject' + selectedProject + ' and projectsWithPersons is' + $scope.projectsWithPersons["all"])
         if (selectedSite == 'allSites') {
           $scope.projectsWithPersons[selectedProject].push(personId)
+          delete $scope.registeredPersons[personId]
           $log.log('pushed ' + personId + 'to projectsWithPersons')
         }
         else {
