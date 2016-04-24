@@ -1,8 +1,8 @@
 <md-content id="bodyContent">
 
     <md-list>
-      <div ng-repeat="(siteName, projectPersons) in projectSitesWithPersons">
-        <md-list-item class="md-2-line" layout="row" layout-align="start center" ng-repeat="person in projectPersons">
+      <div ng-repeat="(siteName, projectPersons) in projectSitesWithPersons" class="listAnimate">
+        <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="person in projectPersons">
          <img ng-src="images/avatarExample.png" class="md-avatar" alt="Avatar" />
          <div flex class="md-list-item-text">
            <h3>{{persons[person].firstName}} {{persons[person].lastName}}</h3>

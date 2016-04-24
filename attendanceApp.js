@@ -1,4 +1,4 @@
-var app = angular.module('attendanceApp', ['ngMaterial'])
+var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate'])
 
 app.config(function($mdThemingProvider) {
   $mdThemingProvider.theme('default')
@@ -32,19 +32,23 @@ app.directive('checkedin', function() {
     templateUrl: 'attendanceTabControllers/checkedIn.html',
     controller: ['$scope', '$log', '$q', 'sitePickerGenerator', function($scope, $log, $q, sitePickerGenerator) {
 
-      $scope.checkInPerson = function(personId, selectedProject) {
+      $scope.checkInPerson = function(personId, selectedProject, arrayLoc) { //arrayLoc = which projectsWithPersons array this person is in
         $log.log('personId is' + personId)
         var promise = sitePickerGenerator()
         promise.then(function(selectedSite) {
           $log.log('received promise with selectedSite ' + selectedSite + ' and selectedProject' + selectedProject + ' and projectsWithPersons is' + $scope.projectsWithPersons["all"])
           if (selectedSite == 'allSites') {
+            $log.log('selectedSite is allSites!')
             $scope.projectsWithPersons[selectedProject].push(personId)
-            delete $scope.projectsWithPersons["all"][personId]
+            var personIndex = $scope.projectsWithPersons["all"].indexOf(personId)
+            $log.log('projectsWithPersons[selectedProject][personIndex]' + personIndex)
+            $scope.projectsWithPersons["all"].splice(personIndex, 1)
           }
           else {
+            var personIndex = $scope.projectsWithPersons[arrayLoc].indexOf(personId)
+            $log.log('projectsWithPersons[arrayLoc][personIndex]' + personIndex)
+            $scope.projectsWithPersons[arrayLoc].splice(personIndex, 1)
             $scope.projectSitesWithPersons[selectedSite].push(personId)
-            $log.log('selectedProject' + selectedProject)
-            delete $scope.projectsWithPersons[selectedProject][personId]
           }
         })
       }
@@ -129,7 +133,7 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
        var myId = currentPerson["person_id"];
        $scope.persons[myId] = currentPerson;
        //TODO put pre-assigned people directly into respective project/site containers; eventually everyone will automatically get put in persons but not necessarily registered
-       $scope.registeredPersons[myId] = currentPerson;
+       $scope.registeredPersons[myId] = myId;
 
      });
      // MARK debug statement
@@ -189,7 +193,7 @@ app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet',
       var selectedSite = $scope.sites[$index];
     }
 
-    $log.log('selectedSite is ' + selectedSite)
+    $log.log('selectedSite is ' + selectedSite["name"])
     $mdBottomSheet.hide(selectedSite);
   };
 }])

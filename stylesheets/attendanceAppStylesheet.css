@@ -33,3 +33,26 @@
 .iconSetContainer {
   margin:auto auto;
 }
+
+/* now the element will fade out before it is removed from the DOM */
+.listAnimate.ng-leave {
+  transition: 2s linear all;
+  opacity:1;
+  height: auto;
+}
+.listAnimate.ng-leave.ng-leave-active {
+  opacity:0;
+  height: 0px;
+}
+
+.listAnimate.ng-move {
+  -webkit-transition:0.5s linear all;
+  -moz-transition:0.5s linear all;
+  -o-transition:0.5s linear all;
+  transition:0.5s linear all;
+  opacity:0;
+}
+
+.listAnimate.ng-move-active {
+  opacity: 1;
+}

@@ -2,10 +2,10 @@
 
     <md-list>
 
-      <md-list-item class="md-2-line" layout="row" layout-align="start center" ng-repeat="(myId, myInfo) in registeredPersons">
+      <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="(myId, myInfo) in registeredPersons">
        <img ng-src="images/avatarExample.png" class="md-avatar" alt="Avatar" />
        <div flex class="md-list-item-text">
-         <h3>{{myInfo.firstName}} {{myInfo.lastName}}</h3>
+         <h3>{{persons[myId].firstName}} {{persons[myId].lastName}}</h3>
          <p></p>
        </div>
        <div></div>
