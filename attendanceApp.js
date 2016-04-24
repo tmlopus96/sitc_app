@@ -30,7 +30,25 @@ app.directive('checkedin', function() {
       projectSitesWithPersons: '='
     },
     templateUrl: 'attendanceTabControllers/checkedIn.html',
-    controller: 'AttendanceController'
+    controller: ['$scope', '$log', '$q', 'sitePickerGenerator', function($scope, $log, $q, sitePickerGenerator) {
+
+      $scope.checkInPerson = function(personId, selectedProject) {
+        $log.log('personId is' + personId)
+        var promise = sitePickerGenerator()
+        promise.then(function(selectedSite) {
+          $log.log('received promise with selectedSite ' + selectedSite + ' and selectedProject' + selectedProject + ' and projectsWithPersons is' + $scope.projectsWithPersons["all"])
+          if (selectedSite == 'allSites') {
+            $scope.projectsWithPersons[selectedProject].push(personId)
+            delete $scope.projectsWithPersons["all"][personId]
+          }
+          else {
+            $scope.projectSitesWithPersons[selectedSite].push(personId)
+            $log.log('selectedProject' + selectedProject)
+            delete $scope.projectsWithPersons[selectedProject][personId]
+          }
+        })
+      }
+    }]
   }
 })
 
@@ -44,9 +62,27 @@ app.directive('assigned', function() {
       projectSitesWithPersons: '='
     },
     templateUrl: 'attendanceTabControllers/assigned.html',
-    controller: 'AttendanceController'
+    controller: ['$scope', '$log', '$q', 'sitePickerGenerator', function($scope, $log, $q, sitePickerGenerator) {
+
+      $scope.checkInPerson = function(personId, selectedProject) {
+        $log.log('personId is' + personId)
+        var promise = sitePickerGenerator()
+        promise.then(function(selectedSite) {
+          $log.log('received promise with selectedSite ' + selectedSite + ' and selectedProject' + selectedProject + ' and projectsWithPersons is' + $scope.projectsWithPersons["all"])
+          if (selectedSite == 'allSites') {
+            $scope.projectsWithPersons[selectedProject].push(personId)
+            delete $scope.projectsWithPersons["all"][personId]
+          }
+          else {
+            $scope.projectSitesWithPersons[selectedSite].push(personId)
+            delete $scope.projectsWithPersons[selectedProject][personId]
+          }
+        })
+      }
+    }]
   }
 })
+
 
 app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($mdBottomSheet, $log, $q) {
 
@@ -57,8 +93,8 @@ app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($md
       controller: 'SitePickerSheetController',
       templateUrl: 'sitePickerSheetTemplate.html'
     }).then(function(selectedSite) {
-      alert(selectedSite['name'] + ' clicked!')
-      defer.resolve(selectedSite['name']);
+      $log.log('selectedSite id' + selectedSite['id'])
+      defer.resolve(selectedSite['id']);
     })
 
     return defer.promise
@@ -73,8 +109,8 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
   $scope.persons = {};
   //TODO have active projects and sites dynamically load from logistics report
   $scope.registeredPersons = {};
-  $scope.projectsWithPersons = {all: []}
-  $scope.projectSitesWithPersons = {};
+  $scope.projectsWithPersons = {all: [], paint: [], plant: [], play: []}
+  $scope.projectSitesWithPersons = {nwac: [], clark: [], delray: [], hamtramck: []};
 
   //TODO make this load from user defaults
   $scope.carpoolSite = "nf";
@@ -106,28 +142,22 @@ app.controller('AttendanceController', ['$scope', '$log', '$q', 'sitePickerGener
 
     $scope.testAttenCtrlAccess = "I can access AttendanceController!"
 
-
-    /*$scope.showSitePicker = function() {
-      return function() {
-        $log.log('sitePicker function with defer ran')
-        var defer = $q.defer()
-        sitePickerGenerator(defer)
-        return defer.promise
-      }
-    }*/
+    $scope.speedDialIsOpen = false
 
     $scope.checkInPerson = function(personId, selectedProject) {
       //$scope.persons[personId]
       var promise = sitePickerGenerator()
       promise.then(function(selectedSite) {
-        $log.log('received promise with selectedSite ' + selectedSite + ' and selectedProject' + selectedProject + ' and projectsWithPersons is' + $scope.projectsWithPersons["all"])
+        $log.log('received promise with selectedSite ' + selectedSite + ' and selectedProject' + selectedProject + ' and projectsWithPersons is' + $scope.projectsWithPersons[selectedProject])
         if (selectedSite == 'allSites') {
           $scope.projectsWithPersons[selectedProject].push(personId)
           delete $scope.registeredPersons[personId]
-          $log.log('pushed ' + personId + 'to projectsWithPersons')
+          $log.log('pushed ' + personId + 'to projectsWithPersons[' + selectedProject + ']')
         }
         else {
           $scope.projectSitesWithPersons[selectedSite].push(personId)
+          delete $scope.registeredPersons[personId]
+          $log.log('pushed' + personId + 'to projectSitesWithPersons')
         }
       })
     }
@@ -140,14 +170,14 @@ app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet',
 
   //TODO dynamically load available sites
   $scope.sites = [
-    { name: 'NWAC', icon: 'assignment_turned_in' },
-    { name: 'Clark Park', icon: 'headset_mic' },
-    { name: 'Delray', icon: 'headset_mic' },
-    { name: 'Hamtramck', icon: 'assignment_turned_in' }
+    { name: 'NWAC', id: 'nwac', icon: 'assignment_turned_in' },
+    { name: 'Clark Park', id: 'clark', icon: 'headset_mic' },
+    { name: 'Delray', id: 'delray', icon: 'headset_mic' },
+    { name: 'Hamtramck', id: 'hamtramck', icon: 'assignment_turned_in' }
   ];
 
   $scope.allSitesDefault = [
-    { name: 'allSites', icon: 'headset'}
+    { name: 'allSites', id: 'allSites', icon: 'headset'}
   ]
 
   $scope.listItemClick = function($index) {

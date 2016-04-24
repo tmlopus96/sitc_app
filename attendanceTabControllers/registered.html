@@ -17,9 +17,12 @@
          <md-icon id="listButtonIcon" md-svg-src="images/driver.svg" class="s48" aria-label="car"></md-icon>
        </div>
        <div flex class="listIconContainer" layout="row" layout-align="center center">
-          <md-fab-speed-dial flex class="md-fling md-secondary" md-direction="left" md-open="false" ng-cloak>
+          <md-fab-speed-dial flex class="md-fling md-secondary" md-direction="left" md-open="speedDialIsOpen" ng-cloak>
              <md-fab-trigger>
-                <md-button aria-label="menu" class="md-fab speedDialButton md-primary" ng-click="checkInPerson(myId, 'all')">
+                <md-button ng-show="speedDialIsOpen" aria-label="menu" class="md-fab speedDialButton md-primary" ng-click="checkInPerson(myId, 'all')">
+                   <md-icon class="material-icons">assignment_turned_in</md-icon>
+                </md-button>
+                <md-button ng-show="!speedDialIsOpen" aria-label="menu" class="md-fab speedDialButton md-primary">
                    <md-icon class="material-icons">assignment_turned_in</md-icon>
                 </md-button>
              </md-fab-trigger>
