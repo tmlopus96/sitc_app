@@ -105,6 +105,56 @@ app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($md
   }
 }])
 
+app.factory('getActiveSites', ['$http', '$log', function($http, $log) {
+  var haveLoadedSites = false;
+  var activePlaySites = [];
+  var activePlantSites = [];
+  var activePaintSites = [];
+
+  return function(carpoolSite, selectedProject) {
+
+    if (haveLoadedSites == false) {
+      $http({
+        method: "GET",
+        url: "appServer/getActiveSites.php",
+        params: {carpoolSite: carpoolSite}
+      }).then(function mySuccess(response) {
+        response.data.forEach(function(currentSite) {
+          switch (currentSite["project"]) {
+            case "paint":
+              activePaintSites.push(currentSite);
+              break;
+            case "plant":
+              activePlantSites.push(currentSite);
+              break;
+            case "play":
+              activePlaySites.push(currentSite);
+              break;
+            default:
+              activePaintSites.push(currentSite);
+              activePlantSites.push(currentSite);
+              activePlaySites.push(currentSite);
+          }
+        })
+      });
+    }
+
+    switch (selectedProject) {
+      case "paint":
+        return activePaintSites;
+        break;
+      case "plant":
+        return activePlantSites;
+        break;
+      case "play":
+        return activePlaySites;
+        break;
+      default:
+        return null;
+    }
+  }
+}])
+
 app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sitePickerGenerator', function($scope, $http, $mdSidenav, $log, sitePickerGenerator) {
 
   $scope.tomsTitle = "Mission Impossible"
@@ -117,7 +167,33 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
   $scope.projectSitesWithPersons = {nwac: [], clark: [], delray: [], hamtramck: []};
 
   //TODO make this load from user defaults
-  $scope.carpoolSite = "nf";
+  $scope.carpoolSites = [
+    { id: 'aa', name: 'Ann Arbor'},
+    { id: 'bf', name: 'Bloomfield Hills'},
+    { id: 'brk', name: 'Berkley'},
+    { id: 'cp', name: 'Clark Park'},
+    { id: 'drbn', name: 'Dearborn'},
+    { id: 'gp', name: 'Grosse Pointe'},
+    { id: 'gro', name: 'Groves'},
+    { id: 'nf', name: 'North Farmington'},
+    { id: 'nv', name: 'Northville'},
+    { id: 'ren', name: 'Renaissance'},
+    { id: 'troy', name: 'Troy'}
+  ]
+
+  //function from Chris Coyier on css-tricks.com
+  function getQueryVariable(variable)
+  {
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+  }
+
+  $scope.carpoolSite = getQueryVariable("carpoolSite")
 
    $scope.toggleLeftMenu = function () {
      $mdSidenav('left').toggle();
@@ -170,15 +246,19 @@ app.controller('AttendanceController', ['$scope', '$log', '$q', 'sitePickerGener
    }
 ])
 
-app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', function($scope, $log, $mdBottomSheet) {
+app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', 'getActiveSites', function($scope, $log, $mdBottomSheet, getActiveSites) {
 
   //TODO dynamically load available sites
-  $scope.sites = [
+  /*$scope.sites = [
     { name: 'NWAC', id: 'nwac', icon: 'assignment_turned_in' },
     { name: 'Clark Park', id: 'clark', icon: 'headset_mic' },
     { name: 'Delray', id: 'delray', icon: 'headset_mic' },
     { name: 'Hamtramck', id: 'hamtramck', icon: 'assignment_turned_in' }
-  ];
+  ];*/
+
+  //TODO pass this in somehow
+  $scope.sites = getActiveSites("aa", "plant")
+  $log.log('sites is ' + $scope.sites[0])
 
   $scope.allSitesDefault = [
     { name: 'allSites', id: 'allSites', icon: 'headset'}

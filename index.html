@@ -29,10 +29,12 @@
          <h1 flex class="md-toolbar-tools">SITC Attendance</h1>
        </md-toolbar>
       <md-content layout-padding>
-        <p hide-md show-gt-md>
-          This sidenav is locked open on your device. To go back to the default behavior,
-          narrow your display.
-        </p>
+        <md-input-container>
+          <label>Carpool Site</label>
+          <md-select ng-model="tomsTitle">
+            <md-option ng-repeat="site in carpoolSites" ng-value="site.id">{{ site.name }}</md-option>
+          </md-select>
+        </md-input-container>
       </md-content>
      </md-sidenav>
 
@@ -52,21 +54,12 @@
 
       <md-tabs md-dynamic-height md-border-bottom md-center-tabs>
         <md-tab label="Registered">
-          <h1>All of the peoples who've registered at this carpool site</h1>
-          <p>
-            {{persons[projectSitesWithPersons[0]].firstName}}
-          </p>
-          <p>
-            {{tomsTitle}}
-          </p>
-          <registered persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></registered>
+          <registered persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons" active-project-sites="sites"></registered>
         </md-tab>
         <md-tab label="Checked-In">
-          <h1>All of the peoples who've been checked in but aren't assigned to a site</h1>
           <checkedin persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></checkedin>
         </md-tab>
         <md-tab label="Assigned">
-          <h1>All of the peoples who've been assigned to a site</h1>
           <assigned persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></assigned>
         </md-tab>
       </md-tabs>
