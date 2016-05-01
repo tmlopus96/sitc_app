@@ -5,13 +5,13 @@
       <md-button
           ng-click="listItemClick('allSites')"
           class="md-list-item-content" >
-        <md-icon class="material-icons">{allSitesDefault.icon}}</md-icon>
-        <span class="md-inline-list-icon-label">All Sites</span>
+        <md-icon class="material-icons">{{allSitesDefault[0].icon}}</md-icon>
+        <span class="md-inline-list-icon-label">Assign Later</span>
       </md-button>
     </md-list-item>
     <md-list-item ng-repeat="site in sites">
       <md-button
-          ng-click="listItemClick($index)"
+          ng-click="listItemClick(site.projectSite_id)"
           class="md-list-item-content">
         <md-icon class="material-icons">{{ site.icon }}</md-icon>
         <span class="md-inline-list-icon-label">{{ site.name }}</span>

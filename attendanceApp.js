@@ -6,15 +6,17 @@ app.config(function($mdThemingProvider) {
     .accentPalette('deep-orange');
   })
 
+
+/*scope: {
+  persons: '=',
+  registeredPersons: '=',
+  projectsWithPersons: '=',
+  projectSitesWithPersons: '='
+}*/
 app.directive('registered', function() {
   return {
     restrict: 'E',
-    scope: {
-      persons: '=',
-      registeredPersons: '=',
-      projectsWithPersons: '=',
-      projectSitesWithPersons: '='
-    },
+    scope: true,
     templateUrl: 'attendanceTabControllers/registered.html',
     controller: 'AttendanceController'
   }
@@ -23,12 +25,7 @@ app.directive('registered', function() {
 app.directive('checkedin', function() {
   return {
     restrict: 'E',
-    scope: {
-      persons: '=',
-      registeredPersons: '=',
-      projectsWithPersons: '=',
-      projectSitesWithPersons: '='
-    },
+    scope: true,
     templateUrl: 'attendanceTabControllers/checkedIn.html',
     controller: ['$scope', '$log', '$q', 'sitePickerGenerator', function($scope, $log, $q, sitePickerGenerator) {
 
@@ -69,11 +66,11 @@ app.directive('assigned', function() {
     controller: ['$scope', '$log', '$q', 'sitePickerGenerator', function($scope, $log, $q, sitePickerGenerator) {
 
       $scope.checkInPerson = function(personId, selectedProject) {
+
         $log.log('personId is' + personId)
         var promise = sitePickerGenerator()
         promise.then(function(selectedSite) {
-          $log.log('received promise with selectedSite ' + selectedSite + ' and selectedProject' + selectedProject + ' and projectsWithPersons is' + $scope.projectsWithPersons["all"])
-          if (selectedSite == 'allSites') {
+          if (selectedSite["name"] == 'allSites') {
             $scope.projectsWithPersons[selectedProject].push(personId)
             delete $scope.projectsWithPersons["all"][personId]
           }
@@ -90,15 +87,19 @@ app.directive('assigned', function() {
 
 app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($mdBottomSheet, $log, $q) {
 
-  return function() {
+  return function(carpoolSite, project) {
     var defer = $q.defer()
 
     $mdBottomSheet.show({
       controller: 'SitePickerSheetController',
-      templateUrl: 'sitePickerSheetTemplate.html'
+      templateUrl: 'sitePickerSheetTemplate.html',
+      locals: {
+        myCarpoolSite: carpoolSite,
+        selectedProject: project
+      }
     }).then(function(selectedSite) {
-      $log.log('selectedSite id' + selectedSite['id'])
-      defer.resolve(selectedSite['id']);
+      $log.log('selectedSite id' + selectedSite['projectSite_id'])
+      defer.resolve(selectedSite['projectSite_id']);
     })
 
     return defer.promise
@@ -107,9 +108,9 @@ app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($md
 
 app.factory('getActiveSites', ['$http', '$log', function($http, $log) {
   var haveLoadedSites = false;
-  var activePlaySites = [];
-  var activePlantSites = [];
-  var activePaintSites = [];
+  var activePlaySites = {};
+  var activePlantSites = {};
+  var activePaintSites = {};
 
   return function(carpoolSite, selectedProject) {
 
@@ -119,22 +120,27 @@ app.factory('getActiveSites', ['$http', '$log', function($http, $log) {
         url: "appServer/getActiveSites.php",
         params: {carpoolSite: carpoolSite}
       }).then(function mySuccess(response) {
+        $log.log('getSites request was sent')
+
         response.data.forEach(function(currentSite) {
           switch (currentSite["project"]) {
             case "paint":
-              activePaintSites.push(currentSite);
+              activePaintSites[currentSite.projectSite_id] = currentSite;
               break;
             case "plant":
-              activePlantSites.push(currentSite);
+              activePlantSites[currentSite.projectSite_id] = currentSite;
               break;
             case "play":
-              activePlaySites.push(currentSite);
+              activePlaySites[currentSite.projectSite_id] = currentSite;
               break;
             default:
-              activePaintSites.push(currentSite);
-              activePlantSites.push(currentSite);
-              activePlaySites.push(currentSite);
+              activePaintSites[currentSite.projectSite_id] = currentSite;
+              activePlantSites[currentSite.projectSite_id] = currentSite;
+              activePlaySites[currentSite.projectSite_id] = currentSite;
           }
+
+          haveLoadedSites = true;
+          $log.log('haveLoadedSites' + haveLoadedSites)
         })
       });
     }
@@ -155,6 +161,18 @@ app.factory('getActiveSites', ['$http', '$log', function($http, $log) {
   }
 }])
 
+app.factory('updateCheckedIn', ['$http', '$log', '$q', function($http, $log, $q) {
+
+  return function(personId, valuesToUpdate) {
+
+    $http({
+      method: "GET",
+      url: "appServer/updateCheckedIn.php",
+      params: valuesToUpdate
+    });
+  }
+}])
+
 app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sitePickerGenerator', function($scope, $http, $mdSidenav, $log, sitePickerGenerator) {
 
   $scope.tomsTitle = "Mission Impossible"
@@ -162,9 +180,9 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
   //containers for persons
   $scope.persons = {};
   //TODO have active projects and sites dynamically load from logistics report
-  $scope.registeredPersons = {};
+  $scope.registeredPersons = [];
   $scope.projectsWithPersons = {all: [], paint: [], plant: [], play: []}
-  $scope.projectSitesWithPersons = {nwac: [], clark: [], delray: [], hamtramck: []};
+  $scope.projectSitesWithPersons = {nwac: [], clarkPark: [], delray: [], hamtramck: []};
 
   //TODO make this load from user defaults
   $scope.carpoolSites = [
@@ -181,7 +199,7 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
     { id: 'troy', name: 'Troy'}
   ]
 
-  //function from Chris Coyier on css-tricks.com
+  //function to get URL params from Chris Coyier on css-tricks.com
   function getQueryVariable(variable)
   {
        var query = window.location.search.substring(1);
@@ -206,10 +224,22 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
    }).then(function mySuccess(response) {
      //$scope.persons = response.data;
      response.data.forEach(function(currentPerson) {
+       switch (currentPerson["preferredProject"]) {
+         case "paint":
+            currentPerson["projectIcon"] = "paint_icon.svg"
+            break
+          case "plant":
+            currentPerson["projectIcon"] = "plant_icon.svg"
+            break
+          case "play":
+            currentPerson["projectIcon"] = "play_icon.svg"
+          default:
+            currentPerson["projectIcon"] = "all_projects_icon.svg"
+       }
        var myId = currentPerson["person_id"];
        $scope.persons[myId] = currentPerson;
        //TODO put pre-assigned people directly into respective project/site containers; eventually everyone will automatically get put in persons but not necessarily registered
-       $scope.registeredPersons[myId] = myId;
+       $scope.registeredPersons.push(myId);
 
      });
      // MARK debug statement
@@ -218,33 +248,53 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', 'sit
 
 }])
 
-app.controller('AttendanceController', ['$scope', '$log', '$q', 'sitePickerGenerator', function($scope, $log, $q, sitePickerGenerator) {
+app.controller('AttendanceController', ['$scope', '$log', '$q', 'sitePickerGenerator', 'updateCheckedIn', function($scope, $log, $q, sitePickerGenerator, updateCheckedIn) {
 
     $scope.testAttenCtrlAccess = "I can access AttendanceController!"
 
     $scope.speedDialIsOpen = false
 
     $scope.checkInPerson = function(personId, selectedProject) {
-      //$scope.persons[personId]
-      var promise = sitePickerGenerator()
-      promise.then(function(selectedSite) {
-        $log.log('received promise with selectedSite ' + selectedSite + ' and selectedProject' + selectedProject + ' and projectsWithPersons is' + $scope.projectsWithPersons[selectedProject])
-        if (selectedSite == 'allSites') {
-          $scope.projectsWithPersons[selectedProject].push(personId)
-          delete $scope.registeredPersons[personId]
-          $log.log('pushed ' + personId + 'to projectsWithPersons[' + selectedProject + ']')
+
+      function updateArrays() {
+        var deferred = $q.defer();
+        var valuesToUpdate = {"id":personId, "carpoolSite":$scope.carpoolSite, "project":selectedProject}
+
+        if (selectedProject == 'all') {
+          $scope.projectsWithPersons['all'].push(personId);
+          deferred.resolve(valuesToUpdate)
+        } else {
+          var promise = sitePickerGenerator($scope.carpoolSite, selectedProject)
+          promise.then(function(selectedSite) {
+            if (selectedSite == 'allSites') {
+              $log.log("selectedSite" + selectedSite)
+              $scope.projectsWithPersons[selectedProject].push(personId)
+              deferred.resolve(valuesToUpdate)
+            }
+            else {
+              $scope.projectSitesWithPersons[selectedSite].push(personId)
+              valuesToUpdate["site"] = selectedSite;
+              deferred.resolve(valuesToUpdate)
+            }
+          })
+
         }
-        else {
-          $scope.projectSitesWithPersons[selectedSite].push(personId)
-          delete $scope.registeredPersons[personId]
-          $log.log('pushed' + personId + 'to projectSitesWithPersons')
-        }
+
+        return deferred.promise
+      }
+
+      var promise = updateArrays();
+      promise.then(function(valuesToUpdate) {
+        $log.log("site to update: " + valuesToUpdate["site"])
+        updateCheckedIn(personId, valuesToUpdate)
+        $scope.persons[personId].assignedToProject = 'all'
+        var personIndex = $scope.registeredPersons.indexOf(personId)
+        $scope.registeredPersons.splice(personIndex, 1)
       })
     }
 
 
-   }
-])
+   }])
 
 app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', 'getActiveSites', function($scope, $log, $mdBottomSheet, getActiveSites) {
 
@@ -253,24 +303,24 @@ app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet',
     { name: 'NWAC', id: 'nwac', icon: 'assignment_turned_in' },
     { name: 'Clark Park', id: 'clark', icon: 'headset_mic' },
     { name: 'Delray', id: 'delray', icon: 'headset_mic' },
-    { name: 'Hamtramck', id: 'hamtramck', icon: 'assignment_turned_in' }
+    { name: 'Hamtramck', id: 'hamtramck', icon: 'assxignment_turned_in' }
   ];*/
 
   //TODO pass this in somehow
-  $scope.sites = getActiveSites("aa", "plant")
+  $scope.sites = getActiveSites("aa", "play")
   $log.log('sites is ' + $scope.sites[0])
 
   $scope.allSitesDefault = [
-    { name: 'allSites', id: 'allSites', icon: 'headset'}
+    { name: 'allSites', projectSite_id: 'allSites', icon: 'watch_later'}
   ]
 
-  $scope.listItemClick = function($index) {
-    if ($index == 'allSites') {
+  $scope.listItemClick = function(siteId) {
+    if (siteId == 'allSites') {
       var selectedSite = $scope.allSitesDefault[0]
       $log.log('$index is ' + selectedSite + '!')
     }
     else {
-      var selectedSite = $scope.sites[$index];
+      var selectedSite = $scope.sites[siteId];
     }
 
     $log.log('selectedSite is ' + selectedSite["name"])

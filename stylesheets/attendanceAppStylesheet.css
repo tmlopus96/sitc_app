@@ -5,6 +5,27 @@
   }
 }
 
+.primary-text-opacity {
+  color: white;
+}
+
+.secondary-text-opacity {
+  opacity: .54;
+}
+
+.iconWhite {
+  color: white;
+}
+
+.icon-hint-disabled-opacity {
+  opacity: .5;
+  color: white;
+}
+
+.dividers-opacity {
+  opacity: .38;
+}
+
 .speedDialButton {
   height: 36px !important;
   width: 36px !important;

@@ -12,10 +12,11 @@
           <div></div>
           <div flex="50" class="iconSetContainer" layout="row" layout-align="start cetner">
             <div flex class="listIconContainer" layout-align="center center">
-              <md-icon id="listButtonIcon" class="material-icons">assignment_turned_in</md-icon>
+              <md-icon id="listButtonIcon" class="material-icons">drive_eta</md-icon>
             </div>
             <div flex class="listIconContainer" layout-align="center center">
-              <md-icon id="listButtonIcon" md-svg-src="images/driver.svg" class="s48" aria-label="car"></md-icon>
+              <!--TODO ng-show to have assignedProject show if exists and preferredProject if not-->
+              <md-icon id="listButtonIcon" md-svg-src="images/icons/{{persons[person].projectIcon}}" aria-label="car"></md-icon>
             </div>
             <div flex class="listIconContainer" layout="row" layout-align="end center">
               <md-fab-speed-dial flex ng-if="projectName == 'all'" class="md-fling md-secondary" md-direction="left" md-open="false" ng-cloak style="margin: 0 0 !important; box-sizing: border-box">
@@ -27,18 +28,18 @@
                 <div>
                   <md-fab-actions>
                     <md-button aria-label="Add" ng-click="checkInPerson(person, 'paint', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
-                      <md-icon class="material-icons" aria-label="Add">add</md-icon>
+                      <md-icon md-svg-src="images/icons/paint_icon.svg" aria-label="Paint"></md-icon>
                     </md-button>
                     <md-button aria-label="Insert Link" ng-click="checkInPerson(person, 'plant', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
-                      <md-icon class="material-icons" aria-label="Insert Link">insert_link</md-icon>
+                      <md-icon classmd-svg-src="images/icons/plant_icon.svg" aria-label="Plant"></md-icon>
                     </md-button>
                     <md-button aria-label="Edit" ng-click="checkInPerson(person, 'play', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
-                      <md-icon class="material-icons" aria-label="Edit">mode_edit</md-icon>
+                      <md-icon md-svg-src="images/icons/play_icon.svg" aria-label="Play"></md-icon>
                     </md-button>
                   </md-fab-actions>
                 </div> <!--speed dial actions container-->
               </md-fab-speed-dial>
-              <md-button ng-if="projectName != 'all'" aria-label="menu" class="md-fab speedDialButton md-primary" ng-click="checkInPerson(person, projectName, projectName)"> <!--instead of speedDial if project is already set-->
+              <md-button ng-if="projectName != 'all'" aria-label="menu" class="md-fab speedDialButton md-primary"  ng-click="checkInPerson(person, projectName, projectName)"> <!--instead of speedDial if project is already set-->
                 <md-icon class="material-icons">assignment_turned_in</md-icon>
               </md-button>
             </div>
