@@ -9,11 +9,11 @@
         <span class="md-inline-list-icon-label">Assign Later</span>
       </md-button>
     </md-list-item>
-    <md-list-item ng-repeat="site in sites">
+    <md-list-item ng-repeat="(siteId, site) in sites">
       <md-button
           ng-click="listItemClick(site.projectSite_id)"
           class="md-list-item-content">
-        <md-icon class="material-icons">{{ site.icon }}</md-icon>
+        <md-icon md-svg-src="images/icons/{{site.icon}}" aria-label="car"></md-icon>
         <span class="md-inline-list-icon-label">{{ site.name }}</span>
       </md-button>
     </md-list-item>

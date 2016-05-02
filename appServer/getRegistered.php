@@ -9,7 +9,7 @@
   $carpoolSite = sanitize($_GET['carpoolSite']);
   //echo $carpoolSite;
 
-  $query = "SELECT p.person_id, p.firstName, p.lastName, p.isCrew, p.preferredProject, p.hasCar, p.carMake, p.numSeatbelts, c.hasPermanentAssignment, c.assignedProject, c.assignedSite, ch.assignedToProject, ch.assignedToSite_id, ch.driverStatus, ch.assignedToDriver_id FROM Person p LEFT JOIN Crew c ON c.person_id=p.person_id LEFT JOIN CheckedIn ch ON p.person_id=ch.person_id WHERE p.primaryCarpool_id='$carpoolSite'";
+  $query = "SELECT p.person_id, p.firstName, p.lastName, p.isCrew, p.preferredProject, p.hasCar, p.carMake, p.numSeatbelts, p.imgUrl, c.hasPermanentAssignment, c.assignedProject, c.assignedSite, ch.assignedToProject, ch.assignedToSite_id, ch.driverStatus, ch.assignedToDriver_id FROM Person p LEFT JOIN Crew c ON c.person_id=p.person_id LEFT JOIN CheckedIn ch ON p.person_id=ch.person_id WHERE p.primaryCarpool_id='$carpoolSite'";
 
   $result_persons = $connection->query($query);
   if (!$result_persons)
