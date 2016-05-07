@@ -27,7 +27,7 @@ app.directive('checkedin', function() {
     restrict: 'E',
     scope: true,
     templateUrl: 'attendanceTabControllers/checkedIn.html',
-    controller: ['$scope', '$log', '$q', 'sitePickerGenerator', 'updateCheckedIn', function($scope, $log, $q, sitePickerGenerator, updateCheckedIn) {
+    controller: ['$scope', '$log', '$q', '$mdToast', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', function($scope, $log, $q, $mdToast, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver) {
 
       $scope.checkInPerson = function(personId, selectedProject, arrayLoc) {
 
@@ -40,10 +40,12 @@ app.directive('checkedin', function() {
               if (selectedSite == 'allSites') {
                 $log.log("selectedSite" + selectedSite)
                 $scope.projectsWithPersons[selectedProject].push(personId)
+                $scope.persons[personId].assignedToProject = selectedProject
                 deferred.resolve(valuesToUpdate)
               } else {
                 $log.log('**selectedSite is' + selectedSite)
                 $scope.projectSitesWithPersons[selectedSite].push(personId)
+                $scope.persons[personId].assignedToSite_id = selectedSite
                 valuesToUpdate["site"] = selectedSite;
                 deferred.resolve(valuesToUpdate)
               }
@@ -56,10 +58,56 @@ app.directive('checkedin', function() {
         promise.then(function(valuesToUpdate) {
           $log.log("site to update: " + valuesToUpdate["site"])
           updateCheckedIn(personId, valuesToUpdate)
-          $scope.persons[personId].assignedToProject = 'all'
           var personIndex = $scope.projectsWithPersons[arrayLoc].indexOf(personId)
           $scope.projectsWithPersons[arrayLoc].splice(personIndex, 1)
         })
+      }
+
+      //--- Driver business
+      $scope.toggleDriver = function(personId) {
+        $log.log('toggleDriver ran!!')
+        if ($scope.persons[personId].driverStatus == null) {
+          $log.log('calling driverStatus on person ' + personId + 'with isDriver')
+          $scope.persons[personId].driverStatus = "isDriver"
+          var driverPromise = driverStatus(personId, "isDriver")
+          driverPromise.then(function() {
+            var driverName = $scope.persons[personId].firstName
+            $mdToast.showSimple('Added driver: ' + driverName)
+          })
+        } else {
+          $log.log('calling driverStatus on person ' + personId + 'with NULL')
+          $scope.persons[personId].driverStatus = null
+          var driverPromise = driverStatus(personId, 'NULL')
+          driverPromise.then(function() {
+            var driverName = $scope.persons[personId].firstName
+            $mdToast.show($mdToast.simple().textContent('Removed driver: ' + driverName).theme('accent'))
+          })
+        }
+      }
+
+      $scope.assignDriver = function(personId) {
+        var activeDrivers = new Array()
+        for (var id in $scope.persons) {
+          if ($scope.persons[id].hasOwnProperty("driverStatus")) {
+            if ($scope.persons[id].driverStatus == "isDriver")
+              activeDrivers.push({"id":id, "name":$scope.persons[id].firstName + ' ' + $scope.persons[id].lastName})
+          }
+        }
+
+        var driverPromise = driverPickerGenerator(activeDrivers)
+        driverPromise.then(function(selectedDriver) {
+
+          $scope.persons[personId].assignedToDriver_id = selectedDriver
+          $log.log('about to call assignToDriver on person ' + personId + ' to driver ' + selectedDriver)
+          var assignDriverPromise = assignToDriver(personId, selectedDriver)
+          assignDriverPromise.then(function mySuccess() {
+            var personName = $scope.persons[personId].firstName
+            var driverName = $scope.persons[selectedDriver].firstName
+            $mdToast.show($mdToast.simple().textContent('Assigned ' + personName + ' to driver ' + driverName))
+          })
+
+        })
+
       }
 
     }]
@@ -117,6 +165,28 @@ app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($md
     })
 
     return defer.promise
+  }
+}])
+
+app.factory('driverPickerGenerator', ['$q', '$log', '$mdBottomSheet', function($q, $log, $mdBottomSheet) {
+
+  return function(activeDrivers) {
+
+    return $mdBottomSheet.show({
+      templateUrl: 'bottomSheetTemplates/driverPicker.html',
+      locals: { myActiveDrivers: activeDrivers },
+      controller: ['$scope', 'myActiveDrivers', function($scope, myActiveDrivers) {
+
+        var selectedDriver = ''
+        $scope.activeDrivers = myActiveDrivers
+        $log.log('activeDrivers test' + $scope.activeDrivers[1].name)
+
+        $scope.selectWithDriver = function(selectedDriver) {
+          $mdBottomSheet.hide(selectedDriver)
+        }
+
+      }]
+    })
   }
 }])
 
@@ -220,9 +290,41 @@ app.factory('updateCheckedIn', ['$http', '$log', '$q', function($http, $log, $q)
   }
 }])
 
-app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q', 'sitePickerGenerator', 'getActiveSites', function($scope, $http, $mdSidenav, $log, $q, sitePickerGenerator, getActiveSites) {
+app.factory('driverStatus', ['$http', '$log', function($http, $log) {
 
-  $scope.tomsTitle = "Mission Impossible"
+  return function(personId, newStatus) {
+
+    return $http({
+      method: "GET",
+      url: "appServer/driverStatus.php",
+      params: {
+        personId: personId,
+        status: newStatus
+      }
+    })
+
+  }
+
+}])
+
+app.factory('assignToDriver', ['$http', '$log', function($http, $log) {
+
+  return function(personId, driverId) {
+
+    return $http({
+      method: "GET",
+      url: "appServer/assignToDriver.php",
+      params: {
+        personId: personId,
+        driverId: driverId
+      }
+    })
+
+  }
+
+}])
+
+app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q', 'sitePickerGenerator', 'getActiveSites', function($scope, $http, $mdSidenav, $log, $q, sitePickerGenerator, getActiveSites) {
 
   //TODO make this load from user defaults
   $scope.carpoolSites = [
@@ -262,47 +364,59 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q'
 
   var activeSitesPromise = getActiveSites($scope.carpoolSite, "all")
   activeSitesPromise.then(function mySuccess(activeSites) {
-    $log.log('activesite ' + activeSites['mckinstry'].projectSite_id)
-    for (var site_id in activeSites) {
-      if (activeSites.hasOwnProperty(site_id)) {
-        $scope.projectSitesWithPersons[site_id] = new Array()
+    var defer = $q.defer()
+    //Put each site into projectSitesWithPersons obj
+    Object.keys(activeSites).forEach(function(id, index, allIds) {
+      $scope.projectSitesWithPersons[id] = new Array()
+      $log.log('forEach running')
+      if (index === allIds.length-1) { //if last iteration, resolve promise
+        defer.resolve()
+        $log.log('last iteration; returned promise!')
       }
-    }
+    })
+    return defer.promise
+  }).then(function() {
+    //after sites in place, then load ppl
+    $http({
+      method: "GET",
+      url: "appServer/getRegistered.php",
+      params: {carpoolSite: $scope.carpoolSite}
+    }).then(function mySuccess(response) {
+      //$scope.persons = response.data;
+      response.data.forEach(function(currentPerson) {
+        switch (currentPerson["preferredProject"]) {
+          case "paint":
+             currentPerson["projectIcon"] = "paint_icon.svg"
+             break
+           case "plant":
+             currentPerson["projectIcon"] = "plant_icon.svg"
+             break
+           case "play":
+             currentPerson["projectIcon"] = "play_icon.svg"
+           default:
+             currentPerson["projectIcon"] = "all_projects_icon.svg"
+        }
+        var myId = currentPerson["person_id"];
+        $scope.persons[myId] = currentPerson;
+        //TODO put pre-assigned people directly into respective project/site containers; eventually everyone will automatically get put in persons but not necessarily registered
+        if ($scope.persons[myId].assignedToSite_id != null) {
+          $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
+        } else if ($scope.persons[myId].assignedToProject != null) {
+          $scope.projectsWithPersons[$scope.persons[myId].assignedToProject].push(myId)
+        } else {
+          $scope.registeredPersons.push(myId)
+        }
+
+      });
+      // MARK debug statement
+      //$log.log('mySuccess ran! person 1 is ' + $scope.persons[0].firstName);
+    })
   })
 
 
    $scope.toggleLeftMenu = function () {
      $mdSidenav('left').toggle();
    }
-
-   $http({
-     method: "GET",
-     url: "appServer/getRegistered.php",
-     params: {carpoolSite: $scope.carpoolSite}
-   }).then(function mySuccess(response) {
-     //$scope.persons = response.data;
-     response.data.forEach(function(currentPerson) {
-       switch (currentPerson["preferredProject"]) {
-         case "paint":
-            currentPerson["projectIcon"] = "paint_icon.svg"
-            break
-          case "plant":
-            currentPerson["projectIcon"] = "plant_icon.svg"
-            break
-          case "play":
-            currentPerson["projectIcon"] = "play_icon.svg"
-          default:
-            currentPerson["projectIcon"] = "all_projects_icon.svg"
-       }
-       var myId = currentPerson["person_id"];
-       $scope.persons[myId] = currentPerson;
-       //TODO put pre-assigned people directly into respective project/site containers; eventually everyone will automatically get put in persons but not necessarily registered
-       $scope.registeredPersons.push(myId);
-
-     });
-     // MARK debug statement
-     //$log.log('mySuccess ran! person 1 is ' + $scope.persons[0].firstName);
-   })
 
 }])
 

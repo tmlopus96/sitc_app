@@ -12,11 +12,15 @@
           <div></div>
           <div flex="50" class="iconSetContainer" layout="row" layout-align="start cetner">
             <div flex class="listIconContainer" layout-align="center center">
-              <md-icon id="listButtonIcon" class="material-icons">drive_eta</md-icon>
+              <md-button ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver'}" class="" ng-click="toggleDriver(person)" style="padding:0 !important">
+                <md-icon id="listButtonIcon" md-svg-src="images/icons/steeringWheel.svg"></md-icon>
+              </md-button>
             </div>
             <div flex class="listIconContainer" layout-align="center center">
-              <!--TODO ng-show to have assignedProject show if exists and preferredProject if not-->
-              <md-icon id="listButtonIcon" md-svg-src="images/icons/{{persons[person].projectIcon}}" aria-label="car"></md-icon>
+              <md-button ng-hide="persons[person].driverStatus == 'isDriver'" aria-label="menu" ng-class="{'md-accent md-hue-1': persons[person].assignedToDriver_id.length > 0}" ng-click="assignDriver(person)" style="padding:0 !important">
+                <!--TODO ng-show to have assignedProject show if exists and preferredProject if not-->
+                <md-icon id="listButtonIcon" class="material-icons" aria-label="car">drive_eta</md-icon>
+              </md-button>
             </div>
             <div flex class="listIconContainer" layout="row" layout-align="end center">
               <md-fab-speed-dial flex ng-if="projectName == 'all'" class="md-fling md-secondary" md-direction="left" md-open="false" ng-cloak style="margin: 0 0 !important; box-sizing: border-box">

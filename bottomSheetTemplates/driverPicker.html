@@ -1,0 +1,12 @@
+<md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0" ng-cloak>
+  <md-subheader>Assign to Site</md-subheader>
+  <md-list>
+    <md-list-item ng-repeat="driver in activeDrivers">
+      <md-button
+          ng-click="selectWithDriver(driver.id)"
+          class="md-list-item-content">
+        <span class="md-inline-list-icon-label">{{ driver.name }}</span>
+      </md-button>
+    </md-list-item>
+  </md-list>
+</md-bottom-sheet>
