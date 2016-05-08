@@ -64,33 +64,45 @@ app.directive('checkedin', function() {
       }
 
       //--- Driver business
-      $scope.toggleDriver = function(personId) {
-        $log.log('toggleDriver ran!!')
-        if ($scope.persons[personId].driverStatus == null) {
-          $log.log('calling driverStatus on person ' + personId + 'with isDriver')
-          $scope.persons[personId].driverStatus = "isDriver"
-          var driverPromise = driverStatus(personId, "isDriver")
-          driverPromise.then(function() {
-            var driverName = $scope.persons[personId].firstName
-            $mdToast.showSimple('Added driver: ' + driverName)
-          })
-        } else {
-          $log.log('calling driverStatus on person ' + personId + 'with NULL')
-          $scope.persons[personId].driverStatus = null
-          var driverPromise = driverStatus(personId, 'NULL')
-          driverPromise.then(function() {
-            var driverName = $scope.persons[personId].firstName
-            $mdToast.show($mdToast.simple().textContent('Removed driver: ' + driverName).theme('accent'))
-          })
-        }
+      $scope.updateDriverStatus = function(personId) {
+        // person.drierStatus controlled by switch in checkedIn and assigned directives
+        //TODO add a warning about how toggling a driver off will remove their passengers
+        $log.log('calling driverStatus on person ' + personId + 'with isDriver')
+        var newStatus = $scope.persons[personId].driverStatus
+        var driverPromise = driverStatus(personId, newStatus)
+        driverPromise.then(function() {
+          var driverName = $scope.persons[personId].firstName
+          if (newStatus == 'isDriver') {
+            $scope.drivers[personId] = {
+              "numSeatbelts": $scope.persons[personId].numSeatbelts,
+              "passengers": [],
+              "carMake": $scope.persons[personId].carMake,
+            }
+            var message = "Added Driver: "
+          } else {
+            if ($scope.drivers.hasOwnProperty(personId)) {
+              $scope.drivers[personId].passengers.forEach(function(currentPassenger) {
+                assignToDriver(currentPassenger, '')
+                $scope.persons[currentPassenger].assignedToDriver_id = null
+              })
+              delete $scope.drivers[personId]
+            }
+            var message = "Removed Driver: "
+          }
+          $mdToast.showSimple(message + driverName)
+        })
       }
 
       $scope.assignDriver = function(personId) {
         var activeDrivers = new Array()
         for (var id in $scope.persons) {
           if ($scope.persons[id].hasOwnProperty("driverStatus")) {
-            if ($scope.persons[id].driverStatus == "isDriver")
-              activeDrivers.push({"id":id, "name":$scope.persons[id].firstName + ' ' + $scope.persons[id].lastName})
+            if ($scope.persons[id].driverStatus == "isDriver") {
+              var projectSite = ($scope.persons[id].assignedToSite_id != null) ? $scope.persons[id].assignedToSite_id : null
+              $log.log('this driver is assigned to site ' + projectSite)
+              var projectSiteName = ($scope.projectSites[projectSite] != null) ? $scope.projectSites[projectSite].name : ''
+              activeDrivers.push({"id":id, "name":$scope.persons[id].firstName + ' ' + $scope.persons[id].lastName, "project":$scope.persons[id].assignedToProject, "site":projectSiteName})
+            }
           }
         }
 
@@ -101,15 +113,13 @@ app.directive('checkedin', function() {
           $log.log('about to call assignToDriver on person ' + personId + ' to driver ' + selectedDriver)
           var assignDriverPromise = assignToDriver(personId, selectedDriver)
           assignDriverPromise.then(function mySuccess() {
+            $scope.drivers[selectedDriver].passengers.push(personId)
             var personName = $scope.persons[personId].firstName
             var driverName = $scope.persons[selectedDriver].firstName
             $mdToast.show($mdToast.simple().textContent('Assigned ' + personName + ' to driver ' + driverName))
           })
-
         })
-
       }
-
     }]
   }
 })
@@ -179,7 +189,6 @@ app.factory('driverPickerGenerator', ['$q', '$log', '$mdBottomSheet', function($
 
         var selectedDriver = ''
         $scope.activeDrivers = myActiveDrivers
-        $log.log('activeDrivers test' + $scope.activeDrivers[1].name)
 
         $scope.selectWithDriver = function(selectedDriver) {
           $mdBottomSheet.hide(selectedDriver)
@@ -188,6 +197,24 @@ app.factory('driverPickerGenerator', ['$q', '$log', '$mdBottomSheet', function($
       }]
     })
   }
+}])
+
+app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdBottomSheet', function($q, $log, $mdBottomSheet) {
+
+  return function(activeDrivers) {
+
+    return $mdBottomSheet.show({
+      templateUrl: 'bottomSheetTemplates/driverPicker.html',
+      locals: { myActiveDrivers: activeDrivers },
+      controller: ['$scope', 'myActiveDrivers', function($scope, myActiveDrivers) {
+
+        //TODO controller logic
+
+      }]
+    })
+
+  }
+
 }])
 
 app.factory('getActiveSites', ['$http', '$log', '$q', function($http, $log, $q) {
@@ -357,6 +384,8 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q'
 
   //containers for persons
   $scope.persons = {};
+  $scope.drivers = {}
+  $scope.projectSites = {}
   //TODO have active projects and sites dynamically load from logistics report
   $scope.registeredPersons = [];
   $scope.projectsWithPersons = {all: [], paint: [], plant: [], play: []}
@@ -368,6 +397,7 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q'
     //Put each site into projectSitesWithPersons obj
     Object.keys(activeSites).forEach(function(id, index, allIds) {
       $scope.projectSitesWithPersons[id] = new Array()
+      $scope.projectSites[id] = activeSites[id]
       $log.log('forEach running')
       if (index === allIds.length-1) { //if last iteration, resolve promise
         defer.resolve()
@@ -397,8 +427,19 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q'
              currentPerson["projectIcon"] = "all_projects_icon.svg"
         }
         var myId = currentPerson["person_id"];
+        //set up drivers obj
+        if (currentPerson["driverStatus"] == 'isDriver') {
+          $scope.drivers[myId] = {
+            "numSeatbelts": currentPerson.numSeatbelts,
+            "passengers": [],
+            "carMake": currentPerson.carMake,
+          }
+        } else if (currentPerson['assignedToDriver_id'] != 0 && currentPerson['assignedToDriver_id'] != null) {
+          $log.log('assigned one passenger!')
+          $scope.drivers[currentPerson["assignedToDriver_id"]].passengers.push(myId)
+        }
+
         $scope.persons[myId] = currentPerson;
-        //TODO put pre-assigned people directly into respective project/site containers; eventually everyone will automatically get put in persons but not necessarily registered
         if ($scope.persons[myId].assignedToSite_id != null) {
           $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
         } else if ($scope.persons[myId].assignedToProject != null) {

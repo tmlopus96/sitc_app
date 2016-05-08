@@ -1,0 +1,50 @@
+@font-face {
+    font-family: 'icomoon';
+    src:    url('fonts/icomoon.eot?etz1pb');
+    src:    url('fonts/icomoon.eot?etz1pb#iefix') format('embedded-opentype'),
+        url('fonts/icomoon.ttf?etz1pb') format('truetype'),
+        url('fonts/icomoon.woff?etz1pb') format('woff'),
+        url('fonts/icomoon.svg?etz1pb#icomoon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="sitc-icon-"], [class*="sitc-icon-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'icomoon' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Enable Ligatures ================ */
+    letter-spacing: 0;
+    -webkit-font-feature-settings: "liga";
+    -moz-font-feature-settings: "liga=1";
+    -moz-font-feature-settings: "liga";
+    -ms-font-feature-settings: "liga" 1;
+    -o-font-feature-settings: "liga";
+    font-feature-settings: "liga";
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.sitc-icon-all_projects_icon:before {
+    content: "\e900";
+}
+.sitc-icon-paint_icon:before {
+    content: "\e901";
+}
+.sitc-icon-plant_icon:before {
+    content: "\e902";
+}
+.sitc-icon-play_icon:before {
+    content: "\e903";
+}
+.sitc-icon-steeringWheel:before {
+    content: "\e904";
+}

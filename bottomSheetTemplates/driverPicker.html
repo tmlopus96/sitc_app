@@ -1,12 +1,24 @@
 <md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0" ng-cloak>
   <md-subheader>Assign to Site</md-subheader>
   <md-list>
-    <md-list-item ng-repeat="driver in activeDrivers">
-      <md-button
-          ng-click="selectWithDriver(driver.id)"
-          class="md-list-item-content">
-        <span class="md-inline-list-icon-label">{{ driver.name }}</span>
-      </md-button>
+    <md-list-item ng-repeat="driver in activeDrivers | orderBy:[driver.project, driver.site]" class="md-2-line md-ink-ripple" ng-click="selectWithDriver(driver.id)">
+        <md-icon class="sitc-icon-">{{ driver.project }}</md-icon>
+        <div class="md-list-item-text">
+          <h3>{{ driver.name }}</h3>
+          <span class="md-body-1 secondary-text-opacity">{{ driver.site }}</span>
+        </div>
     </md-list-item>
   </md-list>
 </md-bottom-sheet>
+
+
+<!--<md-list-item ng-repeat="driver in activeDrivers | orderBy:driver.site" class="md-2-line">
+  <md-button
+      ng-click="selectWithDriver(driver.id)"
+      class="md-list-item-content">
+    <div class="md-list-item-text">
+      <h3>{{ driver.name }}</h3>
+      <span>{{ driver.site }}</span>
+    </div>
+  </md-button>
+</md-list-item>-->
