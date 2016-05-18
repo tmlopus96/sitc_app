@@ -10,13 +10,21 @@
      <!--Material Design Colors-->
      <link rel="stylesheet" href="stylesheets/material-design-color-palette/material-design-color-palette.min.css">
      <!--Material Icons Font-->
-   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-   <!--Roboto Font-->
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
-   <!--App Stylesheet-->
-   <link rel="stylesheet" href="stylesheets/attendanceAppStylesheet.css" />
-   <!--SITC Icons Font-->
-   <link rel="stylesheet" href="images/icons/sitcIconFont/style.css"></head>
+     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+     <!--Roboto Font-->
+     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+     <!--App Stylesheet-->
+     <link rel="stylesheet" href="stylesheets/attendanceAppStylesheet.css" />
+     <!--SITC Icons Font-->
+     <link rel="stylesheet" href="images/icons/sitcIconFont/style.css">
+
+<!--
+   <script src="angular-src/angular.min.js"></script>
+   <script src="angular-src/angular-animate.min.js"></script>
+   <script src="angular-src/angular-aria.min.js"></script>
+   <script src="angular-src/angular-messages.min.js"></script>
+ -->
+
    <script src="attendanceApp.js"></script>
 </head>
 
@@ -52,8 +60,8 @@
         <span flex></span>
       </div>
     </md-toolbar>
-         <!--Note: for scrollShrink to work, the toolbar must be a sibling of a md-content element, placed before it.-->
 
+    <md-content>
       <md-tabs md-dynamic-height md-border-bottom md-center-tabs>
         <md-tab label="Registered">
           <registered persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons" active-project-sites="sites"></registered>
@@ -65,6 +73,8 @@
           <assigned persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></assigned>
         </md-tab>
       </md-tabs>
+    </md-content>
+
 
 
   </div>

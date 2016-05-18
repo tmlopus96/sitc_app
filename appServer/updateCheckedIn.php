@@ -2,8 +2,6 @@
 
   require_once 'sitc_workforce_creds.php';
 
-  echo "HELLO WORDD";
-
   $connection = new mysqli($hostname, $username, $password, $database);
   if ($connection->connect_error)
     die ($connection->connect_error);

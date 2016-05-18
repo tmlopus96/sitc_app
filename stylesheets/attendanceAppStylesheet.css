@@ -5,6 +5,11 @@
   }
 }
 
+md-toast {
+  position: fixed;
+  margin-bottom: 15px;
+}
+
 md-list {
   width:95%;
   margin: auto auto;
@@ -32,8 +37,9 @@ md-list {
 }
 
 .speedDialButton {
-  height: 36px !important;
-  width: 36px !important;
+  height: auto !important;
+  width: auto !important;
+  max-width: 36px !important;
   z-index: 0 !important;
   box-shadow: 0 0 0 0 !important;
 }
