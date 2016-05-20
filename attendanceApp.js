@@ -27,7 +27,59 @@ app.directive('checkedin', function() {
     restrict: 'E',
     scope: true,
     templateUrl: 'attendanceTabControllers/checkedIn.html',
-    controller: ['$scope', '$log', '$q', '$mdToast', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', function($scope, $log, $q, $mdToast, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator) {
+    controller: ['$scope', '$log', '$q', '$mdToast', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', function($scope, $log, $q, $mdToast, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator) {
+
+      //for anchor buttons
+      $scope.goToSectionHeader = function(sectionId) {
+        $log.log('running goToSectionHeader for section ' + sectionId)
+        var id = sectionId + "Header"
+        $location.hash(id)
+        $anchorScroll()
+      }
+
+      $scope.numCheckedIn = {
+        "all" : $scope.projectsWithPersons['all'].length,
+        "paint" : $scope.projectsWithPersons['paint'].length,
+        "plant" : $scope.projectsWithPersons['plant'].length,
+        "play" : $scope.projectsWithPersons['play'].length,
+      }
+
+      //watch the number of elements in the checked-in-persons arrays and update accordingly
+      $scope.$watch(
+        function() {
+          return $scope.projectsWithPersons['all'].length
+        },
+        function(newValue, oldValue) {
+          $scope.numCheckedIn['all'] = newValue
+        }
+      )
+
+      $scope.$watch(
+        function() {
+          return $scope.projectsWithPersons['paint'].length
+        },
+        function(newValue, oldValue) {
+          $scope.numCheckedIn['paint'] = newValue
+        }
+      )
+
+      $scope.$watch(
+        function() {
+          return $scope.projectsWithPersons['plant'].length
+        },
+        function(newValue, oldValue) {
+          $scope.numCheckedIn['plant'] = newValue
+        }
+      )
+
+      $scope.$watch(
+        function() {
+          return $scope.projectsWithPersons['play'].length
+        },
+        function(newValue, oldValue) {
+          $scope.numCheckedIn['play'] = newValue
+        }
+      )
 
       $scope.checkInPerson = function(personId, selectedProject, arrayLoc) {
 

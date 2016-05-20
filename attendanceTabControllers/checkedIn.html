@@ -1,9 +1,21 @@
 <md-content id="bodyContent">
+  <div id="anchorButtonRow" layout="row">
+    <span flex></span>
+    <div id="anchorButtonContainer" ng-repeat="(projectName, projectPersons) in projectsWithPersons">
+      <md-button ng-click="goToSectionHeader(projectName)">
+        <span class="md-subhead">{{ (projectName == 'all') ? 'Not Assigned' : projectName | titlecase }}</span>
+        <span class="md-subhead" style="font-weight:bold">({{ numCheckedIn[projectName]}})</span>
+      </md-button>
+    </div>
+    <span flex></span>
+  </div>
 
   <md-list>
     <div ng-repeat="(projectName, projectPersons) in projectsWithPersons">
-      <md-divider ng-hide="$first"></md-divider>
-      <p class="md-body-2 secondary-text-opacity" style="margin-top:10px; margin-bottom:0; padding-left:16px">{{ (projectName == 'all') ? 'No Project' : projectName | titlecase }}</p>
+      <div id="{{projectName}}Header" ng-show="numCheckedIn[projectName] > 0">
+        <md-divider ng-hide="$first"></md-divider>
+        <p class="md-body-2 secondary-text-opacity" style="margin-top:10px; margin-bottom:0; padding-left:16px">{{ (projectName == 'all') ? 'Not Assigned' : projectName | titlecase }}</p>
+      </div>
       <div ng-repeat="person in projectPersons" class="listAnimate">
         <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-show="persons[person].firstName.length > 0">
           <!--<img ng-src="{{persons[person].imgUrl}}" class="md-avatar" alt="Avatar" />-->

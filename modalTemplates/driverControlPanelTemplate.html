@@ -11,15 +11,17 @@
   <md-dialog-content style="padding:10px;">
     <md-switch ng-model="persons[driver].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
     <md-title style="padding-bottom:0;height:auto;font-size:16px;font-weight:500">Passengers</md-title>
-    <md-list style="margin-left:0">
-      <md-list-item ng-repeat="passenger in myPassengers track by $index" style="padding-left:0">
-        <span ng-class="{'secondary-text-opacity': passenger == ''}">{{ $index + 1 }}.</span>
-        <p>&ensp;{{ persons[passenger].firstName }} {{ persons[passenger].lastName }}</p>
-        <span flex></span>
-        <md-button ng-disabled="passenger == ''" ng-class="{'secondary-text-opacity': passenger == ''}" class="md-icon-button" ng-click="removePassenger(passenger)">
-          <md-icon class="material-icons">close</md-icon>
-        </md-button>
-      </md-list-item>
-    </md-list>
+    <md-content>
+      <md-list style="margin-left:0">
+        <md-list-item ng-repeat="passenger in myPassengers track by $index" style="padding-left:0">
+          <span ng-class="{'secondary-text-opacity': passenger == ''}">{{ $index + 1 }}.</span>
+          <p>&ensp;{{ persons[passenger].firstName }} {{ persons[passenger].lastName }}</p>
+          <span flex></span>
+          <md-button ng-hide="passenger == ''" class="md-icon-button secondary-text-opacity" ng-click="removePassenger(passenger)">
+            <md-icon class="material-icons">close</md-icon>
+          </md-button>
+        </md-list-item>
+      </md-list>
+    </md-content>
   </md-dialog-content>
 </md-dialog>
