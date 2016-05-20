@@ -6,7 +6,10 @@
      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.min.js"></script>
      <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
+     <!--Angular UI-->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.0/angular-ui-router.min.js"></script>
      <!--Material Design Colors-->
      <link rel="stylesheet" href="stylesheets/material-design-color-palette/material-design-color-palette.min.css">
      <!--Material Icons Font-->
@@ -61,21 +64,10 @@
       </div>
     </md-toolbar>
 
-    <md-content>
-      <md-tabs md-dynamic-height md-border-bottom md-center-tabs>
-        <md-tab label="Registered">
-          <registered persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons" active-project-sites="sites"></registered>
-        </md-tab>
-        <md-tab label="Checked-In">
-          <checkedin persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></checkedin>
-        </md-tab>
-        <md-tab label="Assigned">
-          <assigned persons="persons" registered-persons="registeredPersons" projects-with-persons="projectsWithPersons" project-sites-with-persons="projectSitesWithPersons"></assigned>
-        </md-tab>
-      </md-tabs>
-    </md-content>
+    <a ui-sref="attendance">Attendance</a>
+    <a ui-sref="attendance.registered">Registered</a>
 
-
+    <div ui-view></div>
 
   </div>
 </body>

@@ -82,3 +82,46 @@ md-list {
 .listAnimate.ng-leave.ng-leave-active {
   opacity:0;
 }
+
+/* Have to set height explicity on ui-view
+to prevent collapsing during animation*/
+.ui-view-container {
+  position: relative;
+  height:100px;
+}
+
+[ui-view].ng-enter, [ui-view].ng-leave {
+  position: absolute !important;
+  left: 0;
+  right: 0;
+  -webkit-transition:all .5s ease-in-out;
+    -moz-transition:all .5s ease-in-out;
+    -o-transition:all .5s ease-in-out;
+    transition:all .5s ease-in-out;
+}
+
+[ui-view].ng-enter {
+  z-index: 0;
+  -webkit-transform:translate3d(1000px, 0, 0);
+  -moz-transform:translate3d(1000px, 0, 0);
+  transform:translate3d(1000px, 0, 0);
+}
+
+[ui-view].ng-enter-active {
+  -webkit-transform:translate3d(0, 0, 0);
+  -moz-transform:translate3d(0, 0, 0);
+  transform:translate3d(0, 0, 0);
+}
+
+[ui-view].ng-leave {
+  z-index: 100;
+  -webkit-transform:translate3d(0, 0, 0);
+  -moz-transform:translate3d(0, 0, 0);
+  transform:translate3d(0, 0, 0);
+}
+
+[ui-view].ng-leave-active {
+  -webkit-transform:translate3d(-1000px, 0, 0);
+  -moz-transform:translate3d(-1000px, 0, 0);
+  transform:translate3d(-1000px, 0, 0);
+}
