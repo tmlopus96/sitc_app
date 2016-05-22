@@ -1,4 +1,4 @@
-<md-dialog aria-label="List dialog" style="min-width:80%">
+<md-dialog aria-label="List dialog">
   <md-toolbar>
     <div class="md-toolbar-tools primary-text-opacity">
       <h2>{{ persons[driver].firstName }} {{ persons[driver].lastName }}</h2>
@@ -8,7 +8,7 @@
       </md-button>
     </div>
   </md-toolbar>
-  <md-dialog-content style="padding:10px;">
+  <md-dialog-content>
     <md-switch ng-model="persons[driver].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
     <md-title style="padding-bottom:0;height:auto;font-size:16px;font-weight:500">Passengers</md-title>
     <md-content>

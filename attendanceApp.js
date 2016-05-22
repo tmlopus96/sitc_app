@@ -1,9 +1,9 @@
-var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute', 'ui.router'])
+var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute', 'ui.router', 'ngMessages'])
 
 app.config(function($stateProvider) {
   $stateProvider
     .state('attendance', {
-      url: '/',
+      url: '',
       templateUrl: 'attendanceView.html',
       controller: 'AttendanceController',
       data: {requireLogin: true}
@@ -30,7 +30,8 @@ app.config(function($stateProvider) {
 
     .state('goAway', {
       url: '/goAway',
-      templateUrl: '<h1>Go Away.</h1><h3>You don\'t even go here.</h3>'
+      template: '<h1>Go Away.</h1><h3>You don\'t even go here.</h3>',
+      data: {requireLogin: false}
     })
 
 })
@@ -42,39 +43,96 @@ app.config(function($mdThemingProvider) {
   })
 
 //authentication logic by Gabe Scholz on brewhouse.io
-app.run(function($rootScope) {
+app.run(function($rootScope, $state, $log, loginModal) {
 
   $rootScope.$on('$stateChangeStart', function (event, toState, toParams) {
     var requireLogin = toState.data.requireLogin;
+
+    if ($rootScope.currentUser) {
+      $log.log('current user is ' + $rootScope.currentUser)
+    }
 
     if (requireLogin && typeof $rootScope.currentUser === 'undefined') {
       event.preventDefault();
 
       loginModal()
-        .then(function() {
-          return $state.go(toState.name, toParams)
-        })
-        .catch(function() {
-          return $state.go('goAway')
-        })
+        .then(
+          function() {
+            return $state.go(toState.name, toParams)
+          },
+          function() {
+            return $state.go('goAway')
+          })
     }
   });
 
 });
 
-app.service('loginModal', function($mdDialog, $rootScope) {
+app.service('loginModal', function($mdDialog, $rootScope, $log) {
   function assignCurrentUser(user) {
+    $log.log('assignCurrentUser ran!')
     $rootScope.currentUser = user;
+    if (!localStorage.getItem("user")) {
+      var expirationDate = new Date()
+      expirationDate.setHours(24,0,0,0)
+      user['expirationDate'] = expirationDate.toString()
+
+      localStorage.setItem("user", JSON.stringify(user))
+    }
+
     return user;
   }
 
   return function() {
     return $mdDialog.show({
       templateUrl: 'modalTemplates/loginModalTemplate.html',
-      Controller: 'LoginModalController'
-    }).then(assignCurrentUser)
-  };
-});
+      clickOutsideToClose: true,
+      controller: 'LoginModalController'
+    }).then(function(user) {assignCurrentUser(user)})
+  }
+})
+
+app.factory('UserAuth', ['$http', '$q', '$log', function($http, $q, $log) {
+  var defer = $q.defer()
+
+  return function(username, password) {
+
+    $http({
+      method: "POST",
+      url: "appServer/login.php",
+      params: {
+        username: username,
+        password: password
+      }
+    }).then(
+      function(response) {
+        $log.log('response.username is ' + response.data.username)
+        defer.resolve(response.data)
+      },
+      function(error) {
+        defer.reject(error)
+      }
+    )
+
+    return defer.promise
+  }
+}])
+
+app.factory('logout', ['$rootScope', '$q', function($rootScope, $q) {
+  return function() {
+    var defer = $q.defer()
+
+    delete $rootScope.currentUser
+    localStorage.removeItem('user')
+
+    while (true) {
+      if (!$rootScope.currentUser && !localStorage.getItem('user')) {
+        defer.resolve()
+        return defer.promise
+      }
+    }
+  }
+}])
 
 app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($mdBottomSheet, $log, $q) {
 
@@ -335,10 +393,30 @@ app.factory('assignToDriver', ['$http', '$log', function($http, $log) {
 
 }])
 
-app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q', '$mdMedia', 'sitePickerGenerator', 'getActiveSites', function($scope, $http, $mdSidenav, $log, $q, $mdMedia, sitePickerGenerator, getActiveSites) {
+app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdSidenav', '$log', '$q', '$mdMedia', '$state', 'loginModal', 'logout', 'sitePickerGenerator', 'getActiveSites', function($scope, $rootScope, $http, $mdSidenav, $log, $q, $mdMedia, $state, loginModal, logout, sitePickerGenerator, getActiveSites) {
 
   $scope.screenIsXsmall = $mdMedia('xs')
   $scope.screenIsSmall = $mdMedia('sm')
+
+  if (localStorage.getItem("user")) {
+    var storedUser = JSON.parse(localStorage.getItem("user"))
+    var expirationDate = new Date(storedUser.expirationDate)
+    var now = new Date()
+    if (expirationDate.getTime() > now.getTime()) {
+      $rootScope.currentUser = storedUser
+    }
+  }
+
+  $scope.login = function() {
+    loginModal()
+  }
+
+  $scope.logout = function() {
+    logout().then(function() {
+      $scope.toggleLeftMenu()
+      loginModal()
+    })
+  }
 
   //TODO make this load from user defaults
   $scope.carpoolSites = [
@@ -355,7 +433,7 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q'
     { id: 'troy', name: 'Troy'}
   ]
 
-  //function to get URL params from Chris Coyier on css-tricks.com
+  //function to get URL params by Chris Coyier on css-tricks.com
   function getQueryVariable(variable)
   {
        var query = window.location.search.substring(1);
@@ -441,26 +519,57 @@ app.controller('IndexController', ['$scope', '$http', '$mdSidenav', '$log', '$q'
     })
   })
 
-
    $scope.toggleLeftMenu = function () {
      $mdSidenav('left').toggle();
    }
 
 }])
 
-app.controller('LoginModalController', ['$scope', '$mdDialog', function($scope, $mdDialog) {
+app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', 'UserAuth', function($scope, $mdDialog, $log, UserAuth) {
+  $log.log('LoginModalController was called!')
+
+  $scope.myUsername = ''
+  $scope.myPassword = ''
+
   $scope.cancelDialog = function() {
     $mdDialog.cancel()
   }
 
-  $scope.submit = function(email, password) {
-    
+  $scope.submit = function(username, password) {
+    $log.log('form submitted!')
+
+    UserAuth(username, password).then(
+      function success(response) {
+        $mdDialog.hide(response)
+      },
+      function failure(error) {
+        if (error == "usernameNotFound") {
+          $scope.message = "Oops, no matches found for this username. Check your username and try again."
+        } else if (error == "passwordIncorrect") {
+          $scope.message = "Password doesn't look right. Check password and try again."
+        }
+      }
+    )
   }
 }])
 
-app.controller('AttendanceController', ['$scope', '$state', function($scope, $state) {
- $scope.gotoTab = function(destinationTab) {
-   $state.go('attendance.'+destinationTab)
+app.controller('AttendanceController', ['$scope', '$state', '$location', '$log', function($scope, $state, $location, $log) {
+  $scope.currentState = $state.current.name
+  $log.log('state is ' + $scope.currentState)
+
+  $scope.stateIndexes = {
+    'attendance.registered': 0,
+    'attendance.checkedIn': 1,
+    'attendance.assigned': 2
+  }
+
+  $log.log('hash is ' + $location.hash())
+  if ($location.hash() == '' || $location.hash() == '/') {
+    $state.go('attendance.registered')
+  }
+
+  $scope.gotoTab = function(destinationTab) {
+    $state.go('attendance.'+destinationTab)
  }
 }])
 

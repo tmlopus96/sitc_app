@@ -15,6 +15,14 @@ md-list {
   margin: auto auto;
 }
 
+md-dialog {
+  min-width: 80%;
+}
+
+md-dialog-content {
+  padding: 10px;
+}
+
 .primary-text-opacity {
   color: white;
 }
@@ -64,6 +72,10 @@ md-list {
 
 .iconSetContainer {
   margin:auto auto;
+}
+
+.sidebar_userText {
+  line-height: 14px;
 }
 
 /* now the element will fade out before it is removed from the DOM */
