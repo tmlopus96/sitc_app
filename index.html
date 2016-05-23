@@ -55,7 +55,7 @@
       <md-content layout-padding>
         <md-input-container>
           <label>Carpool Site</label>
-          <md-select ng-model="tomsTitle">
+          <md-select ng-model="carpoolSite" md-on-close="reconfigPersonsContainers()">
             <md-option ng-repeat="site in carpoolSites" ng-value="site.id">{{ site.name }}</md-option>
           </md-select>
         </md-input-container>
@@ -74,9 +74,6 @@
         <span flex></span>
       </div>
     </md-toolbar>
-
-    <a ui-sref="attendance">Attendance</a>
-    <a ui-sref="attendance.registered">Registered</a>
 
     <div ui-view></div>
 

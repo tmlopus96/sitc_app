@@ -71,8 +71,16 @@ app.run(function($rootScope, $state, $log, loginModal) {
 app.service('loginModal', function($mdDialog, $rootScope, $log) {
   function assignCurrentUser(user) {
     $log.log('assignCurrentUser ran!')
-    $rootScope.currentUser = user;
-    if (!localStorage.getItem("user")) {
+    $rootScope.currentUser = user
+    var cookieHasExpired = false
+    if (localStorage.getItem("user")) {
+      var userInfo = JSON.parse(localStorage.getItem("user"))
+      var currentExpirationDate = new Date()
+      var now = new Date()
+      cookieHasExpired = currentExpirationDate.getTime() < now.getTime()
+    }
+
+    if (cookieHasExpired || !localStorage.getItem("user")) {
       var expirationDate = new Date()
       expirationDate.setHours(24,0,0,0)
       user['expirationDate'] = expirationDate.toString()
@@ -261,11 +269,16 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
 
 app.factory('getActiveSites', ['$http', '$log', '$q', function($http, $log, $q) {
   var haveLoadedSites = false;
+  var lastLoadedCarpoolSite = ''
   var activePlaySites = {};
   var activePlantSites = {};
   var activePaintSites = {};
 
   function getSitesPromise(carpoolSite, selectedProject) {
+      if (typeof deferred === 'undefined') {
+        $log.log('deferred is defined; should be deleted')
+        delete deferred;
+      }
       var deferred = $q.defer()
 
       return $http({
@@ -335,9 +348,10 @@ app.factory('getActiveSites', ['$http', '$log', '$q', function($http, $log, $q) 
 
   return function(carpoolSite, selectedProject) {
 
-    if (haveLoadedSites == true) {
+    if (haveLoadedSites == true && lastLoadedCarpoolSite == carpoolSite) {
       return returnSites(selectedProject)
     } else {
+      lastLoadedCarpoolSite = carpoolSite
       var defer = $q.defer()
       $log.log('gettingSites!')
       var promise = getSitesPromise(carpoolSite, selectedProject)
@@ -393,8 +407,9 @@ app.factory('assignToDriver', ['$http', '$log', function($http, $log) {
 
 }])
 
-app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdSidenav', '$log', '$q', '$mdMedia', '$state', 'loginModal', 'logout', 'sitePickerGenerator', 'getActiveSites', function($scope, $rootScope, $http, $mdSidenav, $log, $q, $mdMedia, $state, loginModal, logout, sitePickerGenerator, getActiveSites) {
+app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', '$mdSidenav', '$log', '$q', '$mdMedia', '$state', 'loginModal', 'logout', 'sitePickerGenerator', 'getActiveSites', function($scope, $rootScope, $http, $mdToast, $mdSidenav, $log, $q, $mdMedia, $state, loginModal, logout, sitePickerGenerator, getActiveSites) {
 
+  //---Controller initialization logic
   $scope.screenIsXsmall = $mdMedia('xs')
   $scope.screenIsSmall = $mdMedia('sm')
 
@@ -406,6 +421,11 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdSidenav'
       $rootScope.currentUser = storedUser
     }
   }
+
+  $scope.carpoolSite = 'aa'
+
+  //---end ctrler init logic
+
 
   $scope.login = function() {
     loginModal()
@@ -445,79 +465,86 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdSidenav'
        return(false);
   }
 
-  $scope.carpoolSite = getQueryVariable("carpoolSite")
+  $scope.personsContainersConfig = function() {
+    //containers for persons
+    $scope.persons = {};
+    $scope.drivers = {}
+    $scope.projectSites = {}
+    //TODO have active projects and sites dynamically load from logistics report
+    $scope.registeredPersons = [];
+    $scope.projectsWithPersons = {all: [], paint: [], plant: [], play: []}
+    $scope.projectSitesWithPersons = {} //{nwac: [], clarkPark: [], delray: [], hamtramck: []};}
 
-  //containers for persons
-  $scope.persons = {};
-  $scope.drivers = {}
-  $scope.projectSites = {}
-  //TODO have active projects and sites dynamically load from logistics report
-  $scope.registeredPersons = [];
-  $scope.projectsWithPersons = {all: [], paint: [], plant: [], play: []}
-  $scope.projectSitesWithPersons = {} //{nwac: [], clarkPark: [], delray: [], hamtramck: []};
-
-  var activeSitesPromise = getActiveSites($scope.carpoolSite, "all")
-  activeSitesPromise.then(function mySuccess(activeSites) {
-    var defer = $q.defer()
-    //Put each site into projectSitesWithPersons obj
-    Object.keys(activeSites).forEach(function(id, index, allIds) {
-      $scope.projectSitesWithPersons[id] = new Array()
-      $scope.projectSites[id] = activeSites[id]
-      $log.log('forEach running')
-      if (index === allIds.length-1) { //if last iteration, resolve promise
-        defer.resolve()
-        $log.log('last iteration; returned promise!')
-      }
-    })
-    return defer.promise
-  }).then(function() {
-    //after sites in place, then load ppl
-    $http({
-      method: "GET",
-      url: "appServer/getRegistered.php",
-      params: {carpoolSite: $scope.carpoolSite}
-    }).then(function mySuccess(response) {
-      //$scope.persons = response.data;
-      response.data.forEach(function(currentPerson) {
-        switch (currentPerson["preferredProject"]) {
-          case "paint":
-             currentPerson["projectIcon"] = "paint_icon.svg"
-             break
-           case "plant":
-             currentPerson["projectIcon"] = "plant_icon.svg"
-             break
-           case "play":
-             currentPerson["projectIcon"] = "play_icon.svg"
-           default:
-             currentPerson["projectIcon"] = "all_projects_icon.svg"
+    var activeSitesPromise = getActiveSites($scope.carpoolSite, "all")
+    activeSitesPromise.then(function mySuccess(activeSites) {
+      var defer = $q.defer()
+      //Put each site into projectSitesWithPersons obj
+      Object.keys(activeSites).forEach(function(id, index, allIds) {
+        $scope.projectSitesWithPersons[id] = new Array()
+        $scope.projectSites[id] = activeSites[id]
+        $log.log('forEach running')
+        if (index === allIds.length-1) { //if last iteration, resolve promise
+          defer.resolve()
+          $log.log('last iteration; returned promise!')
         }
-        var myId = currentPerson["person_id"];
-        //set up drivers obj
-        if (currentPerson["driverStatus"] == 'isDriver') {
-          $scope.drivers[myId] = {
-            "numSeatbelts": currentPerson.numSeatbelts,
-            "passengers": [],
-            "carMake": currentPerson.carMake,
+      })
+      return defer.promise
+    }).then(function() {
+      //after sites in place, then load ppl
+      $http({
+        method: "GET",
+        url: "appServer/getRegistered.php",
+        params: {carpoolSite: $scope.carpoolSite}
+      }).then(function mySuccess(response) {
+        //$scope.persons = response.data;
+        response.data.forEach(function(currentPerson) {
+          switch (currentPerson["preferredProject"]) {
+            case "paint":
+               currentPerson["projectIcon"] = "paint_icon.svg"
+               break
+             case "plant":
+               currentPerson["projectIcon"] = "plant_icon.svg"
+               break
+             case "play":
+               currentPerson["projectIcon"] = "play_icon.svg"
+             default:
+               currentPerson["projectIcon"] = "all_projects_icon.svg"
           }
-        } else if (currentPerson['assignedToDriver_id'] != 0 && currentPerson['assignedToDriver_id'] != null) {
-          $log.log('assigned one passenger!')
-          $scope.drivers[currentPerson["assignedToDriver_id"]].passengers.push(myId)
-        }
+          var myId = currentPerson["person_id"];
+          //set up drivers obj
+          if (currentPerson["driverStatus"] == 'isDriver') {
+            $scope.drivers[myId] = {
+              "numSeatbelts": currentPerson.numSeatbelts,
+              "passengers": [],
+              "carMake": currentPerson.carMake,
+            }
+          } else if (currentPerson['assignedToDriver_id'] != 0 && currentPerson['assignedToDriver_id'] != null) {
+            $log.log('assigned one passenger!')
+            $scope.drivers[currentPerson["assignedToDriver_id"]].passengers.push(myId)
+          }
 
-        $scope.persons[myId] = currentPerson;
-        if ($scope.persons[myId].assignedToSite_id != null) {
-          $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
-        } else if ($scope.persons[myId].assignedToProject != null) {
-          $scope.projectsWithPersons[$scope.persons[myId].assignedToProject].push(myId)
-        } else {
-          $scope.registeredPersons.push(myId)
-        }
+          $scope.persons[myId] = currentPerson;
+          if ($scope.persons[myId].assignedToSite_id != null) {
+            $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
+          } else if ($scope.persons[myId].assignedToProject != null) {
+            $scope.projectsWithPersons[$scope.persons[myId].assignedToProject].push(myId)
+          } else {
+            $scope.registeredPersons.push(myId)
+          }
 
-      });
-      // MARK debug statement
-      //$log.log('mySuccess ran! person 1 is ' + $scope.persons[0].firstName);
+        });
+        // MARK debug statement
+        //$log.log('mySuccess ran! person 1 is ' + $scope.persons[0].firstName);
+      })
     })
-  })
+  }
+
+  $scope.personsContainersConfig()
+
+  $scope.reconfigPersonsContainers = function() {
+    $scope.personsContainersConfig()
+    $mdToast.showSimple('Loaded carpool site ' + $scope.carpoolSite)
+  }
 
    $scope.toggleLeftMenu = function () {
      $mdSidenav('left').toggle();
