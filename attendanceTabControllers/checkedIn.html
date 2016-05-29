@@ -10,7 +10,7 @@
     <span flex></span>
   </div>
 
-  <md-list>
+  <md-list class="personsList">
     <div ng-repeat="(projectName, projectPersons) in projectsWithPersons">
       <div id="{{projectName}}Header" ng-show="numCheckedIn[projectName] > 0">
         <md-divider ng-hide="$first"></md-divider>
@@ -46,13 +46,13 @@
                 </md-fab-trigger>
                 <div>
                   <md-fab-actions>
-                    <md-button aria-label="Add" ng-click="checkInPerson(person, 'paint', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-button aria-label="Add" id="speedDialActionButton_first" ng-click="checkInPerson(person, 'paint', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
                       <md-icon class="sitc-icon-" style="color:white;" aria-label="Paint">paint</md-icon>
                     </md-button>
-                    <md-button aria-label="Insert Link" ng-click="checkInPerson(person, 'plant', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-button aria-label="Insert Link" id="speedDialActionButton_second" ng-click="checkInPerson(person, 'plant', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
                       <md-icon class="sitc-icon-" style="color:white;" aria-label="Plant">plant</md-icon>
                     </md-button>
-                    <md-button aria-label="Edit" ng-click="checkInPerson(person, 'play', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-button aria-label="Edit" id="speedDialActionButton_third" ng-click="checkInPerson(person, 'play', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
                       <md-icon class="sitc-icon-" style="color:white;" aria-label="Play">play</md-icon>
                     </md-button>
                   </md-fab-actions>

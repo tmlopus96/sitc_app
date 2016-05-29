@@ -1,5 +1,5 @@
 <md-content id="bodyContent">
-    <md-list>
+    <md-list class="personsList">
 
       <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="person in registeredPersons">
        <img ng-src="{{persons[person].imgUrl}}" class="md-avatar" alt="Avatar" />
@@ -18,21 +18,21 @@
        <div flex class="listIconContainer" layout="row" layout-align="end center">
           <md-fab-speed-dial flex class="md-fling md-secondary" md-direction="left" md-open="speedDialIsOpen" ng-cloak>
              <md-fab-trigger>
-                <md-button ng-show="speedDialIsOpen" aria-label="menu" class="md-fab speedDialButton md-primary" ng-click="checkInPerson(persons[person].person_id, 'all')">
+                <md-button ng-show="speedDialIsOpen" aria-label="menu" class="md-fab speedDialButton md-primary" ng-click="checkInPerson(persons[person].person_id, 'all')" style="z-index:100 !important">
                    <md-icon class="sitc-icon-" style="color:white">all</md-icon>
                 </md-button>
-                <md-button ng-show="!speedDialIsOpen" aria-label="menu" class="md-fab speedDialButton md-primary">
+                <md-button ng-show="!speedDialIsOpen" aria-label="menu" class="md-fab speedDialButton md-primary" style="z-index:100 !important">
                    <md-icon class="material-icons.md-18" style="color:white;">assignment_turned_in</md-icon>
                 </md-button>
              </md-fab-trigger>
              <md-fab-actions>
-                <md-button aria-label="Add" ng-click="checkInPerson(persons[person].person_id, 'paint')" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                <md-button aria-label="Add" id="speedDialActionButton_first" ng-click="checkInPerson(persons[person].person_id, 'paint')" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Paint">paint</md-icon>
                 </md-button>
-                <md-button aria-label="Insert Link" ng-click="checkInPerson(persons[person].person_id, 'plant')" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                <md-button aria-label="Insert Link" id="speedDialActionButton_second" ng-click="checkInPerson(persons[person].person_id, 'plant')" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Plant">plant</md-icon>
                 </md-button>
-                <md-button aria-label="Edit" ng-click="checkInPerson(persons[person].person_id, 'play')" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                <md-button aria-label="Edit" id="speedDialActionButton_third" ng-click="checkInPerson(persons[person].person_id, 'play')" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Play">play</md-icon>
                 </md-button>
              </md-fab-actions>
