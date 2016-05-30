@@ -173,6 +173,40 @@ app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($md
   }
 }])
 
+app.factory('assignedSitePickerGenerator', ['$mdBottomSheet', '$log', '$q', '$mdToast', function($mdBottomSheet, $log, $q, $mdToast) {
+
+  return function(myId, currentSiteName, $scope) {
+    var defer = $q.defer()
+
+    $mdBottomSheet.show({
+      templateUrl: 'modalTemplates/assignedSitePickerSheetTemplate.html',
+      scope: $scope,
+      controller: 'AssignedSitePickerSheetController',
+      locals: {
+        id: myId,
+        currentSiteName: currentSiteName
+      },
+      parent: angular.element(document.body)
+    }).then(function(action) {
+      function generateMessage(action) {
+        var name = $scope.persons[id].firstName
+
+        var messages = {
+          removeSite: "Removed " + name + "'s site assignement.",
+          removeProject: "Removed " + name + "'s project assignment.",
+          checkOut: "Checked out " + name + "."
+        }
+
+        return messages[action]
+      }
+
+      $mdToast.showSimple(generateMessage(action))
+    })
+
+    return defer.promise
+  }
+}])
+
 app.factory('driverPickerGenerator', ['$q', '$log', '$mdBottomSheet', function($q, $log, $mdBottomSheet) {
 
   return function(activeDrivers) {
@@ -392,6 +426,18 @@ app.factory('updateCheckedIn', ['$http', '$log', '$q', function($http, $log, $q)
       method: "GET",
       url: "appServer/updateCheckedIn.php",
       params: valuesToUpdate
+    });
+  }
+}])
+
+app.factory('checkOut', ['$http', '$log', '$q', function($http, $log, $q) {
+
+  return function(personId) {
+
+    $http({
+      method: "GET",
+      url: "appServer/checkOut.php",
+      params: {id: personId}
     });
   }
 }])
@@ -931,7 +977,7 @@ app.controller('RegisteredController', ['$scope', '$log', '$q', 'sitePickerGener
    }])
 
 
-app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$location', '$anchorScroll', '$rootScope', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getActiveSites', function($scope, $log, $q, $mdToast, $location, $anchorScroll, $rootScope, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getActiveSites) {
+app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$location', '$anchorScroll', '$rootScope', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getActiveSites', 'assignedSitePickerGenerator', function($scope, $log, $q, $mdToast, $location, $anchorScroll, $rootScope, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getActiveSites, assignedSitePickerGenerator) {
 
      function hideSpeedDialButtons(){
          var speedDialButton_first = angular.element(document.querySelectorAll('#speedDialActionButton_first')).parent()//speedDialActionButtonsContainer.eq(0)
@@ -959,99 +1005,93 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
        $anchorScroll()
      }
 
-     $scope.activeSites = {
-       'paint': [],
-       'plant': [],
-       'play': []
-     }
+     //--- Declare and init activeSites container
+       $scope.activeSites = {
+         'paint': [],
+         'plant': [],
+         'play': []
+       }
 
-     //populate activeSites
-     getActiveSites($rootScope.myCarpoolSite, 'paint').then(function(sites) {
-       $log.log('updated activeSites[paint]')
-       /*var activeSiteIds = []
-       Object.keys(sites).forEach(function(id) {
-         activeSiteIds.push(id)
-       })*/
-       $scope.activeSites['paint'] = sites
-       //$log.log('$scope.activeSites.paint[denby].name = ' + $scope.activeSites.paint['denby'].name)
-     })
+       getActiveSites($rootScope.myCarpoolSite, 'paint').then(function(sites) {
+         $log.log('updated activeSites[paint]')
+         /*var activeSiteIds = []
+         Object.keys(sites).forEach(function(id) {
+           activeSiteIds.push(id)
+         })*/
+         $scope.activeSites['paint'] = sites
+         //$log.log('$scope.activeSites.paint[denby].name = ' + $scope.activeSites.paint['denby'].name)
+       })
 
-     getActiveSites($rootScope.myCarpoolSite, 'plant').then(function(sites) {
-       $log.log('updated activeSites[plant]')
-       /*var activeSiteIds = []
-       Object.keys(sites).forEach(function(id) {
-         activeSiteIds.push(id)
-       })*/
-       $scope.activeSites['plant'] = sites
-     })
+       getActiveSites($rootScope.myCarpoolSite, 'plant').then(function(sites) {
+         $log.log('updated activeSites[plant]')
+         /*var activeSiteIds = []
+         Object.keys(sites).forEach(function(id) {
+           activeSiteIds.push(id)
+         })*/
+         $scope.activeSites['plant'] = sites
+       })
 
-     getActiveSites($rootScope.myCarpoolSite, 'play').then(function(sites) {
-       $log.log('updated activeSites[plant]')
-       /*var activeSiteIds = []
-       Object.keys(sites).forEach(function(id) {
-         activeSiteIds.push(id)
-       })*/
-       $scope.activeSites['play'] = sites
-     })
+       getActiveSites($rootScope.myCarpoolSite, 'play').then(function(sites) {
+         $log.log('updated activeSites[plant]')
+         /*var activeSiteIds = []
+         Object.keys(sites).forEach(function(id) {
+           activeSiteIds.push(id)
+         })*/
+         $scope.activeSites['play'] = sites
+       })
 
-     //numCheckedIn vars
-     $scope.numCheckedInForProject = function(project, getOnly) {
-       //var numCheckedIntoProj = 0
-       var numCheckedIntoProj = (getOnly)? 0 : $scope.numCheckedIn[project]
-       var numInThisProj = 0
+     $scope.numCheckedInForProject = function(project) {
+       var numCheckedIntoProj = 0
+       var numInThisProjSite = 0
        Object.keys($scope.activeSites[project]).forEach(function(siteId) {
-          $log.log('numCheckedInForProject: numInThisProj[' + project + '] for numCheckedIntoProj is ' + numInThisProj)
-          numInThisProj = $scope.projectSitesWithPersons[siteId].length
-          numCheckedIntoProj += numInThisProj
+          numInThisProjSite = $scope.projectSitesWithPersons[siteId].length
+          $log.log('--numCheckedInForProject: numInThisProjSite[' + siteId + '] for numCheckedIntoProj is ' + numInThisProjSite)
+          numCheckedIntoProj += numInThisProjSite
         })
        $log.log('numCheckedInto ' + project + ' is ' + $scope.numCheckedIn[project])
        return numCheckedIntoProj
      }
 
-     $scope.numCheckedIn = {
-       "paint" : 0, //$scope.numCheckedInForProject('paint'),
-       "plant" : 0, //$scope.numCheckedInForProject('plant'),
-       "play" : 0 //$scope.numCheckedInForProject('play')
-     }
+     //--- declare and init numCheckedIn container
+       $scope.numCheckedIn = {
+         "paint" : [],
+         "plant" : [],
+         "play" : []
+       }
 
-     //$log.log('***$scope.numCheckedInForProject(paint) = ' + $scope.numCheckedInForProject('play'))
+       $scope.numCheckedIn["paint"] = $scope.numCheckedInForProject('paint')
+       $scope.numCheckedIn["plant"] = $scope.numCheckedInForProject('plant')
+       $scope.numCheckedIn["play"] = $scope.numCheckedInForProject('play')
 
 
-     //watch the number of elements in the checked-in-persons arrays and update accordingly
-     $scope.$watch(function() {
-       $log.log('###ran watch function for numCheckedIn with numCheckedInForProject=' + $scope.numCheckedInForProject('paint', true))
-       var num = $scope.numCheckedInForProject('paint', true)
-       return num
-     }, function(newValue, oldValue) {
-         $log.log('updating num checked in for plant with oldValue ' + oldValue + ' and newValue ' + newValue)
-         $log.log('***$scope.numCheckedInForProject(paint) = ' + $scope.numCheckedInForProject('paint', true))
-         //$scope.numCheckedIn['paint'] = $scope.numCheckedInForProject('paint')
-         $scope.numCheckedInForProject('paint', false)
-         $log.log('---$scope.numCheckedIn[paint] is ' + $scope.numCheckedInForProject('paint', true))
+     //--- watch the number of elements in the checked-in-persons arrays and update accordingly
+       $scope.$watch(function() {
+         return $scope.numCheckedInForProject('paint')
+       },
+       function(newVal, oldVal) {
+         $log.log('*** Watch callback for numCheckIn ran with oldVal ' + oldVal + ' and newVal ' + newVal)
+         $scope.numCheckedIn['paint'] = newVal
        }
      )
-/*
-     $scope.$watch(
-       function() {
 
+       $scope.$watch(function() {
          return $scope.numCheckedInForProject('plant')
        },
-       function(newValue, oldValue) {
-         $log.log('updating num checked in for plant with oldValue ' + oldValue + ' and newValue ' + newValue)
-         $scope.numCheckedIn['plant'] = $scope.numCheckedInForProject('plant')
+       function(newVal, oldVal) {
+         $log.log('*** Watch callback for numCheckIn ran with oldVal ' + oldVal + ' and newVal ' + newVal)
+         $scope.numCheckedIn['plant'] = newVal
        }
      )
 
-     $scope.$watch(
-       function() {
+       $scope.$watch(function() {
          return $scope.numCheckedInForProject('play')
        },
-       function(newValue, oldValue) {
-         $log.log('updating num checked in for play with oldValue ' + oldValue + ' and newValue ' + newValue)
-         $scope.numCheckedIn['play'] = $scope.numCheckedInForProject('play')
+       function(newVal, oldVal) {
+         $log.log('*** Watch callback for numCheckIn ran with oldVal ' + oldVal + ' and newVal ' + newVal)
+         $scope.numCheckedIn['play'] = newVal
        }
      )
-  */
+   //--- end watch functions
 
 
      $scope.checkInPerson = function(personId, selectedProject, arrayLoc) {
@@ -1086,6 +1126,10 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
          var personIndex = $scope.projectsWithPersons[arrayLoc].indexOf(personId)
          $scope.projectsWithPersons[arrayLoc].splice(personIndex, 1)
        })
+     }
+
+     $scope.getAssignedSitePicker = function(id, siteName) {
+       assignedSitePickerGenerator(id, siteName, $scope)
      }
 
      //--- Driver business
@@ -1190,6 +1234,59 @@ app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet',
     $log.log('selectedSite is ' + selectedSite["name"])
     $mdBottomSheet.hide(selectedSite);
   };
+}])
+
+app.controller('AssignedSitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', 'getActiveSites', '$rootScope', 'updateCheckedIn', 'checkOut', 'id', 'currentSiteName', function($scope, $log, $mdBottomSheet, getActiveSites, $rootScope, updateCheckedIn, checkOut, id, currentSiteName) {
+
+  $scope.id = id
+  $scope.currentSiteName = currentSiteName
+
+  $scope.removeAssignment = function(removeSite, removeProject) {
+
+    valuesToUpdate = {
+      "id" : $scope.id,
+      "carpoolSite" : $rootScope.myCarpoolSite,
+      "site" : ''
+    }
+
+    if (removeProject) {
+      valuesToUpdate["project"] = ''
+    }
+
+    updateCheckedIn($scope.id, valuesToUpdate)
+
+
+    //update persons containers
+    if (removeSite) {
+      var site = $scope.persons[$scope.id].assignedToSite_id
+      var index = $scope.projectSitesWithPersons[site].indexOf($scope.id)
+      $scope.projectSitesWithPersons[site].splice(index, 1)
+      $scope.persons[$scope.id].assignedToSite_id = ''
+
+      var project = $scope.persons[$scope.id].assignedToProject
+      $scope.projectsWithPersons[project].push($scope.id)
+    }
+
+    if (removeProject) {
+      var project = $scope.persons[$scope.id].assignedToProject
+      var index = $scope.projectsWithPersons[project].indexOf($scope.id)
+      $scope.projectsWithPersons[project].splice(index, 1)
+      $scope.persons[$scope.id].assignedToProject = 'all'
+    }
+
+    $mdBottomSheet.hide(selectedSite);
+  }
+
+  $scope.checkOut = function() {
+    $scope.removeAssignment(true, true)
+    checkOut($scope.id)
+
+    var projIndex = $scope.projectsWithPersons['all'].indexOf(id)
+    $scope.projectsWithPersons['all'].splice(index, 1)
+
+    $scope.registeredPersons.push(id)
+  }
+
 }])
 
 // filter by jeffjohnson9046 on GitHub

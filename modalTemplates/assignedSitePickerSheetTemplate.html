@@ -1,0 +1,31 @@
+<md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0" ng-cloak>
+  <md-subheader>Edit {{ persons[id].firstName }}'s assignment</md-subheader>
+  <p class="md-body-2 secondary-text-opacity">
+    Current Assignment: {{ persons[id].assignedToProject }}, {{ currentSiteName }}
+  </p>
+  <md-list>
+    <md-list-item>
+      <md-button
+          ng-click="removeAssignment(true, false)"
+          class="md-list-item-content">
+        <md-icon class="sitc-icon-" aria-label="{{persons[id].assignedToProject}} icon">{{ persons[id].assignedToProject }}</md-icon>
+        <span class="md-inline-list-icon-label">Remove site assignment</span>
+      </md-button>
+    </md-list-item>
+    <md-list-item>
+      <md-button
+          ng-click="removeAssignment(true, true)"
+          class="md-list-item-content">
+        <md-icon class="sitc-icon-" aria-label="All Projects Icon">all</md-icon>
+        <span class="md-inline-list-icon-label">Remove project assignment</span>
+      </md-button>
+    </md-list-item>
+  </md-list-item>
+  <md-list-item class="md-2-line md-ink-ripple md-warn" ng-click="checkOut()">
+    <md-icon class="material-icons">close</md-icon>
+    <div class="md-list-item-text">
+      <h3 style="font-weight:bold">Check Out</h3>
+    </div>
+  </md-list-item>
+  </md-list>
+</md-bottom-sheet>
