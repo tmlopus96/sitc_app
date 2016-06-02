@@ -9,6 +9,7 @@
   $id = isset($_GET["id"]) ? sanitize($_GET["id"]) : "";
   $carpoolSite = isset($_GET["carpoolSite"]) ? sanitize($_GET["carpoolSite"]) : "";
   $project = isset($_GET["project"]) ? sanitize($_GET["project"]) : "";
+  $projectRaw = isset($_GET["project"]) ? $_GET["project"] : "";
   $site = isset($_GET["site"]) ? sanitize($_GET["site"]) : "";
   $driverStatus = isset($_GET["driverStatus"]) ? sanitize($_GET["driverStatus"]) : "";
   $assignedToDriver = isset($_GET["assignedToDriver"]) ? sanitize($_GET["assignedToDriver"]) : "";
@@ -18,11 +19,18 @@
   $queryValues = [$id, $carpoolSite];
   $updateClauses = [];
   if ($project != "" && $project != null) {
+    if ($project == "NULL") {
+      echo 'project is NULL';
+      $project = '';
+    } //value they are given by removeAssignment in AssignedSitePickerSheetController
     array_push($queryFields, 'assignedToProject');
     array_push($queryValues, $project);
     array_push($updateClauses, "assignedToProject='" . $project . "'");
   }
   if ($site != "" && $site != null) {
+    if ($site == "NULL") {
+      $site = '';
+    } //value they are given by removeAssignment in AssignedSitePickerSheetController
     array_push($queryFields, "assignedToSite_id");
     array_push($queryValues, $site);
     array_push($updateClauses, "assignedToSite_id='" . $site . "'");

@@ -175,25 +175,28 @@ app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($md
 
 app.factory('assignedSitePickerGenerator', ['$mdBottomSheet', '$log', '$q', '$mdToast', function($mdBottomSheet, $log, $q, $mdToast) {
 
-  return function(myId, currentSiteName, $scope) {
+  return function(id, currentSiteName, $scope) {
+    var myId = id
+
     var defer = $q.defer()
 
     $mdBottomSheet.show({
       templateUrl: 'modalTemplates/assignedSitePickerSheetTemplate.html',
-      scope: $scope,
       controller: 'AssignedSitePickerSheetController',
       locals: {
+        parentScope: $scope,
         id: myId,
         currentSiteName: currentSiteName
       },
       parent: angular.element(document.body)
     }).then(function(action) {
       function generateMessage(action) {
-        var name = $scope.persons[id].firstName
+        var name = $scope.persons[myId].firstName
 
         var messages = {
-          removeSite: "Removed " + name + "'s site assignement.",
-          removeProject: "Removed " + name + "'s project assignment.",
+          site: "Removed " + name + "'s site assignement.",
+          project: "Removed " + name + "'s project assignment.",
+          siteAndProject: "Removed " + name + "'s site and project assignements",
           checkOut: "Checked out " + name + "."
         }
 
@@ -544,9 +547,9 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
           }
 
           $scope.persons[myId] = currentPerson;
-          if ($scope.persons[myId].assignedToSite_id != null) {
+          if ($scope.persons[myId].assignedToSite_id != null && $scope.persons[myId].assignedToSite_id != '') {
             $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
-          } else if ($scope.persons[myId].assignedToProject != null) {
+          } else if ($scope.persons[myId].assignedToProject != null && $scope.persons[myId].assignedToProject != '') {
             $scope.projectsWithPersons[$scope.persons[myId].assignedToProject].push(myId)
           } else {
             $scope.registeredPersons.push(myId)
@@ -753,7 +756,8 @@ app.controller('RegisteredController', ['$scope', '$log', '$q', 'sitePickerGener
         var valuesToUpdate = {"id":personId, "carpoolSite":$scope.carpoolSite, "project":selectedProject}
 
         if (selectedProject == 'all') {
-          $scope.projectsWithPersons['all'].push(personId);
+          $scope.projectsWithPersons['all'].push(personId)
+          $scope.persons[personId].assignedToProject = 'all'
           deferred.resolve(valuesToUpdate)
         } else {
           var promise = sitePickerGenerator($scope.carpoolSite, selectedProject)
@@ -761,11 +765,14 @@ app.controller('RegisteredController', ['$scope', '$log', '$q', 'sitePickerGener
             if (selectedSite == 'allSites') {
               $log.log("selectedSite" + selectedSite)
               $scope.projectsWithPersons[selectedProject].push(personId)
+              $scope.persons[personId].assignedToProject = selectedProject
               deferred.resolve(valuesToUpdate)
             }
             else {
               $log.log('**selectedSite is' + selectedSite)
               $scope.projectSitesWithPersons[selectedSite].push(personId)
+              $scope.persons[personId].assignedToProject = selectedProject
+              $scope.persons[personId].assignedToSite_id = selectedSite
               valuesToUpdate["site"] = selectedSite;
               deferred.resolve(valuesToUpdate)
             }
@@ -780,7 +787,6 @@ app.controller('RegisteredController', ['$scope', '$log', '$q', 'sitePickerGener
       promise.then(function(valuesToUpdate) {
         $log.log("site to update: " + valuesToUpdate["site"])
         updateCheckedIn(personId, valuesToUpdate)
-        $scope.persons[personId].assignedToProject = 'all'
         var personIndex = $scope.registeredPersons.indexOf(personId)
         $scope.registeredPersons.splice(personIndex, 1)
       })
@@ -1045,7 +1051,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
        var numInThisProjSite = 0
        Object.keys($scope.activeSites[project]).forEach(function(siteId) {
           numInThisProjSite = $scope.projectSitesWithPersons[siteId].length
-          $log.log('--numCheckedInForProject: numInThisProjSite[' + siteId + '] for numCheckedIntoProj is ' + numInThisProjSite)
+          //$log.log('--numCheckedInForProject: numInThisProjSite[' + siteId + '] for numCheckedIntoProj is ' + numInThisProjSite)
           numCheckedIntoProj += numInThisProjSite
         })
        $log.log('numCheckedInto ' + project + ' is ' + $scope.numCheckedIn[project])
@@ -1069,7 +1075,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
          return $scope.numCheckedInForProject('paint')
        },
        function(newVal, oldVal) {
-         $log.log('*** Watch callback for numCheckIn ran with oldVal ' + oldVal + ' and newVal ' + newVal)
+         //$log.log('*** Watch callback for numCheckIn ran with oldVal ' + oldVal + ' and newVal ' + newVal)
          $scope.numCheckedIn['paint'] = newVal
        }
      )
@@ -1078,7 +1084,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
          return $scope.numCheckedInForProject('plant')
        },
        function(newVal, oldVal) {
-         $log.log('*** Watch callback for numCheckIn ran with oldVal ' + oldVal + ' and newVal ' + newVal)
+         //$log.log('*** Watch callback for numCheckIn ran with oldVal ' + oldVal + ' and newVal ' + newVal)
          $scope.numCheckedIn['plant'] = newVal
        }
      )
@@ -1103,12 +1109,12 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
            var promise = sitePickerGenerator($scope.carpoolSite, selectedProject)
            promise.then(function(selectedSite) {
              if (selectedSite == 'allSites') {
-               $log.log("selectedSite" + selectedSite)
+               //$log.log("selectedSite" + selectedSite)
                $scope.projectsWithPersons[selectedProject].push(personId)
                $scope.persons[personId].assignedToProject = selectedProject
                deferred.resolve(valuesToUpdate)
              } else {
-               $log.log('**selectedSite is' + selectedSite)
+               //$log.log('**selectedSite is' + selectedSite)
                $scope.projectSitesWithPersons[selectedSite].push(personId)
                $scope.persons[personId].assignedToSite_id = selectedSite
                valuesToUpdate["site"] = selectedSite;
@@ -1121,7 +1127,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
 
        var promise = updateArrays();
        promise.then(function(valuesToUpdate) {
-         $log.log("site to update: " + valuesToUpdate["site"])
+         //$log.log("site to update: " + valuesToUpdate["site"])
          updateCheckedIn(personId, valuesToUpdate)
          var personIndex = $scope.projectsWithPersons[arrayLoc].indexOf(personId)
          $scope.projectsWithPersons[arrayLoc].splice(personIndex, 1)
@@ -1236,21 +1242,22 @@ app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet',
   };
 }])
 
-app.controller('AssignedSitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', 'getActiveSites', '$rootScope', 'updateCheckedIn', 'checkOut', 'id', 'currentSiteName', function($scope, $log, $mdBottomSheet, getActiveSites, $rootScope, updateCheckedIn, checkOut, id, currentSiteName) {
+app.controller('AssignedSitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', 'getActiveSites', '$rootScope', 'updateCheckedIn', 'checkOut', 'id', 'currentSiteName', 'parentScope', function($scope, $log, $mdBottomSheet, getActiveSites, $rootScope, updateCheckedIn, checkOut, id, currentSiteName, parentScope) {
 
+  var myParentScope = parentScope
   $scope.id = id
   $scope.currentSiteName = currentSiteName
 
-  $scope.removeAssignment = function(removeSite, removeProject) {
+  $scope.removeAssignment = function(removeSite, removeProject, calledByCheckOut) {
 
     valuesToUpdate = {
       "id" : $scope.id,
       "carpoolSite" : $rootScope.myCarpoolSite,
-      "site" : ''
+      "site" : "NULL"
     }
 
     if (removeProject) {
-      valuesToUpdate["project"] = ''
+      valuesToUpdate["project"] = "NULL"
     }
 
     updateCheckedIn($scope.id, valuesToUpdate)
@@ -1258,33 +1265,48 @@ app.controller('AssignedSitePickerSheetController', ['$scope', '$log', '$mdBotto
 
     //update persons containers
     if (removeSite) {
-      var site = $scope.persons[$scope.id].assignedToSite_id
-      var index = $scope.projectSitesWithPersons[site].indexOf($scope.id)
-      $scope.projectSitesWithPersons[site].splice(index, 1)
-      $scope.persons[$scope.id].assignedToSite_id = ''
+      $log.log('id of person to remove assignment is ' + $scope.id)
+      var site = myParentScope.persons[$scope.id].assignedToSite_id
+      $log.log('site to remove is ' + site)
+      var index = myParentScope.projectSitesWithPersons[site].indexOf($scope.id)
+      myParentScope.projectSitesWithPersons[site].splice(index, 1)
+      myParentScope.persons[$scope.id].assignedToSite_id = ''
 
-      var project = $scope.persons[$scope.id].assignedToProject
-      $scope.projectsWithPersons[project].push($scope.id)
+      var project = myParentScope.persons[$scope.id].assignedToProject
+      myParentScope.projectsWithPersons[project].push($scope.id)
     }
 
     if (removeProject) {
-      var project = $scope.persons[$scope.id].assignedToProject
-      var index = $scope.projectsWithPersons[project].indexOf($scope.id)
-      $scope.projectsWithPersons[project].splice(index, 1)
-      $scope.persons[$scope.id].assignedToProject = 'all'
+      var project = myParentScope.persons[$scope.id].assignedToProject
+      var index = myParentScope.projectsWithPersons[project].indexOf($scope.id)
+      myParentScope.projectsWithPersons[project].splice(index, 1)
+      myParentScope.persons[$scope.id].assignedToProject = 'all'
+
+      myParentScope.projectsWithPersons['all'].push($scope.id)
     }
 
-    $mdBottomSheet.hide(selectedSite);
+    if (!calledByCheckOut) {
+      if (removeProject && removeSite) {
+        $mdBottomSheet.hide('siteAndProject')
+      } else if (removeSite) {
+        $mdBottomSheet.hide('site')
+      } else if (removeProject) {
+        $mdBottomSheet.hide('project')
+      }
+    }
   }
 
   $scope.checkOut = function() {
-    $scope.removeAssignment(true, true)
-    checkOut($scope.id)
+    $scope.removeAssignment(true, true, true)
 
-    var projIndex = $scope.projectsWithPersons['all'].indexOf(id)
-    $scope.projectsWithPersons['all'].splice(index, 1)
+    var index = myParentScope.projectsWithPersons['all'].indexOf(id)
+    myParentScope.projectsWithPersons['all'].splice(index, 1)
+    myParentScope.persons[id].assignedToProject = ''
+    myParentScope.persons[id].assignedToSite_id = ''
 
-    $scope.registeredPersons.push(id)
+    myParentScope.registeredPersons.push(id)
+
+    $mdBottomSheet.hide('checkOut')
   }
 
 }])

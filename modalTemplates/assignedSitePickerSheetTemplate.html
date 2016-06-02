@@ -6,7 +6,7 @@
   <md-list>
     <md-list-item>
       <md-button
-          ng-click="removeAssignment(true, false)"
+          ng-click="removeAssignment(true, false, false)"
           class="md-list-item-content">
         <md-icon class="sitc-icon-" aria-label="{{persons[id].assignedToProject}} icon">{{ persons[id].assignedToProject }}</md-icon>
         <span class="md-inline-list-icon-label">Remove site assignment</span>
@@ -14,7 +14,7 @@
     </md-list-item>
     <md-list-item>
       <md-button
-          ng-click="removeAssignment(true, true)"
+          ng-click="removeAssignment(true, true, false)"
           class="md-list-item-content">
         <md-icon class="sitc-icon-" aria-label="All Projects Icon">all</md-icon>
         <span class="md-inline-list-icon-label">Remove project assignment</span>
