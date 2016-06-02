@@ -3,7 +3,7 @@ var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute',
 app.config(function($stateProvider) {
   $stateProvider
     .state('attendance', {
-      url: '',
+      url: '/attendance',
       templateUrl: 'attendanceView.html',
       controller: 'AttendanceController',
       data: {requireLogin: true}
@@ -34,6 +34,10 @@ app.config(function($stateProvider) {
       data: {requireLogin: false}
     })
 
+})
+
+app.config(function($urlRouterProvider, $locationProvider) {
+  $urlRouterProvider.when('', '/attendance/registered')
 })
 
 app.config(function($mdThemingProvider) {
@@ -90,10 +94,13 @@ app.service('loginModal', function($mdDialog, $rootScope, $log) {
       user['expirationDate'] = expirationDate.toString()
 
       localStorage.setItem("user", JSON.stringify(user))
-    } else {
-      userInfo.expirationDate = now.toString()
-      localStorage.setItem("user", JSON.stringify(user))
     }
+
+    /*else {
+      var now = new Date()
+      user['expirationDate'] = now.toString()
+      localStorage.setItem("user", JSON.stringify(user))
+    }*/
 
     return user;
   }
@@ -183,6 +190,8 @@ app.factory('assignedSitePickerGenerator', ['$mdBottomSheet', '$log', '$q', '$md
     $mdBottomSheet.show({
       templateUrl: 'modalTemplates/assignedSitePickerSheetTemplate.html',
       controller: 'AssignedSitePickerSheetController',
+      scope: $scope,
+      preserveScope: true,
       locals: {
         parentScope: $scope,
         id: myId,
@@ -685,7 +694,7 @@ app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', 'UserAuth
   }
 }])
 
-app.controller('AttendanceController', ['$scope', '$state', '$location', '$log', '$rootScope', function($scope, $state, $location, $log, $rootScope) {
+app.controller('AttendanceController', ['$scope', '$state', '$location', '$log', '$q', '$rootScope', function($scope, $state, $location, $log, $q, $rootScope) {
   $rootScope.currentState = $state.current.name
   $scope.stateIndexes = {
     'attendance.registered': 0,
@@ -694,12 +703,6 @@ app.controller('AttendanceController', ['$scope', '$state', '$location', '$log',
   }
   $scope.selectedTab = $scope.stateIndexes[$rootScope.currentState]
   $log.log('state is ' + $rootScope.currentState)
-
-
-  $log.log('hash is ' + $location.hash())
-  if ($location.hash() == '' || $location.hash() == '/') {
-    $state.go('attendance.registered')
-  }
 
   $rootScope.$watch(
     function() {
@@ -714,10 +717,52 @@ app.controller('AttendanceController', ['$scope', '$state', '$location', '$log',
     }
   )
 
-  $scope.gotoTab = function(destinationTab) {
-    var destinationState = 'attendance.' + destinationTab
-    $rootScope.currentState = destinationState
-    $state.go(destinationState)
+  $scope.gotoTab = function($event, destinationTab) {
+    var defer = $q.defer()
+    var deferPromise = defer.promise
+
+    var originTab = $state.current.name
+    $log.log('***originTab is ' + originTab + ' and destinationTab is ' + destinationTab)
+    $scope.transitionClass = ''
+    if (destinationTab == "registered") {
+      $scope.transitionClass = 'right-to-left'
+      var viewElem = angular.element(document).find('md-tabs').next().children()
+      viewElem.removeClass('left-to-right')
+      viewElem.addClass('right-to-left')
+      defer.resolve()
+      $log.log('transitionClass is ' + $scope.transitionClass)
+    } else if (destinationTab == "assigned") {
+      $scope.transitionClass = 'left-to-right'
+      var viewElem = angular.element(document).find('md-tabs').next().children()
+      viewElem.removeClass('right-to-left')
+      viewElem.addClass('left-to-right')
+      defer.resolve()
+      $log.log('transitionClass is ' + $scope.transitionClass)
+    } else if (destinationTab == "checkedIn") {
+      if (originTab == "attendance.registered") {
+        $log.log('originTab is registered!')
+        $scope.transitionClass = 'left-to-right'
+        var viewElem = angular.element(document).find('md-tabs').next().children()
+        viewElem.removeClass('right-to-left')
+        viewElem.addClass('left-to-right')
+        defer.resolve()
+      } else if (originTab == "attendance.assigned") {
+        $scope.transitionClass = 'right-to-left'
+        var viewElem = angular.element(document).find('md-tabs').next().children()
+        viewElem.removeClass('left-to-right')
+        viewElem.addClass('right-to-left')
+        defer.resolve()
+      }
+      $log.log('transitionClass is ' + $scope.transitionClass)
+    }
+
+
+
+    deferPromise.then(function() {
+      var destinationState = 'attendance.' + destinationTab
+      $rootScope.currentState = destinationState
+      $state.go(destinationState)
+    })
  }
 }])
 
@@ -1135,7 +1180,8 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
      }
 
      $scope.getAssignedSitePicker = function(id, siteName) {
-       assignedSitePickerGenerator(id, siteName, $scope)
+       $log.log('getAssignedSitePicker was called on click')
+       var generatorPromise = assignedSitePickerGenerator(id, siteName, $scope)
      }
 
      //--- Driver business

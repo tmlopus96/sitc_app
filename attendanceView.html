@@ -1,9 +1,9 @@
 <md-tabs md-center-tabs md-selected="selectedTab">
-  <md-tab label="Registered" ng-click="gotoTab('registered')"></md-tab>
-  <md-tab label="Checked In" ng-click="gotoTab('checkedIn')"></md-tab>
-  <md-tab label="Assigned" ng-click="gotoTab('assigned')"></md-tab>
+  <md-tab id="registered" label="Registered" ng-click="gotoTab($event, 'registered')"></md-tab>
+  <md-tab id="checkedIn" label="Checked In" ng-click="gotoTab($event, 'checkedIn')"></md-tab>
+  <md-tab id="assigned" label="Assigned" ng-click="gotoTab($event, 'assigned')"></md-tab>
 </md-tabs>
 
 <div class="ui-view-container">
-  <div ui-view class="slide"></div>
+  <div ui-view class="slide" ng-class="{'left-to-right': transitionClass == 'left-to-right', 'right-to-left': transitionClass == 'right-to-left'}"></div>
 </div>

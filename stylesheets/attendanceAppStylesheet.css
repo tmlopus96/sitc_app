@@ -94,28 +94,6 @@ md-dialog-content {
   opacity:0;
 }
 
-@-webkit-keyframes slideout {
-  0% {
-    -webkit-transform:translate3d(0px, 0, 0);
-    opacity: 1;
-  }
-  100% {
-    -webkit-transform:translate3d(-1000px, 0, 0);
-    opacity: 0;
-  }
-}
-
-@-webkit-keyframes slidein {
-  0% {
-    -webkit-transform:translate3d(1000px, 0, 0);
-    opacity: 0;
-  }
-  100% {
-    -webkit-transform:translate3d(0px, 0, 0);
-    opacity: 1;
-  }
-}
-
 /* Have to set height explicity on ui-view
 to prevent collapsing during animation*/
 .ui-view-container {
@@ -139,22 +117,69 @@ to prevent collapsing during animation*/
   display: block;
 }
 
-.slide.ng-enter {
-  -webkit-animation: slidein 0.5s ease-in-out;
-  animation: slidein 0.5s ease-in-out;
+@-webkit-keyframes slideout-to-left {
+  0% {
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform:translate3d(-1000px, 0, 0);
+    opacity: 0;
+  }
 }
 
-.slide.ng-leave {
-  -webkit-animation: slideout 0.5s ease-in-out;
-  animation: slideout 0.5s ease-in-out;
+@-webkit-keyframes slidein-from-right {
+  0% {
+    -webkit-transform:translate3d(1000px, 0, 0);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
 }
 
-/*
-.speedDialActionButtons.ng-enter, .speedDialActionButtons.ng-enter-active {
-  opacity: 0 !important;
-  display: none !important;
+@-webkit-keyframes slideout-to-right {
+  0% {
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform:translate3d(1000px, 0, 0);
+    opacity: 0;
+  }
 }
-*/
+
+@-webkit-keyframes slidein-from-left {
+  0% {
+    -webkit-transform:translate3d(-1000px, 0, 0);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
+}
+
+.right-to-left.ng-enter {
+  -webkit-animation: slidein-from-left 0.3s ease-in-out;
+  animation: slidein-from-left 0.3s ease-in-out;
+}
+
+.right-to-left.ng-leave {
+  -webkit-animation: slideout-to-right 0.3s ease-in-out;
+  animation: slideout-to-right 0.3s ease-in-out;
+}
+
+.left-to-right.ng-enter {
+  -webkit-animation: slidein-from-right 0.3s ease-in-out;
+  animation: slidein-from-right 0.3s ease-in-out;
+}
+
+.left-to-right.ng-leave {
+  -webkit-animation: slideout-to-left 0.3s ease-in-out;
+  animation: slideout-to-left 0.3s ease-in-out;
+}
 
 .speedDialPrepare_first {
   opacity: 1;
@@ -176,32 +201,3 @@ to prevent collapsing during animation*/
   transform: translateX(156px);
   -webkit-transform: translateX(156px);
 }
-
-/*
-.slide.ng-enter {
-  z-index: 0;
-  -webkit-transform:translate3d(1000px, 0, 0);
-  -moz-transform:translate3d(1000px, 0, 0);
-  transform:translate3d(1000px, 0, 0);
-}
-
-.slide.ng-enter-active {
-  -webkit-transform:translate3d(0, 0, 0);
-  -moz-transform:translate3d(0, 0, 0);
-  transform:translate3d(0, 0, 0);
-}
-
-
-.slide.ng-leave {
-  z-index: 100;
-  -webkit-transform:translate3d(0, 0, 0);
-  -moz-transform:translate3d(0, 0, 0);
-  transform:translate3d(0, 0, 0);
-}
-
-.slide.ng-leave-active {
-  -webkit-transform:translate3d(-1000px, 0, 0);
-  -moz-transform:translate3d(-1000px, 0, 0);
-  transform:translate3d(-1000px, 0, 0);
-}
-*/

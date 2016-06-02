@@ -1,7 +1,7 @@
 <md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0" ng-cloak>
   <md-subheader>Edit {{ persons[id].firstName }}'s assignment</md-subheader>
   <p class="md-body-2 secondary-text-opacity">
-    Current Assignment: {{ persons[id].assignedToProject }}, {{ currentSiteName }}
+    Current Assignment: {{ persons[id].assignedToProject | titlecase }}, {{ currentSiteName }}
   </p>
   <md-list>
     <md-list-item>
