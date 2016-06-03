@@ -1,15 +1,15 @@
 <md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0" ng-cloak>
-  <md-subheader>Assign to Site</md-subheader>
+  <h2 class="md-title black-primary-text-opacity" style="line-height:20px;padding-left:16px; margin-bottom:9px; margin-top:20px">Assign to Driver</h2>
   <md-list>
     <md-list-item ng-repeat="driver in activeDrivers | orderBy:[driver.project, driver.site]" class="md-2-line md-ink-ripple" ng-click="selectWithDriver(driver.id)">
-        <md-icon class="sitc-icon-">{{ driver.project }}</md-icon>
+        <md-icon class="sitc-icon- picker-icons">{{ driver.project }}</md-icon>
         <div class="md-list-item-text">
           <h3>{{ driver.name }}</h3>
           <span class="md-body-1 secondary-text-opacity">{{ driver.site }}</span>
         </div>
     </md-list-item>
     <md-list-item class="md-2-line md-ink-ripple md-warn" ng-click="selectWithDriver('')">
-      <md-icon class="material-icons">close</md-icon>
+      <md-icon class="material-icons picker-icons">close</md-icon>
       <div class="md-list-item-text">
         <h3 style="font-weight:bold">Un-assign</h3>
       </div>

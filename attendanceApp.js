@@ -64,10 +64,14 @@ app.run(function($rootScope, $state, $log, loginModal) {
           function() {
             $rootScope.currentSite = toState.name
             return $state.go(toState.name, toParams)
-          },
+          })
+
+          /*
+          ,
           function() {
             return $state.go('goAway')
           })
+          */
     }
   });
 
@@ -108,16 +112,17 @@ app.service('loginModal', function($mdDialog, $rootScope, $log) {
   return function() {
     return $mdDialog.show({
       templateUrl: 'modalTemplates/loginModalTemplate.html',
-      clickOutsideToClose: true,
+      clickOutsideToClose: false,
       controller: 'LoginModalController'
     }).then(function(user) {assignCurrentUser(user)})
   }
 })
 
 app.factory('UserAuth', ['$http', '$q', '$log', function($http, $q, $log) {
-  var defer = $q.defer()
+
 
   return function(username, password, site) {
+    var defer = $q.defer()
 
     $http({
       method: "POST",
@@ -545,14 +550,23 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
           var myId = currentPerson["person_id"];
           //set up drivers obj
           if (currentPerson["driverStatus"] == 'isDriver') {
-            $scope.drivers[myId] = {
-              "numSeatbelts": currentPerson.numSeatbelts,
-              "passengers": [],
-              "carMake": currentPerson.carMake,
+            if ($scope.drivers[myId]) {
+              $scope.drivers[myId].numSeatbelts = currentPerson.numSeatbelts
+              $scope.drivers[myId].carMake = currentPerson.carMake
+            } else {
+              $scope.drivers[myId] = {
+                "numSeatbelts": currentPerson.numSeatbelts,
+                "passengers": [],
+                "carMake": currentPerson.carMake,
+              }
             }
           } else if (currentPerson['assignedToDriver_id'] != 0 && currentPerson['assignedToDriver_id'] != null) {
-            $log.log('assigned one passenger!')
-            $scope.drivers[currentPerson["assignedToDriver_id"]].passengers.push(myId)
+            if ($scope.drivers[currentPerson["assignedToDriver_id"]]) {
+              $scope.drivers[currentPerson["assignedToDriver_id"]].passengers.push(myId)
+            } else {
+              $scope.drivers[currentPerson["assignedToDriver_id"]] = {"passengers": []}
+              $scope.drivers[currentPerson["assignedToDriver_id"]].passengers.push(myId)
+            }
           }
 
           $scope.persons[myId] = currentPerson;
@@ -647,7 +661,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
 
 }])
 
-app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', 'UserAuth', function($scope, $mdDialog, $log, UserAuth) {
+app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', '$window', 'UserAuth', function($scope, $mdDialog, $log, $window, UserAuth) {
   $log.log('LoginModalController was called!')
 
   $scope.myUsername = ''
@@ -684,13 +698,29 @@ app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', 'UserAuth
         $mdDialog.hide(response)
       },
       function failure(error) {
-        if (error == "usernameNotFound") {
-          $scope.message = "Oops, no matches found for this username. Check your username and try again."
-        } else if (error == "passwordIncorrect") {
-          $scope.message = "Password doesn't look right. Check password and try again."
+        $log.log('login error handler ran with error: ' + error.data)
+        if (error.data == "usernameNotFound") {
+          $scope.loginForm.username.$error.notFound = true
+          $scope.loginForm.username.$setValidity("notFound", false)
+          var field = $window.document.getElementById('usernameField')
+          field.focus()
+        } else if (error.data == "passwordIncorrect") {
+          $log.log('login error handler ran with error: ' + error.data)
+          $scope.loginForm.password.$error.wrongPassword = true
+          $scope.loginForm.password.$setValidity("wrongPassword", false)
+          var field = $window.document.getElementById('passwordField')
+          field.focus()
         }
       }
     )
+  }
+
+  $scope.resetUsernameValidity = function() {
+    $scope.loginForm.username.$setValidity("notFound", true)
+  }
+
+  $scope.resetPasswordValidity = function() {
+    $scope.loginForm.password.$setValidity("wrongPassword", true)
   }
 }])
 
@@ -932,6 +962,7 @@ app.controller('RegisteredController', ['$scope', '$log', '$q', 'sitePickerGener
              } else {
                $log.log('**selectedSite is' + selectedSite)
                $scope.projectSitesWithPersons[selectedSite].push(personId)
+               $scope.persons[personId].assignedToProject = selectedProject
                $scope.persons[personId].assignedToSite_id = selectedSite
                valuesToUpdate["site"] = selectedSite;
                deferred.resolve(valuesToUpdate)
@@ -1288,7 +1319,7 @@ app.controller('SitePickerSheetController', ['$scope', '$log', '$mdBottomSheet',
   };
 }])
 
-app.controller('AssignedSitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', 'getActiveSites', '$rootScope', 'updateCheckedIn', 'checkOut', 'id', 'currentSiteName', 'parentScope', function($scope, $log, $mdBottomSheet, getActiveSites, $rootScope, updateCheckedIn, checkOut, id, currentSiteName, parentScope) {
+app.controller('AssignedSitePickerSheetController', ['$scope', '$log', '$mdBottomSheet', 'getActiveSites', '$rootScope', 'updateCheckedIn', 'checkOut', 'id', 'currentSiteName', 'assignToDriver', 'driverStatus', 'parentScope', function($scope, $log, $mdBottomSheet, getActiveSites, $rootScope, updateCheckedIn, checkOut, id, currentSiteName, assignToDriver, driverStatus, parentScope) {
 
   var myParentScope = parentScope
   $scope.id = id
@@ -1350,6 +1381,14 @@ app.controller('AssignedSitePickerSheetController', ['$scope', '$log', '$mdBotto
     myParentScope.persons[id].assignedToProject = ''
     myParentScope.persons[id].assignedToSite_id = ''
 
+    if (myParentScope.persons[id].assignedToDriver_id) {
+      var driver = myParentScope.persons[id].assignedToDriver_id
+      var passengerIndex = myParentScope.drivers[driver].passengers.indexOf(id)
+      myParentScope.drivers[driver].passengers.splice(passengerIndex, 1)
+      myParentScope.persons[id].assignedToDriver_id = ''
+      assignToDriver(id, '')
+    }
+
     myParentScope.registeredPersons.push(id)
 
     $mdBottomSheet.hide('checkOut')
@@ -1378,4 +1417,25 @@ app.filter('titlecase', function() {
             return match.charAt(0).toUpperCase() + match.substr(1);
         });
     }
+});
+
+//filter adapted from Justin Klemm on justinklemm.com
+app.filter("orderByLastName", function(){
+    return function(projectPersons, persons) {
+        var personNames = []
+        var sortedIds = []
+        angular.forEach(projectPersons, function(personId) {
+            personNames.push({
+              'id': personId,
+              'name': persons[personId].lastName
+            })
+        })
+        personNames.sort(function(a, b) {
+          return ((a.name > b.name) ? 1 : -1)
+        })
+        angular.forEach(personNames, function(person) {
+          sortedIds.push(person.id)
+        })
+        return sortedIds
+    };
 });

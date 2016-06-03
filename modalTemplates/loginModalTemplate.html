@@ -3,20 +3,23 @@
     <img ng-src="images/sitcSun_yellow.svg" style="min-height: 50px; max-height:120px; padding: 10px"/>
     <h2 class="md-display-1" style="margin-top:0; margin-bottom: 0">Login</h3>
   </div>
+  <span ng-hide="message == ''" class="md-warn">{{ message }}</span>
   <md-dialog-content>
     <form name="loginForm" ng-submit="submit(myUsername, myPassword, mySite)">
       <md-input-container class="md-block">
         <label>Username</label>
-        <input type="text" name="username" ng-model="myUsername" ng-maxlength="100">
+        <input id="usernameField" type="text" name="username" ng-model="myUsername" ng-maxlength="100" ng-change="resetUsernameValidity()">
         <div ng-messages="loginForm.username.$error">
           <div ng-message="maxlength">Your username is too long.</div>
+          <div ng-message="notFound">Oops, no matches found for this username. Check your username and try again.</div>
         </div>
       </md-input-container>
       <md-input-container class="md-block">
         <label>Password</label>
-        <input type="password" name="password" ng-model="myPassword" ng-maxlength="128">
+        <input id="passwordField" type="password" name="password" ng-model="myPassword" ng-maxlength="128" ng-change="resetPasswordValidity()">
         <div ng-messages="loginForm.password.$error">
           <div ng-message="maxlength">Your password is too long.</div>
+          <div ng-message="wrongPassword">Password doesn't look right. Check password and try again.</div>
         </div>
       </md-input-container>
       <md-input-container>

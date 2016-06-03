@@ -3,8 +3,8 @@
     <span flex></span>
     <div id="anchorButtonContainer" ng-repeat="(projectName, projectPersons) in projectsWithPersons">
       <md-button ng-click="goToSectionHeader(projectName)">
-        <span class="md-subhead">{{ (projectName == 'all') ? 'Not Assigned' : projectName | titlecase }}</span>
-        <span class="md-subhead" style="font-weight:bold">({{ numCheckedIn[projectName]}})</span>
+        <span class="md-subhead anchor-button-text" style="font-size:14px">{{ (projectName == 'all') ? 'Unassigned' : projectName | titlecase }}</span>
+        <span class="md-subhead anchor-button-text" style="font-weight:bold; font-size:14px">({{ numCheckedIn[projectName]}})</span>
       </md-button>
     </div>
     <span flex></span>
@@ -16,7 +16,7 @@
         <md-divider ng-hide="$first"></md-divider>
         <p class="md-body-2 secondary-text-opacity" style="margin-top:10px; margin-bottom:0; padding-left:16px">{{ (projectName == 'all') ? 'Not Assigned' : projectName | titlecase }}</p>
       </div>
-      <div ng-repeat="person in projectPersons" class="listAnimate">
+      <div ng-repeat="person in projectPersons | orderByLastName:persons" class="listAnimate">
         <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-show="persons[person].firstName.length > 0">
           <!--<img ng-src="{{persons[person].imgUrl}}" class="md-avatar" alt="Avatar" />-->
           <div flex class="md-list-item-text">
@@ -25,9 +25,9 @@
           <div flex="60" class="iconSetContainer" layout="row" layout-align="start cetner">
             <div flex class="listIconContainer" layout-align="start center">
               <div ng-repeat="v in [0]"> <!--workaround proper display of switch-->
-                <md-switch ng-hide="screenIsXsmall || screenIsSmall" ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
+                <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0" ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
               </div>
-              <md-button ng-disabled="!(persons[person].driverStatus == 'isDriver') && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver'}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
+              <md-button ng-hide="persons[person].hasCar == 0" ng-disabled="!(persons[person].driverStatus == 'isDriver') && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver'}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
                 <md-icon id="listButtonIcon" md-svg-src="images/icons/steeringWheel.svg"></md-icon>
               </md-button>
             </div>

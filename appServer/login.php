@@ -25,7 +25,7 @@
     echo json_encode($userInfo);
   } else {
     http_response_code(403);
-    echo "passwordIncorrect";
+    exit ('passwordIncorrect');
   }
 
 

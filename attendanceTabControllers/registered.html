@@ -1,7 +1,7 @@
 <md-content id="bodyContent">
     <md-list class="personsList">
 
-      <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="person in registeredPersons">
+      <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="person in registeredPersons | orderByLastName:persons">
        <img ng-src="{{persons[person].imgUrl}}" class="md-avatar" alt="Avatar" />
        <div flex class="md-list-item-text">
          <h3>{{persons[person].firstName}} {{persons[person].lastName}}</h3>
