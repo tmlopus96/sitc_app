@@ -163,6 +163,32 @@ app.factory('logout', ['$rootScope', '$q', function($rootScope, $q) {
   }
 }])
 
+app.service('changePasswordModal', function($mdDialog, $rootScope, $log) {
+  return function(myUsername) {
+    return $mdDialog.show({
+      templateUrl: 'modalTemplates/changePasswordModal.html',
+      clickOutsideToClose: true,
+      controller: 'ChangePasswordModalController',
+      locals: {
+        username: myUsername
+      }
+    })
+  }
+})
+
+app.service('changePassword', ['$q', '$http', '$log', function($q, $http, $log) {
+  return function(myUsername, myNewPassword) {
+    return $http({
+      method: 'GET',
+      url: "appServer/changePassword.php",
+      params: {
+        username: myUsername,
+        newPassword: myNewPassword
+      }
+    })
+  }
+}])
+
 app.factory('sitePickerGenerator', ['$mdBottomSheet', '$log', '$q', function($mdBottomSheet, $log, $q) {
 
   return function(carpoolSite, project) {
@@ -493,7 +519,7 @@ app.factory('assignToDriver', ['$http', '$log', function($http, $log) {
 
 }])
 
-app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', '$mdSidenav', '$log', '$q', '$mdMedia', '$state', 'loginModal', 'logout', 'sitePickerGenerator', 'getActiveSites', function($scope, $rootScope, $http, $mdToast, $mdSidenav, $log, $q, $mdMedia, $state, loginModal, logout, sitePickerGenerator, getActiveSites) {
+app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', '$mdSidenav', '$log', '$q', '$mdMedia', '$state', 'loginModal', 'logout', 'sitePickerGenerator', 'getActiveSites', 'changePasswordModal', function($scope, $rootScope, $http, $mdToast, $mdSidenav, $log, $q, $mdMedia, $state, loginModal, logout, sitePickerGenerator, getActiveSites, changePasswordModal) {
 
   //set in AttendanceController, but accessed from here
   $rootScope.currentState
@@ -618,6 +644,10 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
     })
   }
 
+  $scope.changePassword = function() {
+    changePasswordModal($rootScope.currentUser.username)
+  }
+
   //TODO make carpool sites load dynamically
   $scope.carpoolSites = [
     { id: 'aa', name: 'Ann Arbor'},
@@ -721,6 +751,56 @@ app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', '$window'
 
   $scope.resetPasswordValidity = function() {
     $scope.loginForm.password.$setValidity("wrongPassword", true)
+  }
+}])
+
+app.controller('ChangePasswordModalController', ['$scope', '$mdDialog', '$mdToast', '$log', '$window', 'UserAuth', 'changePassword', 'username', function($scope, $mdDialog, $mdToast, $log, $window, UserAuth, changePassword, username) {
+
+  $scope.myUsername = username
+  $scope.myPassword = ''
+  $scope.myCarpoolSite = ''
+
+  if (localStorage.getItem('user')) {
+    $scope.myCarpoolSite = localStorage.getItem('user')
+  }
+
+  $scope.cancelDialog = function() {
+    $mdDialog.cancel()
+  }
+
+  $scope.submit = function(oldPassword, newPassword, newPasswordVerify) {
+    $log.log('form submitted with username ' + $scope.myUsername + ' and oldPassword ' + oldPassword)
+
+    UserAuth($scope.myUsername, oldPassword, '').then(
+      function success(response) {
+        if (newPassword == newPasswordVerify) {
+          changePassword($scope.myUsername, newPassword).then(function success() {
+            $mdToast.showSimple("Password Changed")
+            $mdDialog.hide()
+          })
+        } else {
+          $scope.loginForm.newPassword.$error.passwordsDontMatch = true
+          $scope.loginForm.newPasswordVerify.$error.passwordsDontMatch = true
+          $scope.loginForm.newPassword.$setValidity("passwordsDontMatch", false)
+          var field = $window.document.getElementById('newPasswordField')
+          field.focus()
+        }
+      },
+      function failure(error) {
+        $log.log('login error handler ran with error: ' + error.data)
+        if (error.data == "passwordIncorrect") {
+          $log.log('login error handler ran with error: ' + error.data)
+          $scope.loginForm.oldPassword.$error.wrongPassword = true
+          $scope.loginForm.oldPassword.$setValidity("wrongPassword", false)
+          var field = $window.document.getElementById('oldPasswordField')
+          field.focus()
+        }
+      }
+    )
+  }
+
+  $scope.resetPasswordValidity = function() {
+    $scope.loginForm.oldPassword.$setValidity("wrongPassword", true)
   }
 }])
 
