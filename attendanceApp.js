@@ -367,6 +367,10 @@ app.factory('getActiveSites', ['$http', '$log', '$q', '$mdDialog', function($htt
       }
       var deferred = $q.defer()
 
+      activePlaySites = {};
+      activePlantSites = {};
+      activePaintSites = {};
+
       return $http({
         method: "GET",
         url: "appServer/getActiveSites.php",
@@ -529,6 +533,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
   $scope.screenIsSmall = $mdMedia('sm')
 
   $scope.personsContainersConfig = function() {
+
     //containers for persons
     $scope.persons = {};
     $scope.drivers = {}

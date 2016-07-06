@@ -9,25 +9,21 @@
   $carpoolSite = sanitize($_GET['carpoolSite']);
 
   //get active project sites for this carpool site
-  $query = "SELECT * FROM LogisticsSchedule WHERE carpoolSite_id='$carpoolSite'";
-  $result_logisticsSched = $connection->query($query);
+  //$query = "SELECT * FROM LogisticsSchedule WHERE carpoolSite_id='$carpoolSite'";
+  $query = "SELECT DISTINCT assignedToSite_id FROM CheckedIn WHERE carpoolSite_id='$carpoolSite' && assignedToSite_id!=''";
+  //echo "Query 1: " . $query . "&nbsp";
+  $result_sites = $connection->query($query);
   if ($connection->error)
     die ($connection->error);
 
   $activeSites = array();
-  $resultArray = $result_logisticsSched->fetch_array(MYSQLI_NUM);
-  foreach ($resultArray as $site) {
-    if ($site != '') {
-      $siteString = "'" . $site . "'";
-      $activeSites[] = $siteString;
-    }
+  while ($site = $result_sites->fetch_assoc()) {
+    $activeSites[] = "'" . $site['assignedToSite_id'] . "'";
   }
-
-  //splice off carpoolSite_id (first element)
-  array_splice($activeSites, 0, 1);
 
   $sitesForQuery = join(',', $activeSites);
   $query = "SELECT projectSite_id, name, project FROM ProjectSite WHERE projectSite_id IN ($sitesForQuery)";
+  //echo "Query 2: " . $query;
   $result_siteInfo = $connection->query($query);
   if ($connection->error)
     die ($connection->error);
