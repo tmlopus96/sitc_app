@@ -1,0 +1,20 @@
+{
+  "name": "sitc_attendance",
+  "homepage": "https://github.com/tristanlopus/sitc-carpool-app",
+  "authors": [
+    "Tristan Lopus <tristan.lopus@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.6.1"
+  }
+}
