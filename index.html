@@ -1,41 +1,29 @@
 <html lang="en" >
    <head>
      <meta name="viewport" content="width=device-width, initial-scale=1">
-     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
-     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
-     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
-     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
-     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.min.js"></script>
-     <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
-     <!--Angular UI-->
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.0/angular-ui-router.min.js"></script>
-     <!--Material Design Colors-->
-     <link rel="stylesheet" href="stylesheets/material-design-color-palette/material-design-color-palette.min.css">
+     <link rel="stylesheet" href="bower_components/angular-material/angular-material.min.css" />
+     <script src="bower_components/angular/angular.js"></script>
+     <script src="bower_components/angular-material/angular-material.js"></script>
+     <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+     <script src="bower_components/angular-aria/angular-aria.min.js"></script>
+     <script src="bower_components/angular-messages/angular-messages.min.js"></script>
+     <script src="bower_components/angular-route/angular-route.min.js"></script>
+     <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
      <!--Material Icons Font-->
      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-     <!--Roboto Font-->
-     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
      <!--App Stylesheet-->
-     <link rel="stylesheet" href="stylesheets/attendanceAppStylesheet.css" />
+     <link rel="stylesheet" href="app/stylesheets/attendanceAppStylesheet.css" />
      <!--SITC Icons Font-->
-     <link rel="stylesheet" href="images/icons/sitcIconFont/style.css">
+     <link rel="stylesheet" href="app/images/icons/sitcIconFont/style.css">
 
-<!--
-   <script src="angular-src/angular.min.js"></script>
-   <script src="angular-src/angular-animate.min.js"></script>
-   <script src="angular-src/angular-aria.min.js"></script>
-   <script src="angular-src/angular-messages.min.js"></script>
- -->
-
-   <script src="attendanceApp.js"></script>
+   <script src="app/attendanceApp.js"></script>
 </head>
 
 <body ng-app="attendanceApp"><base href="/" />
    <div ng-controller="IndexController" ng-cloak>
 
      <md-sidenav md-component-id="left" class="md-sidenav-left">
-       <md-toolbar class="md-primary md-hue-2" layout="row" layout-align="start end" style="height:120px; padding-bottom:10px;padding-left:7px; background-image:url('images/sidebar_toolbarBackground.jpg');background-size:100%;background-position:center center">
+       <md-toolbar class="md-primary md-hue-2" layout="row" layout-align="start end" style="height:120px; padding-bottom:10px;padding-left:7px; background-image:url('app/images/sidebar_toolbarBackground.jpg');background-size:100%;background-position:center center">
          <!--<md-button flex="nogrow" class="md-icon-button" ng-click="toggleLeftMenu()" aria-label="Sidebar">
            <md-icon class="material-icons icon-hint-disabled-opacity">menu</md-icon>
          </md-button>

@@ -20,6 +20,8 @@
     "grunt": "^1.0.1",
     "grunt-bower-concat": "^1.0.0",
     "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-uglify": "^2.0.0"
+    "grunt-contrib-cssmin": "^1.0.2",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-goog-webfont-dl": "^0.1.2"
   }
 }

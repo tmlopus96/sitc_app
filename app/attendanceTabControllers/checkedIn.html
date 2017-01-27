@@ -1,0 +1,70 @@
+<md-content id="bodyContent">
+  <div id="anchorButtonRow" layout="row">
+    <span flex></span>
+    <div id="anchorButtonContainer" ng-repeat="(projectName, projectPersons) in projectsWithPersons">
+      <md-button ng-click="goToSectionHeader(projectName)">
+        <span class="md-subhead anchor-button-text" style="font-size:14px">{{ (projectName == 'all') ? 'Unassigned' : projectName | titlecase }}</span>
+        <span class="md-subhead anchor-button-text" style="font-weight:bold; font-size:14px">({{ numCheckedIn[projectName]}})</span>
+      </md-button>
+    </div>
+    <span flex></span>
+  </div>
+
+  <md-list class="personsList">
+    <div ng-repeat="(projectName, projectPersons) in projectsWithPersons">
+      <div id="{{projectName}}Header" ng-show="numCheckedIn[projectName] > 0">
+        <md-divider ng-hide="$first"></md-divider>
+        <p class="md-body-2 secondary-text-opacity" style="margin-top:10px; margin-bottom:0; padding-left:16px">{{ (projectName == 'all') ? 'Not Assigned' : projectName | titlecase }}</p>
+      </div>
+      <div ng-repeat="person in projectPersons | orderByLastName:persons" class="listAnimate">
+        <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-show="persons[person].firstName.length > 0">
+          <!--<img ng-src="{{persons[person].imgUrl}}" class="md-avatar" alt="Avatar" />-->
+          <div flex class="md-list-item-text">
+            <h3>{{persons[person].firstName}} {{persons[person].lastName}}</h3>
+          </div>
+          <div flex="60" class="iconSetContainer" layout="row" layout-align="start cetner">
+            <div flex class="listIconContainer" layout-align="start center">
+              <div ng-repeat="v in [0]"> <!--workaround proper display of switch-->
+                <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0" ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
+              </div>
+              <md-button ng-hide="persons[person].hasCar == 0" ng-disabled="!(persons[person].driverStatus == 'isDriver') && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver'}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
+                <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
+              </md-button>
+            </div>
+            <div flex class="listIconContainer" layout-align="center center">
+              <md-button ng-hide="persons[person].driverStatus == 'isDriver'" aria-label="menu" class="md-icon-button" ng-class="{'md-primary md-hue-1': persons[person].assignedToDriver_id != null && persons[person].assignedToDriver_id != 0}" ng-click="assignDriver(person)" style="padding:0 !important">
+                <!--TODO ng-show to have assignedProject show if exists and preferredProject if not-->
+                <md-icon id="listButtonIcon" class="material-icons" aria-label="car">drive_eta</md-icon>
+              </md-button>
+            </div>
+            <div flex class="listIconContainer" layout="row" layout-align="end center">
+              <md-fab-speed-dial flex ng-if="projectName == 'all'" class="md-fling md-secondary" md-direction="left" md-open="false" ng-cloak>
+                <md-fab-trigger>
+                  <md-button aria-label="menu" class="md-fab speedDialButton md-primary">
+                    <md-icon class="material-icons.md-18" style="color:white;">assignment_turned_in</md-icon>
+                  </md-button>
+                </md-fab-trigger>
+                <div>
+                  <md-fab-actions>
+                    <md-button aria-label="Add" id="speedDialActionButton_first" ng-click="checkInPerson(person, 'paint', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                      <md-icon class="sitc-icon-" style="color:white;" aria-label="Paint">paint</md-icon>
+                    </md-button>
+                    <md-button aria-label="Insert Link" id="speedDialActionButton_second" ng-click="checkInPerson(person, 'plant', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                      <md-icon class="sitc-icon-" style="color:white;" aria-label="Plant">plant</md-icon>
+                    </md-button>
+                    <md-button aria-label="Edit" id="speedDialActionButton_third" ng-click="checkInPerson(person, 'play', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                      <md-icon class="sitc-icon-" style="color:white;" aria-label="Play">play</md-icon>
+                    </md-button>
+                  </md-fab-actions>
+                </div> <!--speed dial actions container-->
+              </md-fab-speed-dial>
+              <md-button ng-if="projectName != 'all'" aria-label="menu" class="md-fab speedDialButton md-primary"  ng-click="checkInPerson(person, projectName, projectName)"> <!--instead of speedDial if project is already set-->
+                <md-icon class="sitc-icon-" style="color:white;">{{ persons[person].assignedToProject}}</md-icon>
+              </md-button>
+            </div>
+          </div> <!--end iconSetContainer-->
+        </md-list-item>
+      </div>
+    </div>
+  </md-list>
+</md-content>
