@@ -31,7 +31,7 @@
                   <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0" ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
                 </div>
                 <md-button ng-hide="persons[person].hasCar == 0" ng-disabled="!(persons[person].driverStatus == 'isDriver') && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver'}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
-                  <md-icon id="listButtonIcon" md-svg-src="images/icons/steeringWheel.svg"></md-icon>
+                  <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
                 </md-button>
               </div>
               <div flex class="listIconContainer" layout-align="center center">
