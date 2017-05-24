@@ -25,7 +25,7 @@
       <md-input-container>
         <label>Carpool Site</label>
         <md-select ng-model="mySite">
-          <md-option ng-repeat="site in carpoolSites" ng-value="site.id">{{ site.name }}</md-option>
+          <md-option ng-repeat="(siteId, info) in carpoolSites" ng-value="info.carpoolSite_id">{{ info.name }}</md-option>
         </md-select>
       </md-input-container>
       <br />

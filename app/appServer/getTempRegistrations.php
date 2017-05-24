@@ -6,23 +6,23 @@
   if ($connection->connect_error)
     die ($connection->connect_error);
 
-  $query = "SELECT p.person_id, p.firstName, p.lastName, p.primaryCarpool_id, p.isCrew, p.preferredProject, p.hasCar, p.carMake, p.numSeatbelts, p.imgUrl, r.email, c.hasPermanentAssignment, c.assignedProject, c.assignedSite, ch.isCheckedIn, ch.isOnLogistics, ch.assignedToProject, ch.assignedToSite_id, ch.driverStatus, ch.assignedToDriver_id FROM Person p LEFT JOIN Crew c ON c.person_id=p.person_id LEFT JOIN CheckedIn ch ON p.person_id=ch.person_id LEFT JOIN RegistrationInfo r ON p.person_id=r.person_id";
+  $query = "SELECT ch.person_id, tr.firstName, tr.lastName, tr.isDriver, ch.isCheckedIn, ch.isOnLogistics, ch.assignedToProject, ch.assignedToSite_id, ch.driverStatus, ch.assignedToDriver_id FROM TempRegistration tr LEFT JOIN CheckedIn ch ON tr.temp_person_id=ch.person_id";
 
   if (isset($_GET['carpoolSite'])) {
     // echo "Condition evaled to true";
     $carpoolSite = $_GET['carpoolSite'];
-    $query = $query . " WHERE p.primaryCarpool_id='$carpoolSite' OR ch.carpoolSite_id='$carpoolSite'";
+    $query = $query . " WHERE ch.carpoolSite_id='$carpoolSite'";
   }
 
   // Note: if both carpoolSite and person_id are set, an empty set may be returned if that person's primaryCarpool_id != carpoolSite
-  if (isset($_GET['person_id'])) {
+  if (isset($_GET['temp_person_id'])) {
     if (strpos($query, 'WHERE') === false) {
       $query = $query . " WHERE ";
     }
     else {
       $query = $query . " && ";
     }
-    $query = $query . "p.person_id=" . intval(sanitize($_GET['person_id']));
+    $query = $query . "temp_person_id=" . intval(sanitize($_GET['temp_person_id']));
   }
 
   // echo $query;

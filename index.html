@@ -9,14 +9,27 @@
      <script src="bower_components/angular-messages/angular-messages.min.js"></script>
      <script src="bower_components/angular-route/angular-route.min.js"></script>
      <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+     <!-- Angular Material Data Table Stylesheet -->
+     <link href="bower_components/angular-material-data-table/dist/md-data-table.min.css" rel="stylesheet" type="text/css"  />
+     <!-- Angular Material Data Table -->
+     <script type="text/javascript" src="bower_components/angular-material-data-table/dist/md-data-table.min.js"></script>
      <!--Material Icons Font-->
      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
      <!--App Stylesheet-->
      <link rel="stylesheet" href="app/stylesheets/attendanceAppStylesheet.css" />
      <!--SITC Icons Font-->
      <link rel="stylesheet" href="app/images/icons/sitcIconFont/style.css">
+     <!-- Application script files -->
+     <script src="app/attendanceApp.js"></script>
+     <script src="app/controllers/indexController.js"></script>
+     <script src="app/controllers/registeredController.js"></script>
+     <script src="app/controllers/checkedInController.js"></script>
+     <script src="app/controllers/getFromOtherCarpoolSite.js"></script>
+     <script src="app/controllers/addNewVolunteerController.js"></script>
+     <script src="app/services/serverInterfaces.js"></script>
+     <!-- Production Tools -->
+     <script src="tools/obj_dump.js"></script>
 
-   <script src="app/attendanceApp.js"></script>
 </head>
 
 <body ng-app="attendanceApp"><base href="/" />
@@ -41,14 +54,28 @@
          </div>
        </md-toolbar>
       <md-content layout-padding>
-        <md-input-container>
+        <md-input-container id="carpoolSiteInputContainer">
           <label>Carpool Site</label>
           <md-select ng-model="carpoolSite" md-on-close="reconfigPersonsContainers()">
-            <md-option ng-repeat="site in carpoolSites" ng-value="site.id">{{ site.name }}</md-option>
+            <md-option ng-repeat="(siteId, info) in carpoolSites" ng-value="siteId">{{ info.name }}</md-option>
           </md-select>
         </md-input-container>
+
         <br  />
-        <md-button ng-click="changePassword()">Change Password</md-title>
+        <md-button id="changePasswordButton" ng-click="changePassword()">Change Password</md-button>
+        <br />
+
+        <span class="md-subheader">Select a volunteer from another carpool site</span>
+        <md-button ng-click="goToGetFromOtherCarpool()">
+          Select
+        </md-button>
+
+        <span class="md-subheader">Add new volunteer</span>
+        <md-button ng-click="goToAddNewTeer()">
+          Add new
+        </md-button>
+
+
       </md-content>
      </md-sidenav>
 
@@ -59,7 +86,7 @@
         </md-button>
         <span flex></span>
         <h2 class="primary-text-opacity">
-          <span>{{ carpoolSitesNames[carpoolSite] }}</span>
+          <span>{{ carpoolSites[carpoolSite].name }}</span>
         </h2>
         <span flex></span>
       </div>

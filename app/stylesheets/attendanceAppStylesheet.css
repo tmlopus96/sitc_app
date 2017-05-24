@@ -228,3 +228,7 @@ to prevent collapsing during animation*/
   transform: translateX(156px);
   -webkit-transform: translateX(156px);
 }
+
+input:not(:focus) {
+  color: black !important; 
+}

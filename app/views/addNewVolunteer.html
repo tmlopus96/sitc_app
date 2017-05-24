@@ -1,0 +1,111 @@
+<md-content id="bodyContent">
+  <form name="registrationForm">
+    <h2 style="margin-bottom: 5px">Temporary Volunteer Registration</h2>
+    <span class="md-subhead">If a new volunteer has shown up without registering, have them fill out this mini version of the registration form. They will get an email asking them to fill out the full version when they get home today.</span>
+    <br />
+    <br />
+    <span class="md-subhead"><strong>Emphasize to the volunteer that this registration is temporary and it will last for this day only.</strong></span>
+
+    <h3>Volunteer Info</h3>
+    <div layout="row" layout-xs="column" class="input-group-container">
+      <md-input-container flex="nogrow">
+        <label>First name</label>
+        <input type="text" name="firstName" ng-model="newTeerInfo.firstName" size="30" required>
+      </md-input-container>
+      <md-input-container flex="nogrow" class="column-interior">
+        <label>Last Name</label>
+        <input type="text" ng-model="newTeerInfo.lastName" size="30" required>
+      </md-input-container>
+    </div>
+    <div layout="row" layout-xs="column" layout-align="start start" class="input-group-container">
+      <div layout="column">
+        <md-input-container>
+          <label>Volunteer Cell Phone</label>
+          <input type="text" name="phone" ng-model="newTeerInfo.phone" size="20" ui-mask="(999) 999-9999" clean="true" ng-required="!noCellPhone">
+        </md-input-container>
+        <md-input-container>
+          <md-checkbox ng-model="noCellPhone">
+            Volunteer does not have a cell phone
+          </md-checkbox>
+        </md-input-container>
+      </div>
+      <md-input-container class="column-interior" ng-show="noCellPhone">
+        <label>Home/Alternate Phone</label>
+        <input type="text" name="phone" ng-model="newTeerInfo.altPhone" size="20" ui-mask="(999) 999-9999" clean="true" ng-required="noCellPhone">
+      </md-input-container>
+    </div>
+    <div class="input-group-container">
+      <md-input-container class="first-in-group xs-max-width">
+        <label>Email</label>
+        <input type="email" name="email" ng-model="newTeerInfo.email" required>
+        <div ng-messages="registrationForm.email.$error">
+          <div ng-message="email">
+            Oops, please enter a valid email address.
+          </div>
+        </div>
+      </md-input-container>
+    </div>
+
+    <h3>Emergency Contact Info</h3>
+    <div layout="row" layout-xs="column" class="input-group-container">
+      <md-input-container flex="nogrow">
+        <label>First name</label>
+        <input type="text" name="firstName" ng-model="newTeerInfo.emerCon_firstName" size="30" required>
+      </md-input-container>
+      <md-input-container flex="nogrow" class="column-interior">
+        <label>Last Name</label>
+        <input type="text" ng-model="newTeerInfo.emerCon_lastName" size="30" required>
+      </md-input-container>
+    </div>
+    <div layout="column" layout-xs="column" layout-align="start start" class="input-group-container">
+      <div layout="column">
+        <md-input-container>
+          <label>Daytime Phone</label>
+          <input type="text" name="phone" ng-model="newTeerInfo.emerCon_phone" size="20" ui-mask="(999) 999-9999" clean="true" ng-required="true">
+        </md-input-container>
+      </div>
+      <md-input-container class="column-interior">
+        <label>Alternate Phone</label>
+        <input type="text" name="phone" ng-model="newTeerInfo.emerCon_altPhone" size="20" ui-mask="(999) 999-9999" clean="true" ng-required="true">
+      </md-input-container>
+    </div>
+
+    <h3>Emergency Contact Info</h3>
+    <div class="payment-group-container">
+      <md-input-container style="width:100%">
+        <div layout="column" style="heigh:160px">
+          <iframe src="app/views/waiverText.html" scrolling="yes">
+          </div>
+        </iframe scrolling="yes" style="overflow:scroll">
+        <md-checkbox ng-true-value="1" ng-false-value="0" aria-label="string">
+          I have read this waiver and agree to its terms.
+        </md-checkbox>
+      <div layout="row" layout-xs="column" class="input-group-container" style="margin-top:0; margin-bottom:20px">
+        <md-input-container>
+          <label>Volunteer Initials</label>
+          <input type="text" name="initials" ng-model="newTeerInfo.initials" required />
+        </md-input-container>
+        <md-input-container style="padding-left:10px">
+          <label>Date</label>
+          <input type="text" name="initialedDate" ng-model="newTeerInfo.initialedDate" required />
+        </md-input-container>
+      </div>
+      <span class="md-subhead">If volunteer is under 18, parent/guardian intials are required</span>
+      <div layout="row" layout-xs="column" class="input-group-container" style="margin-top:0">
+        <md-input-container>
+          <label>Parent/Guardian Initials</label>
+          <input type="text" name="parentInitials" ng-model="newTeerInfo.parentInitials" />
+        </md-input-container>
+        <md-input-container style="padding-left:10px">
+          <label>Date</label>
+          <input type="text" name="parentInitialedDate" ng-model="newTeerInfo.parentInitialedDate" />
+        </md-input-container>
+      </div>
+      <div id="partTwoError" style="display:none" class="custom-error-message">
+        This field is required.
+      </div>
+    </div>
+
+    <md-button ng-click="submitRegistration()">Submit</md-button>
+  </form>
+</md-content>

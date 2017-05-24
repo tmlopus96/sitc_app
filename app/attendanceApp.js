@@ -1,4 +1,4 @@
-var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute', 'ui.router', 'ngMessages'])
+var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute', 'ui.router', 'ngMessages', 'md.data.table'])
 
 //Config app states (each app tab is a separate state)
 app.config(function($stateProvider) {
@@ -10,24 +10,38 @@ app.config(function($stateProvider) {
       data: {requireLogin: true}
     })
 
-    .state('attendance.registered', {
-      url: '/registered',
-      templateUrl: 'app/attendanceTabControllers/registered.html',
-      controller: 'RegisteredController',
-      data: {requireLogin: true}
-    })
-    .state('attendance.checkedIn', {
-      url: '/checkedIn',
-      templateUrl: 'app/attendanceTabControllers/checkedIn.html',
-      controller: 'CheckedInController',
-      data: {requireLogin: true}
-    })
-    .state('attendance.assigned', {
-      url: '/assigned',
-      templateUrl: 'app/attendanceTabControllers/assigned.html',
-      controller: 'AssignedController',
-      data: {requireLogin: true}
-    })
+    // -- Attendance child states
+      .state('attendance.registered', {
+        url: '/registered',
+        templateUrl: 'app/attendanceTabControllers/registered.html',
+        controller: 'RegisteredController',
+        data: {requireLogin: true}
+      })
+      .state('attendance.checkedIn', {
+        url: '/checkedIn',
+        templateUrl: 'app/attendanceTabControllers/checkedIn.html',
+        controller: 'CheckedInController',
+        data: {requireLogin: true}
+      })
+      .state('attendance.assigned', {
+        url: '/assigned',
+        templateUrl: 'app/attendanceTabControllers/assigned.html',
+        controller: 'AssignedController',
+        data: {requireLogin: true}
+      })
+
+      .state('attendance.getFromOtherCarpoolSite', {
+        url: '/otherCarpool',
+        templateUrl: 'app/views/getFromOtherCarpool.html',
+        controller: 'GetFromOtherCarpoolSiteController',
+        data: {requireLogin: true}
+      })
+      .state('attendance.addNewVolunteer', {
+        url: '/addNewTeer',
+        templateUrl: 'app/views/addNewVolunteer.html',
+        controller: 'AddNewVolunteerController',
+        data: {requireLogin: true}
+      })
 
     .state('goAway', {
       url: '/goAway',
@@ -432,15 +446,16 @@ app.factory('getActiveSites', ['$http', '$log', '$q', '$mdDialog', function($htt
       activePlantSites = {};
       activePaintSites = {};
 
+      // $log.log("carpoolSite for getActiveSites: " + carpoolSite)
       return $http({
         method: "GET",
         url: "app/appServer/getActiveSites.php",
         params: {carpoolSite: carpoolSite}
       }).then(function mySuccess(response) {
-        $log.log('getSites request was sent')
-
+        // $log.log('getSites request was sent')
         if (Array.isArray(response.data)) {
           //-- for each active site returned by server, specify its icon and add it to the proper array
+          // $log.log("response.data, from getActiveSites: " + dump(response.data, 'none'))
           response.data.forEach(function(currentSite) {
             switch (currentSite["project"]) {
               case "paint":
@@ -469,7 +484,7 @@ app.factory('getActiveSites', ['$http', '$log', '$q', '$mdDialog', function($htt
         }
 
         haveLoadedSites = true;
-        $log.log('haveLoadedSites' + haveLoadedSites)
+        // $log.log('haveLoadedSites' + haveLoadedSites)
         deferred.resolve('done')
         return deferred.promise
       });
@@ -489,21 +504,17 @@ app.factory('getActiveSites', ['$http', '$log', '$q', '$mdDialog', function($htt
         case "all":
           // assemble the allSites array here as opposed to on return from server to avoid assembling it if it is not needed
           var allSites = {};
-          for (var paintSiteId in activePaintSites) {
-            if (activePaintSites.hasOwnProperty(paintSiteId)) {
-              allSites[paintSiteId] = activePaintSites[paintSiteId];
-            }
-          }
-          for (var plantSiteId in activePlantSites) {
-            if (activePlantSites.hasOwnProperty(plantSiteId)) {
-              allSites[plantSiteId] = activePlantSites[plantSiteId];
-            }
-          }
-          for (var playSiteId in activePlaySites) {
-            if (activePlaySites.hasOwnProperty(playSiteId)) {
-              allSites[playSiteId] = activePlaySites[playSiteId];
-            }
-          }
+          // $log.log("activePaintSites: " + dump(activePaintSites, 'none'))
+          Object.keys(activePaintSites).forEach(function(currentSite) {
+            allSites[currentSite] = activePaintSites[currentSite];
+          })
+          Object.keys(activePlantSites).forEach(function(currentSite) {
+            allSites[currentSite] = activePlantSites[currentSite];
+          })
+          Object.keys(activePlaySites).forEach(function(currentSite) {
+            allSites[currentSite] = activePlaySites[currentSite];
+          })
+          // $log.log("allSites, before return: " + dump(allSites, 'none'))
           return allSites;
           break;
         default:
@@ -528,21 +539,7 @@ app.factory('getActiveSites', ['$http', '$log', '$q', '$mdDialog', function($htt
   }
 }])
 
-/*
- * updateCheckedIn
- * Updates a person's check-in status parameters on the server
- * Pre: personId is a valid person, and valuesToUpdate contains check-in parameters to update on server
- * Post: Values are updated on server
- */
-app.factory('updateCheckedIn', ['$http', '$log', '$q', function($http, $log, $q) {
-  return function(personId, valuesToUpdate) {
-    $http({
-      method: "GET",
-      url: "app/appServer/updateCheckedIn.php",
-      params: valuesToUpdate
-    });
-  }
-}])
+
 
 //** It's possible this service is never used? Removing it is on the Trello to-do list
 app.factory('checkOut', ['$http', '$log', '$q', function($http, $log, $q) {
@@ -594,187 +591,10 @@ app.factory('assignToDriver', ['$http', '$log', function($http, $log) {
 }])
 
 /*
- * IndexController
- * Controller for the highest-level view of the app
- */
-app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', '$mdSidenav', '$log', '$q', '$mdMedia', '$state', 'loginModal', 'logout', 'sitePickerGenerator', 'getActiveSites', 'changePasswordModal', function($scope, $rootScope, $http, $mdToast, $mdSidenav, $log, $q, $mdMedia, $state, loginModal, logout, sitePickerGenerator, getActiveSites, changePasswordModal) {
-
-  // set in AttendanceController, but accessed from here
-  $rootScope.currentState
-
-  //--- Controller initialization logic
-  $scope.screenIsXsmall = $mdMedia('xs')
-  $scope.screenIsSmall = $mdMedia('sm')
-
-  $scope.personsContainersConfig = function() {
-
-    // containers for persons
-    $scope.persons = {};
-    $scope.drivers = {}
-    $scope.projectSites = {}
-    // TODO have active projects and sites dynamically load from logistics report
-    $scope.registeredPersons = [];
-    $scope.projectsWithPersons = {all: [], paint: [], plant: [], play: []}
-    $scope.projectSitesWithPersons = {}
-
-    var activeSitesPromise = getActiveSites($rootScope.myCarpoolSite, "all")
-    activeSitesPromise.then(function mySuccess(activeSites) {
-      var defer = $q.defer()
-      // Put each site into projectSitesWithPersons obj
-      Object.keys(activeSites).forEach(function(id, index, allIds) {
-        $scope.projectSitesWithPersons[id] = new Array()
-        $scope.projectSites[id] = activeSites[id]
-        $log.log('forEach running')
-        if (index === allIds.length-1) { //if last iteration, resolve promise
-          defer.resolve()
-          $log.log('last iteration; returned promise!')
-        }
-      })
-      return defer.promise
-    }).then(function() {
-      // after sites in place, then load ppl
-      $http({
-        method: "GET",
-        url: "app/appServer/getRegistered.php",
-        params: {carpoolSite: $rootScope.myCarpoolSite}
-      }).then(function mySuccess(response) {
-        //$scope.persons = response.data;
-        response.data.forEach(function(currentPerson) {
-          switch (currentPerson["preferredProject"]) {
-            case "paint":
-               currentPerson["projectIcon"] = "paint_icon.svg"
-               break
-             case "plant":
-               currentPerson["projectIcon"] = "plant_icon.svg"
-               break
-             case "play":
-               currentPerson["projectIcon"] = "play_icon.svg"
-             default:
-               currentPerson["projectIcon"] = "all_projects_icon.svg"
-          }
-          var myId = currentPerson["person_id"];
-          // set up drivers obj
-          if (currentPerson["driverStatus"] == 'isDriver') {
-            if ($scope.drivers[myId]) {
-              $scope.drivers[myId].numSeatbelts = currentPerson.numSeatbelts
-              $scope.drivers[myId].carMake = currentPerson.carMake
-            } else {
-              $scope.drivers[myId] = {
-                "numSeatbelts": currentPerson.numSeatbelts,
-                "passengers": [],
-                "carMake": currentPerson.carMake,
-              }
-            }
-          } else if (currentPerson['assignedToDriver_id'] != 0 && currentPerson['assignedToDriver_id'] != null) {
-            if ($scope.drivers[currentPerson["assignedToDriver_id"]]) {
-              $scope.drivers[currentPerson["assignedToDriver_id"]].passengers.push(myId)
-            } else {
-              // handles case in which a passenger is loaded before their driver and thus their driver is not in the $scope.drivers array yet
-              $scope.drivers[currentPerson["assignedToDriver_id"]] = {"passengers": []}
-              $scope.drivers[currentPerson["assignedToDriver_id"]].passengers.push(myId)
-            }
-          }
-
-          // push person to proper array(s) according to their current assignment status
-          $scope.persons[myId] = currentPerson;
-          if ($scope.persons[myId].assignedToSite_id != null && $scope.persons[myId].assignedToSite_id != '') {
-            $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
-          } else if ($scope.persons[myId].assignedToProject != null && $scope.persons[myId].assignedToProject != '') {
-            $scope.projectsWithPersons[$scope.persons[myId].assignedToProject].push(myId)
-          } else {
-            $scope.registeredPersons.push(myId)
-          }
-        });
-      })
-    })
-  }
-
-  // Initialize $rootScope.currentUser object if there is a local storage entry with non-expired login info
-  if (localStorage.getItem("user")) {
-    var storedUser = JSON.parse(localStorage.getItem("user"))
-    var expirationDate = new Date(storedUser.expirationDate)
-    var now = new Date()
-    if (expirationDate.getTime() > now.getTime()) {
-      $rootScope.currentUser = storedUser
-      $rootScope.myCarpoolSite = storedUser.site
-      $scope.carpoolSite = storedUser.site
-      $log.log('lodaded carpool site ' + $scope.myCarpoolSite + ' from storedUser')
-      $scope.personsContainersConfig()
-    }
-  }
-
-  $scope.$on('congifPersonsContainers', function() {
-    $scope.carpoolSite = $rootScope.myCarpoolSite
-    $scope.personsContainersConfig()
-    $state.go('attendance.registered')
-    $rootScope.currentState = 'attendance.registered'
-  })
-  //---end ctrler init logic
-
-  //-- Functions for controls to bind to
-  $scope.login = function() {
-    loginModal()
-  }
-
-  $scope.logout = function() {
-    logout().then(function() {
-      $scope.toggleLeftMenu()
-      loginModal()
-    })
-  }
-
-  $scope.changePassword = function() {
-    changePasswordModal($rootScope.currentUser.username)
-  }
-
-  //TODO make carpool sites load dynamically
-  $scope.carpoolSites = [
-    { id: 'aa', name: 'Ann Arbor'},
-    { id: 'bf', name: 'Bloomfield Hills'},
-    { id: 'brk', name: 'Berkley'},
-    { id: 'cp', name: 'Clark Park'},
-    { id: 'drbn', name: 'Dearborn'},
-    { id: 'gp', name: 'Grosse Pointe'},
-    { id: 'gro', name: 'Groves'},
-    { id: 'nf', name: 'North Farmington'},
-    { id: 'nv', name: 'Northville'},
-    { id: 'ren', name: 'Renaissance'},
-    { id: 'troy', name: 'Troy'}
-  ]
-
-  $scope.carpoolSitesNames = {
-    'aa': 'Ann Arbor',
-    'bf' : 'Bloomfield Hills',
-    'brk': 'Berkley',
-    'cp': 'Clark Park',
-    'drbn': 'Dearborn',
-    'gp': 'Grosse Pointe',
-    'gro': 'Groves',
-    'nf': 'North Farmington',
-    'nv': 'Northville',
-    'ren': 'Renaissance',
-    'troy': 'Troy'
-  }
-
-  $scope.reconfigPersonsContainers = function() {
-    $rootScope.myCarpoolSite = $scope.carpoolSite
-    $scope.personsContainersConfig()
-    $state.go('attendance.registered')
-    $rootScope.currentState = 'attendance.registered'
-    $mdToast.showSimple('Loaded carpool site ' + $scope.carpoolSite)
-  }
-
-   $scope.toggleLeftMenu = function () {
-     $mdSidenav('left').toggle();
-   }
-
-}])
-
-/*
  * LoginModalController
  * Provides interface between login modal form and UserAuth service
  */
-app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', '$window', 'UserAuth', function($scope, $mdDialog, $log, $window, UserAuth) {
+app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', '$window', 'UserAuth', 'getCarpoolSites', function($scope, $mdDialog, $log, $window, UserAuth, getCarpoolSites) {
   $log.log('LoginModalController was called!')
 
   $scope.myUsername = ''
@@ -785,19 +605,9 @@ app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', '$window'
     $scope.myCarpoolSite = localStorage.getItem('user')
   }
 
-  $scope.carpoolSites = [
-    { id: 'aa', name: 'Ann Arbor'},
-    { id: 'bf', name: 'Bloomfield Hills'},
-    { id: 'brk', name: 'Berkley'},
-    { id: 'cp', name: 'Clark Park'},
-    { id: 'drbn', name: 'Dearborn'},
-    { id: 'gp', name: 'Grosse Pointe'},
-    { id: 'gro', name: 'Groves'},
-    { id: 'nf', name: 'North Farmington'},
-    { id: 'nv', name: 'Northville'},
-    { id: 'ren', name: 'Renaissance'},
-    { id: 'troy', name: 'Troy'}
-  ]
+  getCarpoolSites().then(function (sites) {
+    $scope.carpoolSites = sites
+  })
 
   $scope.cancelDialog = function() {
     $mdDialog.cancel()
@@ -829,7 +639,7 @@ app.controller('LoginModalController', ['$scope', '$mdDialog', '$log', '$window'
   }
 
   $scope.resetUsernameValidity = function() {
-    $scope.loginForm.username.$setValidity("notFound", true)
+      $scope.loginForm.username.$setValidity("notFound", true)
   }
 
   $scope.resetPasswordValidity = function() {
@@ -972,276 +782,8 @@ app.controller('AttendanceController', ['$scope', '$state', '$location', '$log',
  }
 }])
 
-/*
- * RegisteredController
- * Controls the Registered app tab
- */
-app.controller('RegisteredController', ['$scope', '$log', '$q', 'sitePickerGenerator', 'updateCheckedIn', function($scope, $log, $q, sitePickerGenerator, updateCheckedIn) {
 
-  function hideSpeedDialButtons(){
-      var speedDialButton_first = angular.element(document.querySelectorAll('#speedDialActionButton_first')).parent()
-      var speedDialButton_second = angular.element(document.querySelectorAll('#speedDialActionButton_second')).parent()
-      var speedDialButton_third = angular.element(document.querySelectorAll('#speedDialActionButton_third')).parent()
 
-      speedDialButton_first.css({'transform':'translate(44px)', 'z-index':'-21'})
-      speedDialButton_second.css({'transform':'translate(88px)', 'z-index':'-22'})
-      speedDialButton_third.css({'transform':'translate(132px)', 'z-index':'-23'})
-    }
-
-  $scope.$on('$stateChangeSuccess', function(event, toState) {
-    $log.log('stateChangeSuccess func ran! with toState ' + toState.name)
-
-    if (toState.name == 'attendance.registered' || toState.name == 'attendance.checkedIn' || toState.name == 'attendance.assigned') {
-      setTimeout(function(){hideSpeedDialButtons()}, 0)
-      }
-    })
-
-    // $scope.testAttenCtrlAccess = "I can access RegisteredController!"
-
-    $scope.speedDialIsOpen = false
-
-    /*
-     * checkInPerson
-     * Updates $scope arrays to reflect changes to persons's checkin status parameters, then updates them on the server.
-     * Pre: personId is a valid person; selectedProject is a valid project, or null
-     * Post: $scope arrays and server have been updated to reflect changes to person's checkin status parameters. corresponding view updates are automatically triggered by changes to $scope arrays (i.e. person is moved to the correct list in the correct tab).
-     */
-    $scope.checkInPerson = function(personId, selectedProject) {
-      function updateArrays() {
-        var deferred = $q.defer();
-        var valuesToUpdate = {"id":personId, "carpoolSite":$scope.carpoolSite, "project":selectedProject}
-
-        if (selectedProject == 'all') {
-          $scope.projectsWithPersons['all'].push(personId)
-          $scope.persons[personId].assignedToProject = 'all'
-          deferred.resolve(valuesToUpdate)
-        } else {
-          var promise = sitePickerGenerator($scope.carpoolSite, selectedProject)
-          promise.then(function(selectedSite) {
-            if (selectedSite == 'allSites') {
-              $log.log("selectedSite" + selectedSite)
-              $scope.projectsWithPersons[selectedProject].push(personId)
-              $scope.persons[personId].assignedToProject = selectedProject
-              deferred.resolve(valuesToUpdate)
-            }
-            else {
-              $log.log('**selectedSite is' + selectedSite)
-              $scope.projectSitesWithPersons[selectedSite].push(personId)
-              $scope.persons[personId].assignedToProject = selectedProject
-              $scope.persons[personId].assignedToSite_id = selectedSite
-              valuesToUpdate["site"] = selectedSite;
-              deferred.resolve(valuesToUpdate)
-            }
-          })
-        }
-        return deferred.promise
-      }
-
-      var promise = updateArrays();
-      promise.then(function(valuesToUpdate) {
-        $log.log("site to update: " + valuesToUpdate["site"])
-        updateCheckedIn(personId, valuesToUpdate)
-        var personIndex = $scope.registeredPersons.indexOf(personId)
-        $scope.registeredPersons.splice(personIndex, 1)
-      })
-    }
-   }])
-
-   /*
-    * CheckedInController
-    * Controls the CheckedIn app tab
-    */
-   app.controller('CheckedInController', ['$scope', '$log', '$q', '$mdToast', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', function($scope, $log, $q, $mdToast, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator) {
-
-     function hideSpeedDialButtons(){
-         var speedDialButton_first = angular.element(document.querySelectorAll('#speedDialActionButton_first')).parent()
-         var speedDialButton_second = angular.element(document.querySelectorAll('#speedDialActionButton_second')).parent()
-         var speedDialButton_third = angular.element(document.querySelectorAll('#speedDialActionButton_third')).parent()
-
-         speedDialButton_first.css({'transform':'translate(52px)', 'z-index':'-21'})
-         speedDialButton_second.css({'transform':'translate(104px)', 'z-index':'-22'})
-         speedDialButton_third.css({'transform':'translate(156px)', 'z-index':'-23'})
-       }
-
-     $scope.$on('$stateChangeSuccess', function(event, toState) {
-       $log.log('stateChangeSuccess func ran! with toState ' + toState.name)
-
-       if (toState.name == 'attendance.registered' || toState.name == 'attendance.checkedIn' || toState.name == 'attendance.assigned') {
-         setTimeout(function(){hideSpeedDialButtons()}, 0)
-         }
-       })
-
-     // for anchor buttons
-     $scope.goToSectionHeader = function(sectionId) {
-       $log.log('running goToSectionHeader for section ' + sectionId)
-       var id = sectionId + "Header"
-       $location.hash(id)
-       $anchorScroll()
-     }
-
-     $scope.numCheckedIn = {
-       "all" : $scope.projectsWithPersons['all'].length,
-       "paint" : $scope.projectsWithPersons['paint'].length,
-       "plant" : $scope.projectsWithPersons['plant'].length,
-       "play" : $scope.projectsWithPersons['play'].length,
-     }
-
-     // -- Watch the number of elements in the checked-in-persons arrays and update accordingly
-     $scope.$watch(
-       function() {
-         return $scope.projectsWithPersons['all'].length
-       },
-       function(newValue, oldValue) {
-         $scope.numCheckedIn['all'] = newValue
-       }
-     )
-
-     $scope.$watch(
-       function() {
-         return $scope.projectsWithPersons['paint'].length
-       },
-       function(newValue, oldValue) {
-         $scope.numCheckedIn['paint'] = newValue
-       }
-     )
-
-     $scope.$watch(
-       function() {
-         return $scope.projectsWithPersons['plant'].length
-       },
-       function(newValue, oldValue) {
-         $scope.numCheckedIn['plant'] = newValue
-       }
-     )
-
-     $scope.$watch(
-       function() {
-         return $scope.projectsWithPersons['play'].length
-       },
-       function(newValue, oldValue) {
-         $scope.numCheckedIn['play'] = newValue
-       }
-     )
-
-     /*
-      * checkInPerson
-      * Updates $scope arrays to reflect changes to persons's checkin status parameters, then updates them on the server.
-      * Pre: personId is a valid person; selectedProject is a valid project, and arrayLoc indicates which $scope array the person is currently located in
-      * Post: $scope arrays and server have been updated to reflect changes to person's checkin status parameters. corresponding view updates are automatically triggered by changes to $scope arrays (i.e. person is moved to the correct list in the correct tab).
-      */
-     $scope.checkInPerson = function(personId, selectedProject, arrayLoc) {
-
-       function updateArrays() {
-         var deferred = $q.defer();
-         var valuesToUpdate = {"id":personId, "carpoolSite":$scope.carpoolSite, "project":selectedProject}
-
-         var promise = sitePickerGenerator($scope.carpoolSite, selectedProject)
-         promise.then(function(selectedSite) {
-           if (selectedSite == 'allSites') {
-             $log.log("selectedSite" + selectedSite)
-             $scope.projectsWithPersons[selectedProject].push(personId)
-             $scope.persons[personId].assignedToProject = selectedProject
-             deferred.resolve(valuesToUpdate)
-           } else {
-             $log.log('**selectedSite is' + selectedSite)
-             $scope.projectSitesWithPersons[selectedSite].push(personId)
-             $scope.persons[personId].assignedToProject = selectedProject
-             $scope.persons[personId].assignedToSite_id = selectedSite
-             valuesToUpdate["site"] = selectedSite;
-             deferred.resolve(valuesToUpdate)
-           }
-         })
-         return deferred.promise
-       }
-
-       var promise = updateArrays();
-       promise.then(function(valuesToUpdate) {
-         $log.log("site to update: " + valuesToUpdate["site"])
-         updateCheckedIn(personId, valuesToUpdate)
-         var personIndex = $scope.projectsWithPersons[arrayLoc].indexOf(personId)
-         $scope.projectsWithPersons[arrayLoc].splice(personIndex, 1)
-       })
-     }
-
-     // Driver business
-     $scope.updateDriverStatus = function(personId) {
-       // person.drierStatus controlled by switch in checkedIn and assigned directives
-       // TODO add a warning about how toggling a driver off will remove their passengers (added Trello card)
-       $log.log('calling driverStatus on person ' + personId + 'with isDriver')
-       var newStatus = $scope.persons[personId].driverStatus
-       // update status on server, then update $scope arrays
-       var driverPromise = driverStatus(personId, newStatus)
-       driverPromise.then(function() {
-         var driverName = $scope.persons[personId].firstName
-         if (newStatus == 'isDriver') {
-           $scope.drivers[personId] = {
-             "numSeatbelts": $scope.persons[personId].numSeatbelts,
-             "passengers": [],
-             "carMake": $scope.persons[personId].carMake,
-           }
-           var message = "Added Driver: "
-         } else {
-           if ($scope.drivers.hasOwnProperty(personId)) {
-             $scope.drivers[personId].passengers.forEach(function(currentPassenger) {
-               assignToDriver(currentPassenger, '')
-               $scope.persons[currentPassenger].assignedToDriver_id = null
-             })
-             delete $scope.drivers[personId]
-           }
-           var message = "Removed Driver: "
-         }
-         $mdToast.showSimple(message + driverName)
-       })
-     }
-
-     $scope.assignDriver = function(personId) {
-       // array of active drivers to pass to driverPickerGenerator (because it cannot access the CheckedInController's scope)
-       var activeDrivers = new Array()
-       for (var id in $scope.persons) {
-         if ($scope.persons[id].hasOwnProperty("driverStatus")) {
-           if ($scope.persons[id].driverStatus == "isDriver") {
-             var projectSite = ($scope.persons[id].assignedToSite_id != null) ? $scope.persons[id].assignedToSite_id : null
-             $log.log('this driver is assigned to site ' + projectSite)
-             var projectSiteName = ($scope.projectSites[projectSite] != null) ? $scope.projectSites[projectSite].name : ''
-             activeDrivers.push({"id":id, "name":$scope.persons[id].firstName + ' ' + $scope.persons[id].lastName, "project":$scope.persons[id].assignedToProject, "site":projectSiteName})
-           }
-         }
-       }
-
-       var driverPromise = driverPickerGenerator(activeDrivers)
-       driverPromise.then(function(selectedDriver) {
-         // if selectedDriver=='', person is being unassigned, so save driver they are being unassigned from for toast message later
-         if (selectedDriver == '') {
-           var prevDriver = $scope.persons[personId].assignedToDriver_id
-         }
-
-         //in case unassign is called on already-unassigned person
-         if (selectedDriver == '' && (prevDriver == '' || prevDriver == null || prevDriver == 0)) {
-           return
-         }
-
-         $scope.persons[personId].assignedToDriver_id = selectedDriver
-         $log.log('about to call assignToDriver on person ' + personId + ' to driver ' + selectedDriver)
-         var assignDriverPromise = assignToDriver(personId, selectedDriver)
-         assignDriverPromise.then(function mySuccess() {
-           var personName = $scope.persons[personId].firstName
-
-           if ($scope.drivers[selectedDriver]) {
-             var driverName = $scope.persons[selectedDriver].firstName
-             $scope.drivers[selectedDriver].passengers.push(personId)
-             $mdToast.show($mdToast.simple().textContent('Assigned ' + personName + ' to driver ' + driverName))
-           } else if (prevDriver != '') {
-             var driverName = $scope.persons[prevDriver].firstName
-             var passengerIndex = $scope.drivers[prevDriver].passengers.indexOf(personId)
-             $scope.drivers[prevDriver].passengers.splice(passengerIndex, 1)
-             $mdToast.show($mdToast.simple().textContent('Removed ' + personName + ' from ' + driverName + '\'s car'))
-           }
-         })
-       })
-     }
-
-     $scope.driverControlPanel = function(driver) {driverControlPanelGenerator(driver, $scope)}
-   }])
 
 /*
  * AssignedController
