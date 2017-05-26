@@ -95,6 +95,60 @@ app.factory('getTempRegistrations', ['$log', '$q', '$http', function($log, $q, $
   }
 }])
 
+app.factory('getTeerCars', ['$log', '$q', '$http', function($log, $q, $http) {
+
+  return function (carpoolSite) {
+    var defer = $q.defer()
+
+    var paramsToPass = {}
+    if (carpoolSite) {
+      paramsToPass['carpoolSite_id'] = carpoolSite
+    }
+
+    $http({
+      method: "GET",
+      url: "app/appServer/getTeerCars.php",
+      params: paramsToPass
+    }).then(function success (response) {
+      var teerCars = {}
+      response.data.forEach(function(teerCar) {
+        teerCars[teerCar.teerCar_id] = teerCar
+      })
+      // $log.log("teerCars from getTeerCars: " + dump(teerCars, 'none'))
+      defer.resolve(teerCars)
+    })
+    return defer.promise
+  }
+
+}])
+
+app.factory('getVans', ['$log', '$q', '$http', function($log, $q, $http) {
+
+  return function (carpoolSite) {
+    var defer = $q.defer()
+
+    var paramsToPass = {}
+    if (carpoolSite) {
+      paramsToPass['carpoolSite'] = carpoolSite
+    }
+
+    $http({
+      method: "GET",
+      url: "app/appServer/getVans.php",
+      params: paramsToPass
+    }).then(function success (response) {
+      var vans = {}
+      response.data.forEach(function(van) {
+        vans[van.van_id] = van
+      })
+      // $log.log("vans from getTeerCars: " + dump(vans, 'none'))
+      defer.resolve(vans)
+    })
+    return defer.promise
+  }
+
+}])
+
 /*** Setters ***/
 
 /*
@@ -140,4 +194,42 @@ app.factory('submitTempRegistration', ['$http', '$log', '$q', function($http, $l
     return defer.promise
   }
 
+}])
+
+app.factory('updateActiveTeerCar', ['$log', '$q', '$http', '$mdToast', function($log, $q, $http, $mdToast) {
+  return function(myTeerCardId, paramsToUpdate) {
+
+    if (!paramsToUpdate) {
+      paramsToUpdate = {}
+    }
+
+    paramsToUpdate["teerCarId"] = myTeerCardId
+
+    return $http({
+      url: "app/appServer/updateActiveTeerCar.php",
+      method: 'POST',
+      params: paramsToUpdate
+    })
+    // TODO: catch errors on server fail
+
+  }
+}])
+
+app.factory('updateVan', ['$log', '$q', '$http', '$mdToast', function($log, $q, $http, $mdToast) {
+  return function(myVanId, paramsToUpdate) {
+
+    if (!paramsToUpdate) {
+      paramsToUpdate = {}
+    }
+
+    paramsToUpdate["vanId"] = myVanId
+
+    return $http({
+      url: "app/appServer/updateVan.php",
+      method: 'POST',
+      params: paramsToUpdate
+    })
+    // TODO: catch errors on server fail
+
+  }
 }])

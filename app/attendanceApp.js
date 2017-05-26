@@ -328,7 +328,7 @@ app.factory('driverPickerGenerator', ['$q', '$log', '$mdBottomSheet', function($
  */
 app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast', 'driverStatus', 'assignToDriver', function($q, $log, $mdDialog, $mdToast, driverStatus, assignToDriver) {
 
-  return function(myDriver, $scope) {
+  return function(myDriver, $scope, myTeerCarId = null, myVanId = null) {
 
     $log.log('ran driverControlPanelGenerator!')
 
@@ -337,13 +337,19 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
       scope: $scope,
       preserveScope: true,
       parent: angular.element(document.body),
-      locals: { driver: myDriver },
-      controller: ['scope', 'driver', function(scope, driver) {
+      locals: {
+        driver: myDriver,
+        teerCarId: myTeerCarId,
+        vanId: myVanId
+      },
+      controller: ['scope', 'driver', 'teerCarId', 'vanId', function(scope, driver, teerCarId, vanId) {
         $log.log('driver for control panel is' + $scope.persons[driver].firstName)
 
         // create objects representing driver on the scope of this modal
         $scope.driver = driver
         $scope.myPassengers = []
+        $scope.teerCarId = teerCarId
+        $scope.vanId = vanId
 
         if ($scope.drivers[driver]) {
           $log.log('passengers alledgedly is defined')
@@ -414,8 +420,12 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
           $scope.myPassengers.splice(index, 1)
         }
 
+        $scope.unassignDriverFromTeerCar = function(driver) {
+          $mdDialog.hide('removeDriver')
+        }
+
         $scope.closeDialog = function() {
-          $mdDialog.hide()
+          $mdDialog.cancel()
         }
       }]
     })
@@ -967,7 +977,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
        var activeDrivers = new Array()
        for (var id in $scope.persons) {
          if ($scope.persons[id].hasOwnProperty("driverStatus")) {
-           if ($scope.persons[id].driverStatus == "isDriver") {
+           if ($scope.persons[id].driverStatus == "isDriver" || $scope.persons[id].driverStatus == "isVanDriver" || $scope.persons[id].driverStatus == "isTeerCarDriver") {
              var projectSite = ($scope.persons[id].assignedToSite_id != null) ? $scope.persons[id].assignedToSite_id : null
              $log.log('this driver is assigned to site ' + projectSite)
              var projectSiteName = ($scope.projectSites[projectSite] != null) ? $scope.projectSites[projectSite].name : ''

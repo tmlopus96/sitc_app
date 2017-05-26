@@ -1,7 +1,9 @@
 <md-dialog aria-label="List dialog">
   <md-toolbar>
     <div class="md-toolbar-tools primary-text-opacity">
-      <h2>{{ persons[driver].firstName }} {{ persons[driver].lastName }}</h2>
+      <h2 ng-hide="teerCarId || vanId">{{ persons[driver].firstName }} {{ persons[driver].lastName }}</h2>
+      <h2 ng-show="teerCarId">Volunteer Car: {{ projectSites[persons[driver].assignedToSite_id].name }}</h2>
+      <h2 ng-show="vanId">{{vans[vanId].name}}</h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="closeDialog()">
         <md-icon class="material-icons" style="color:white">clear</md-icon>
@@ -9,7 +11,15 @@
     </div>
   </md-toolbar>
   <md-dialog-content>
-    <md-switch ng-model="persons[driver].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
+    <div ng-hide="teerCarId || vanId">
+      <md-switch ng-model="persons[driver].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
+    </div>
+    <div ng-show="teerCarId || vanId" layout="row" layout-align="start center" style="margin-bottom: 15px">
+      <span class="md-title">Driver: <strong>{{ persons[driver].firstName}} {{ persons[driver].lastName}}</strong></span>
+      <md-button class="md-icon-button" ng-click="unassignDriverFromTeerCar(driver)">
+        <md-icon>close</md-icon>
+      </md-button>
+    </div>
     <md-title style="padding-bottom:0;height:auto;font-size:16px;font-weight:500">Passengers</md-title>
     <md-content>
       <md-list style="margin-left:0">

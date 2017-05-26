@@ -2,7 +2,7 @@
  * IndexController
  * Controller for the highest-level view of the app
  */
-app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', '$mdSidenav', '$log', '$q', '$mdMedia', '$state', 'loginModal', 'logout', 'sitePickerGenerator', 'getActiveSites', 'changePasswordModal', 'getCarpoolSites', 'getTempRegistrations', function($scope, $rootScope, $http, $mdToast, $mdSidenav, $log, $q, $mdMedia, $state, loginModal, logout, sitePickerGenerator, getActiveSites, changePasswordModal, getCarpoolSites, getTempRegistrations) {
+app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', '$mdSidenav', '$log', '$q', '$mdMedia', '$state', 'loginModal', 'logout', 'sitePickerGenerator', 'getActiveSites', 'changePasswordModal', 'getCarpoolSites', 'getTempRegistrations', 'getTeerCars', 'getVans', function($scope, $rootScope, $http, $mdToast, $mdSidenav, $log, $q, $mdMedia, $state, loginModal, logout, sitePickerGenerator, getActiveSites, changePasswordModal, getCarpoolSites, getTempRegistrations, getTeerCars, getVans) {
 
   $log.log("Hello, World! IndexController is running!")
 
@@ -27,7 +27,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
     var activeSitesPromise = getActiveSites($rootScope.myCarpoolSite, "all")
     activeSitesPromise.then(function mySuccess(activeSites) {
       var defer = $q.defer()
-      $log.log("activeSites: " + dump(activeSites, 'nones'))
+      // $log.log("activeSites: " + dump(activeSites, 'none'))
       // Put each site into projectSitesWithPersons obj
       Object.keys(activeSites).forEach(function(id, index, allIds) {
         $scope.projectSitesWithPersons[id] = new Array()
@@ -35,10 +35,20 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
         $log.log('forEach running')
         if (index === allIds.length-1) { //if last iteration, resolve promise
           defer.resolve()
-          $log.log('last iteration; returned promise!')
+          // $log.log('last iteration; returned promise!')
         }
       })
       return defer.promise
+    }).then(function () {
+      return getTeerCars($rootScope.myCarpoolSite).then(function (teerCars) {
+        $scope.teerCars = teerCars
+        $log.log("Teer Cars: " + dump($scope.teerCars, 'none'))
+      })
+    }).then(function () {
+      return getVans($rootScope.myCarpoolSite).then(function (vans) {
+        $scope.vans = vans
+        $log.log("Vans: " + dump(vans, 'none'))
+      })
     }).then(function () {
       return getTempRegistrations($rootScope.myCarpoolSite)
     }).then(function (response) {
@@ -46,7 +56,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
       $scope.registrationsResponse = response
     }).then(function() {
       // after sites in place, then load ppl
-      $log.log("myCarpoolSite: " + $rootScope.myCarpoolSite)
+      // $log.log("myCarpoolSite: " + $rootScope.myCarpoolSite)
       $http({
         method: "GET",
         url: "app/appServer/getRegistered.php",
@@ -55,7 +65,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
         // $log.log('getRegistered response: ' + dump(response, 'none'))
         $scope.registrationsResponse = $scope.registrationsResponse.concat(response.data)
 
-        $log.log("$scope.registrationsResponse: " + dump($scope.registrationsResponse, 'none'))
+        // $log.log("$scope.registrationsResponse: " + dump($scope.registrationsResponse, 'none'))
         $scope.registrationsResponse.forEach(function(currentPerson) {
           if (currentPerson['preferredProject']) {
             switch (currentPerson["preferredProject"]) {
@@ -73,7 +83,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
           }
           var myId = currentPerson["person_id"];
           // set up drivers obj
-          if (currentPerson["driverStatus"] == 'isDriver') {
+          if (currentPerson["driverStatus"] == 'isDriver' || currentPerson["driverStatus"] == 'isVanDriver' || currentPerson["driverStatus"] == 'isTeerCarDriver') {
             if ($scope.drivers[myId]) {
               $scope.drivers[myId].numSeatbelts = currentPerson.numSeatbelts
               $scope.drivers[myId].carMake = currentPerson.carMake

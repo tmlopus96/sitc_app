@@ -10,7 +10,110 @@
     <span flex></span>
   </div>
 
+  <md-subheader>Vans</md-subheader>
   <md-list class="personsList">
+    <div id="vansContainer" ng-repeat="(vanId, vanInfo) in vans">
+      <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center">
+        <div flex="30" class="md-list-item-text">
+          <h3>{{ vanInfo.name }}</h3>
+          <p>{{projectSites[vanInfo.assignedToSite].name}}</p>
+        </div>
+        <div flex="70" class="iconSetContainer" layout="row" layout-align="start cetner">
+          <div flex class="listIconContainer" layout-align="start center">
+            <div ng-show="vanInfo.driver_person_id != null && vanInfo.driver_person_id != ''">
+              <md-button aria-label="Manage driver" class="md-accent md-hue-1" ng-click="vanControlPanel(vanInfo.driver_person_id, vanId)" style="padding:0 !important; min-width:40px !important">
+                <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
+              </md-button>
+              <span>{{ persons[vanInfo.driver_person_id].firstName }} {{ persons[vanInfo.driver_person_id].lastName }}</span>
+            </div>
+            <div ng-show="vanInfo.driver_person_id == null || vanInfo.driver_person_id == ''">
+              <md-button ng-hide="" aria-label="Select driver" ng-click="assignVanDriver(vanId, vanInfo.assignedToSite)" style="padding:0 !important; min-width:40px !important">
+                <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
+              </md-button>
+            </div>
+          </div>
+          <div flex="40" class="listIconContainer" layout="row" layout-align="end center">
+            <md-fab-speed-dial flex ng-if="projectName == 'all'" class="md-fling" md-direction="left" md-open="false" ng-cloak>
+              <md-fab-trigger>
+                <md-button aria-label="menu" class="md-fab speedDialButton md-primary">
+                  <md-icon class="material-icons.md-18" style="color:white;">assignment_turned_in</md-icon>
+                </md-button>
+              </md-fab-trigger>
+              <div>
+                <md-fab-actions>
+                  <md-button aria-label="Paint" id="speedDialActionButton_first" ng-click="checkInPerson(person, 'paint', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Paint">paint</md-icon>
+                  </md-button>
+                  <md-button aria-label="Plant" id="speedDialActionButton_second" ng-click="checkInPerson(person, 'plant', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Plant">plant</md-icon>
+                  </md-button>
+                  <md-button aria-label="Play" id="speedDialActionButton_third" ng-click="checkInPerson(person, 'play', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Play">play</md-icon>
+                  </md-button>
+                </md-fab-actions>
+              </div> <!--speed dial actions container-->
+            </md-fab-speed-dial>
+            <md-button ng-if="projectName != 'all'" aria-label="menu" class="md-fab speedDialButton md-primary"  ng-click="checkInPerson(person, projectName, projectName)"> <!--instead of speedDial if project is already set-->
+              <md-icon class="sitc-icon-" style="color:white;">{{ persons[person].assignedToProject}}</md-icon>
+            </md-button>
+          </div>
+        </div> <!--end listIconSetContainer -->
+      </md-list-item>
+    </div> <!-- end #vansContainer -->
+
+    <md-divider ng-hide="Object.keys(vans).length < 1"></md-divider>
+    <md-subheader>Volunteer Cars</md-subheader>
+    <div id="teerCarsContainer" ng-repeat="(teerCarId, teerCarInfo) in teerCars">
+      <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center">
+        <!--<img ng-src="{{persons[person].imgUrl}}" class="md-avatar" alt="Avatar" />-->
+        <div flex="30" class="md-list-item-text">
+          <h3>Volunteer Car</h3>
+          <p>{{projectSites[teerCarInfo.assignedToSite].name}}</p>
+        </div>
+        <div flex="70" class="iconSetContainer" layout="row" layout-align="start cetner">
+          <div flex class="listIconContainer" layout-align="start center">
+            <div ng-show="teerCarInfo.driver_person_id != null && teerCarInfo.driver_person_id != ''">
+              <md-button aria-label="Manage driver" class="md-accent md-hue-1" ng-click="teerCarControlPanel(teerCarInfo.driver_person_id, teerCarId)" style="padding:0 !important; min-width:40px !important">
+                <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
+              </md-button>
+              <span>{{ persons[teerCarInfo.driver_person_id].firstName }} {{ persons[teerCarInfo.driver_person_id].lastName }}</span>
+            </div>
+            <div ng-show="teerCarInfo.driver_person_id == null || teerCarInfo.driver_person_id == ''">
+              <md-button ng-hide="" aria-label="Select driver" ng-click="assignTeerCarDriver(teerCarId, teerCarInfo.assignedToSite)" style="padding:0 !important; min-width:40px !important">
+                <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
+              </md-button>
+            </div>
+          </div>
+          <div flex="40" class="listIconContainer" layout="row" layout-align="end center">
+            <md-fab-speed-dial flex ng-if="projectName == 'all'" class="md-fling" md-direction="left" md-open="false" ng-cloak>
+              <md-fab-trigger>
+                <md-button aria-label="menu" class="md-fab speedDialButton md-primary">
+                  <md-icon class="material-icons.md-18" style="color:white;">assignment_turned_in</md-icon>
+                </md-button>
+              </md-fab-trigger>
+              <div>
+                <md-fab-actions>
+                  <md-button aria-label="Paint" id="speedDialActionButton_first" ng-click="checkInPerson(person, 'paint', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Paint">paint</md-icon>
+                  </md-button>
+                  <md-button aria-label="Plant" id="speedDialActionButton_second" ng-click="checkInPerson(person, 'plant', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Plant">plant</md-icon>
+                  </md-button>
+                  <md-button aria-label="Play" id="speedDialActionButton_third" ng-click="checkInPerson(person, 'play', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                    <md-icon class="sitc-icon-" style="color:white;" aria-label="Play">play</md-icon>
+                  </md-button>
+                </md-fab-actions>
+              </div> <!--speed dial actions container-->
+            </md-fab-speed-dial>
+            <md-button ng-if="projectName != 'all'" aria-label="menu" class="md-fab speedDialButton md-primary"  ng-click="checkInPerson(person, projectName, projectName)"> <!--instead of speedDial if project is already set-->
+              <md-icon class="sitc-icon-" style="color:white;">{{ persons[person].assignedToProject}}</md-icon>
+            </md-button>
+          </div>
+        </div> <!--end listIconSetContainer -->
+      </md-list-item>
+    </div> <!-- end #teerCarContainer -->
+
+
     <div ng-repeat="(projectName, projectPersons) in projectsWithPersons">
       <div id="{{projectName}}Header" ng-show="numCheckedIn[projectName] > 0">
         <md-divider ng-hide="$first"></md-divider>
@@ -25,9 +128,9 @@
           <div flex="70" class="iconSetContainer" layout="row" layout-align="start cetner">
             <div flex class="listIconContainer" layout-align="start center">
               <div ng-repeat="v in [0]"> <!--workaround proper display of switch-->
-                <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0" ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
+                <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0 || persons[person].hasCar == null" ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
               </div>
-              <md-button ng-hide="persons[person].hasCar == 0" aria-label="Manage driver" ng-disabled="!(persons[person].driverStatus == 'isDriver') && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver'}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
+              <md-button ng-hide="persons[person].hasCar == 0 || persons[person].hasCar == null" aria-label="Manage driver" ng-disabled="!(persons[person].driverStatus == 'isDriver') && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver'}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
                 <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
               </md-button>
             </div>

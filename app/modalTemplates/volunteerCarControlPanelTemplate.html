@@ -1,0 +1,32 @@
+<md-dialog aria-label="List dialog">
+  <md-toolbar>
+    <div class="md-toolbar-tools primary-text-opacity" layout="row">
+      <h2>{{ projectSites[teerCars[teerCar].assignedToSite].name }}<h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="closeDialog()">
+        <md-icon class="material-icons" style="color:white">clear</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content>
+    <!-- <md-switch ng-model="teerCars[teerCar].isActive" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch> -->
+    <div>
+      <span class="md-title">Driver: </span><span class="md-subhead">{{ persons[teerCars[teerCar].driver_person_id].firstName}} {{ persons[teerCars[teerCar].driver_person_id].lastName }}</span>
+    </div>
+    <div style="margin-top: 10px">
+      <span class="md-title">Passengers</span>
+    </div>
+    <md-content>
+      <md-list style="margin-left:0">
+        <md-list-item ng-repeat="passenger in myPassengers track by $index" style="padding-left:0">
+          <span ng-class="{'secondary-text-opacity': passenger == ''}">{{ $index + 1 }}.</span>
+          <p>&ensp;{{ persons[passenger].firstName }} {{ persons[passenger].lastName }}</p>
+          <span flex></span>
+          <md-button ng-hide="passenger == ''" class="md-icon-button secondary-text-opacity" ng-click="removePassenger(passenger)">
+            <md-icon class="material-icons">close</md-icon>
+          </md-button>
+        </md-list-item>
+      </md-list>
+    </md-content>
+  </md-dialog-content>
+</md-dialog>

@@ -2,7 +2,7 @@
  * CheckedInController
  * Controls the CheckedIn app tab
  */
-app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToast', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getRegistered', 'getTempRegistrations', function($scope, $state, $log, $q, $mdToast, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getRegistered, getTempRegistrations) {
+app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToast', '$mdDialog', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getRegistered', 'getTempRegistrations', 'assignTeerCarDriver', 'updateActiveTeerCar', 'updateVan', function($scope, $state, $log, $q, $mdToast, $mdDialog, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getRegistered, getTempRegistrations, assignTeerCarDriver, updateActiveTeerCar, updateVan) {
 
   function hideSpeedDialButtons(){
       var speedDialButton_first = angular.element(document.querySelectorAll('#speedDialActionButton_first')).parent()
@@ -180,7 +180,7 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
     var activeDrivers = new Array()
     for (var id in $scope.persons) {
       if ($scope.persons[id].hasOwnProperty("driverStatus")) {
-        if ($scope.persons[id].driverStatus == "isDriver") {
+        if ($scope.persons[id].driverStatus == "isDriver" || $scope.persons[id].driverStatus == "isVanDriver" || $scope.persons[id].driverStatus == "isTeerCarDriver") {
           var projectSite = ($scope.persons[id].assignedToSite_id != null) ? $scope.persons[id].assignedToSite_id : null
           $log.log('this driver is assigned to site ' + projectSite)
           var projectSiteName = ($scope.projectSites[projectSite] != null) ? $scope.projectSites[projectSite].name : ''
@@ -222,4 +222,201 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
   }
 
   $scope.driverControlPanel = function(driver) {driverControlPanelGenerator(driver, $scope)}
+
+  $scope.teerCarControlPanel = function(driver, teerCarId = null) {
+    driverControlPanelGenerator(driver, $scope, teerCarId).then(function furtherActionRequired(action) {
+
+      switch (action) {
+        case 'removeDriver':
+          removeDriver(driver, teerCarId)
+          break
+      }
+
+      function removeDriver(driver, teerCarId) {
+        var confirm = $mdDialog.confirm()
+                .title(`What should we do with ${$scope.persons[driver].firstName}'s passengers?`)
+                .textContent(`We can either keep them assigned as passengers to ${$scope.persons[driver].firstName}, or completely un-assign them and assign them to a new driver.`)
+                .ok(`Keep them assigned to ${$scope.persons[driver].firstName}`)
+                .cancel('Un-assign them')
+
+        $mdDialog.show(confirm).then(function keep() {
+
+        }, function unassign() {
+          $log.log("We'll unassign the passengers")
+          // driver status
+          $scope.persons[driver].driverStatus = null
+
+          // set passengers' assignedToDriver to null
+          angular.forEach($scope.drivers[driver].passengers, function(passenger) {
+            updateCheckedIn(passenger, {'assignedToDriver':$scope.persons[passenger].assignedToDrassignedToDriver_id}).then(function () {
+              $scope.persons[passenger].assignedToDriver_id = null
+            })
+          })
+
+          // splice driver from $scope[drivers]
+          delete $scope.drivers[driver]
+        }).finally(function () {
+          // set teerCar's driver to null
+          updateActiveTeerCar(teerCarId, {'driver_person_id': 'NULL'}).then(function() {
+            $scope.teerCars[teerCarId].driver_person_id = null
+          })
+        })
+      }
+
+
+    })
+  }
+
+  $scope.vanControlPanel = function(driver, vanId = null) {
+    driverControlPanelGenerator(driver, $scope, null, vanId).then(function success() {
+
+      $log.log("We'll unassign the passengers")
+      // driver status
+      $scope.persons[driver].driverStatus = null
+
+      // set passengers' assignedToDriver to null
+      angular.forEach($scope.drivers[driver].passengers, function(passenger) {
+        updateCheckedIn(passenger, {'assignedToDriver':$scope.persons[passenger].assignedToDrassignedToDriver_id}).then(function () {
+          $scope.persons[passenger].assignedToDriver_id = null
+        })
+      })
+
+      // splice driver from $scope[drivers]
+      delete $scope.drivers[driver]
+
+      // set teerCar's driver to null
+      updateVan(vanId, {'driver_person_id': 'NULL'}).then(function() {
+        $scope.vans[vanId].driver_person_id = null
+      })
+    })
+  }
+
+  $scope.assignTeerCarDriver = function (teerCarId, assignedToSite) {
+    assignTeerCarDriver(assignedToSite, $scope).then(function (selectedDriverId) {
+      $log.log("assignTeerCarDriver resolved with driver: " + selectedDriverId)
+      // update selectedDriverId's info in scope.persons and scope.drivers
+      var paramsToPass = {
+        'driverStatus': 'isTeerCarDriver',
+        'site': assignedToSite,
+        'project': $scope.projectSites[assignedToSite].project
+      }
+      updateCheckedIn(selectedDriverId, paramsToPass).then(function success() {
+        // if this person has already been assigned to a site, remove them from that site's array
+        if ($scope.persons[selectedDriverId].assignedToSite_id != null && $scope.persons[selectedDriverId].assignedToSite_id != '') {
+          var index = $scope.projectSitesWithPersons[$scope.persons[selectedDriverId].assignedToSite_id].indexOf(selectedDriverId)
+          if (index > -1) {
+            $scope.projectSitesWithPersons[$scope.persons[selectedDriverId].assignedToSite_id].splice(index, 1)
+          }
+        }
+
+        $scope.persons[selectedDriverId].driverStatus = 'isDriver'
+        $scope.persons[selectedDriverId].assignedToSite_id = assignedToSite
+        $scope.projectSitesWithPersons[assignedToSite].push(selectedDriverId)
+      })
+      if ($scope.drivers[selectedDriverId]) {
+        // this driver is already a driver; assign their passengers to the proper site
+        if ($scope.drivers[selectedDriverId].passengers && $scope.drivers[selectedDriverId].passengers.length > 0) {
+          angular.forEach($scope.drivers[selectedDriverId].passengers, function(passengerId) {
+            var paramsToPass = {
+              'site': assignedToSite,
+              'project': $scope.projectSites[assignedToSite].project,
+              'assignedToDriver': selectedDriverId
+            }
+            updateCheckedIn(passengerId, paramsToPass).then(function success () {
+              if ($scope.persons[passengerId].assignedToSite_id != null && $scope.persons[passengerId].assignedToSite_id != '') {
+                var index = $scope.projectSitesWithPersons[$scope.persons[passengerId].assignedToSite_id].indexOf(passengerId)
+                if (index > -1) {
+                  $scope.projectSitesWithPersons[$scope.persons[passengerId].assignedToSite_id].splice(index, 1)
+                }
+              }
+              $scope.persons[passengerId].assignedToSite_id = assignedToSite
+              $scope.projectSitesWithPersons[assignedToSite].push(passengerId)
+            })
+
+
+          })
+        }
+      }
+      else {
+        $scope.drivers[selectedDriverId] = {
+          "numSeatbelts": $scope.persons[selectedDriverId].numSeatbelts,
+          "passengers": [],
+          "carMake": $scope.persons[selectedDriverId].carMake,
+        }
+      }
+
+      // update this teerCar's info
+      updateActiveTeerCar(teerCarId, {'driver_person_id': selectedDriverId}).then(function success () {
+        $scope.teerCars[teerCarId].driver_person_id = selectedDriverId
+      })
+    })
+  }
+
+  $scope.assignVanDriver = function (vanId, assignedToSite) {
+    // assignTeerCarDriver modal works for vans too
+    assignTeerCarDriver(assignedToSite, $scope, true).then(function (selectedDriverId) {
+      $log.log("assignVanDriver resolved with driver: " + selectedDriverId)
+      // update selectedDriverId's info in scope.persons and scope.drivers
+      var paramsToPass = {
+        'driverStatus': 'isVanDriver',
+        'site': assignedToSite,
+        'project': $scope.projectSites[assignedToSite].project
+      }
+      updateCheckedIn(selectedDriverId, paramsToPass).then(function success() {
+        // if this person has already been assigned to a site, remove them from that site's array
+        if ($scope.persons[selectedDriverId].assignedToSite_id != null && $scope.persons[selectedDriverId].assignedToSite_id != '') {
+          var index = $scope.projectSitesWithPersons[$scope.persons[selectedDriverId].assignedToSite_id].indexOf(selectedDriverId)
+          if (index > -1) {
+            $scope.projectSitesWithPersons[$scope.persons[selectedDriverId].assignedToSite_id].splice(index, 1)
+          }
+        }
+
+        $scope.persons[selectedDriverId].driverStatus = 'isVanDriver'
+        $scope.persons[selectedDriverId].assignedToSite_id = assignedToSite
+        $scope.projectSitesWithPersons[assignedToSite].push(selectedDriverId)
+      })
+      if ($scope.drivers[selectedDriverId]) {
+        // this driver is already a driver; assign their passengers to the proper site
+        $scope.drivers[selectedDriverId].numSeatbelts = $scope.vans[vanId].numSeatbelts
+
+        if ($scope.drivers[selectedDriverId].passengers && $scope.drivers[selectedDriverId].passengers.length > 0) {
+          angular.forEach($scope.drivers[selectedDriverId].passengers, function(passengerId) {
+            var paramsToPass = {
+              'site': assignedToSite,
+              'project': $scope.projectSites[assignedToSite].project,
+              'assignedToDriver': selectedDriverId
+            }
+            updateCheckedIn(passengerId, paramsToPass).then(function success () {
+              if ($scope.persons[passengerId].assignedToSite_id != null && $scope.persons[passengerId].assignedToSite_id != '') {
+                var index = $scope.projectSitesWithPersons[$scope.persons[passengerId].assignedToSite_id].indexOf(passengerId)
+                if (index > -1) {
+                  $scope.projectSitesWithPersons[$scope.persons[passengerId].assignedToSite_id].splice(index, 1)
+                }
+              }
+              $scope.persons[passengerId].assignedToSite_id = assignedToSite
+              $scope.projectSitesWithPersons[assignedToSite].push(passengerId)
+            })
+
+
+          })
+        }
+      }
+      else {
+        $scope.drivers[selectedDriverId] = {
+          "numSeatbelts": $scope.vans[vanId].numSeatbelts,
+          "passengers": [],
+          "carMake": $scope.persons[selectedDriverId].carMake,
+        }
+      }
+
+      // update this teerCar's info
+      updateVan(vanId, {'driver_person_id': selectedDriverId}).then(function success () {
+        $scope.vans[vanId].driver_person_id = selectedDriverId
+      })
+    })
+  }
+
+  // $scope.teerCarControlPanel = function(teerCar) {
+  //   volunteerCarControlPanel(teerCar, $scope)
+  // }
 }])
