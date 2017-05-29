@@ -40,6 +40,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
       })
       return defer.promise
     }).then(function () {
+      $log.log("myCarpoolSite before getTeerCars: " + $scope.carpoolSite)
       return getTeerCars($rootScope.myCarpoolSite).then(function (teerCars) {
         $scope.teerCars = teerCars
         $log.log("Teer Cars: " + dump($scope.teerCars, 'none'))
@@ -62,11 +63,13 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
         url: "app/appServer/getRegistered.php",
         params: {carpoolSite: $rootScope.myCarpoolSite}
       }).then(function mySuccess(response) {
+        var defer = $q.defer()
+
         // $log.log('getRegistered response: ' + dump(response, 'none'))
         $scope.registrationsResponse = $scope.registrationsResponse.concat(response.data)
 
         // $log.log("$scope.registrationsResponse: " + dump($scope.registrationsResponse, 'none'))
-        $scope.registrationsResponse.forEach(function(currentPerson) {
+        $scope.registrationsResponse.forEach(function(currentPerson, index) {
           if (currentPerson['preferredProject']) {
             switch (currentPerson["preferredProject"]) {
               case "paint":
@@ -116,7 +119,21 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
           } else {
             $scope.registeredPersons.push(myId)
           }
+
+          // if last iteration of forEach, resolve promise
+          if (index == $scope.registrationsResponse.length - 1) {
+            defer.resolve()
+          }
         });
+        return defer.promise
+      }).then(function setVanDriverNumSeatbelts() {
+        // $log.log("setVanDriverNumSeatbelts running!")
+        angular.forEach($scope.vans, function(vanInfo, vanId) {
+          if (vanInfo.driver_person_id) {
+            $scope.persons[vanInfo.driver_person_id].numSeatbelts = vanInfo.numSeatbelts
+            $log.log("vanInfo.driver_person_id: " + vanInfo.driver_person_id)
+          }
+        })
       })
     })
   }

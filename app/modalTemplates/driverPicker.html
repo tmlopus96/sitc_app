@@ -1,20 +1,25 @@
-<md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0" ng-cloak>
-  <h2 class="md-title black-primary-text-opacity" style="line-height:20px;padding-left:16px; margin-bottom:9px; margin-top:20px">Assign to Driver</h2>
-  <md-list>
-    <md-list-item ng-repeat="driver in activeDrivers | orderBy:[driver.project, driver.site]" class="md-2-line md-ink-ripple" ng-click="selectWithDriver(driver.id)">
-        <md-icon class="sitc-icon- picker-icons">{{ driver.project }}</md-icon>
-        <div class="md-list-item-text">
-          <h3>{{ driver.name }}</h3>
-          <span class="md-body-1 secondary-text-opacity">{{ driver.site }}</span>
-        </div>
-    </md-list-item>
-    <md-list-item class="md-2-line md-ink-ripple md-warn" ng-click="selectWithDriver('')">
-      <md-icon class="material-icons picker-icons">close</md-icon>
-      <div class="md-list-item-text">
-        <h3 style="font-weight:bold">Un-assign</h3>
-      </div>
-    </md-list-item>
-  </md-list>
+<md-bottom-sheet class="md-list md-has-header" style="position:fixed; height: 80%; margin-bottom:0">
+  <md-content class="bottom-sheet-md-content">
+    <h2 class="md-title black-primary-text-opacity" style="line-height:20px;padding-left:16px; margin-bottom:9px; margin-top:20px">Assign to Driver</h2>
+    <div ng-show="forPerson.assignedToDriver_id != null && forPerson.assignedToDriver_id != ''" layout="row" layout-align="start center" style="padding-left: 16px">
+      <span class="md-subhead">Current Driver: {{ persons[forPerson.assignedToDriver_id].firstName }} {{ persons[forPerson.assignedToDriver_id].lastName}}</span>
+      <span flex="5" flex-xs="20"></span>
+      <md-button ng-click="selectWithDriver('')">
+        <md-icon>close</md-icon>
+        Un-assign
+      </md-button>
+    </div>
+    <md-list>
+      <md-list-item ng-repeat="driver in activeDrivers | orderBy:[driver.project, driver.site]" class="md-2-line md-ink-ripple" ng-click="selectWithDriver(driver.id)">
+          <md-icon class="sitc-icon- picker-icons">{{ driver.project }}</md-icon>
+          <div class="md-list-item-text">
+            <h3>{{ driver.name }}</h3>
+            <span ng-hide="driver.site == null || driver.site == ''" class="md-body-1 secondary-text-opacity">{{ driver.site }}</span>
+            <span ng-show="driver.site == null || driver.site == ''" class="md-body-1 secondary-text-opacity">{{ driver.project | uppercase }}</span>
+          </div>
+      </md-list-item>
+    </md-list>
+  </md-content>
 </md-bottom-sheet>
 
 

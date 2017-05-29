@@ -1,21 +1,32 @@
-<md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0" ng-cloak>
-  <md-subheader>Assign to Site</md-subheader>
-  <md-list>
-    <md-list-item>
-      <md-button
-          ng-click="listItemClick('allSites')"
-          class="md-list-item-content" >
-        <md-icon class="material-icons">{{allSitesDefault[0].icon}}</md-icon>
-        <span class="md-inline-list-icon-label">Assign Later</span>
-      </md-button>
-    </md-list-item>
-    <md-list-item ng-repeat="(siteId, site) in sites">
-      <md-button
-          ng-click="listItemClick(site.projectSite_id)"
-          class="md-list-item-content">
-        <md-icon md-svg-src="images/icons/{{site.icon}}" aria-label="car"></md-icon>
-        <span class="md-inline-list-icon-label">{{ site.name }}</span>
-      </md-button>
-    </md-list-item>
-  </md-list>
+<md-bottom-sheet class="md-list md-has-header" style="position:fixed;margin-bottom:0;height:80%; padding-top:16px" ng-cloak>
+  <md-content style="height:100%">
+    <h3 class="md-title">Assign to Site</h3>
+    <md-button ng-show="assignLaterOption" ng-click="listItemClick('allSites')" class="md-list-item-content" style="margin-bottom: 20px">
+      <md-icon class="material-icons">{{allSitesDefault[0].icon}}</md-icon>
+      <span class="md-inline-list-icon-label">Assign Later</span>
+    </md-button>
+    <h4 class="md-subhead site-picker-list-header">On Logistics</h4>
+    <md-list style="padding-left:0" class="site-picker-list">
+      <md-list-item ng-repeat="siteId in sites_alreadyHaveDrivers">
+        <md-button
+            ng-click="listItemClick(sites[siteId].projectSite_id)"
+            class="md-list-item-content">
+          <span class="md-inline-list-icon-label">{{ sites[siteId].name }}</span>
+        </md-button>
+      </md-list-item>
+    </md-list>
+
+    <div style="height:10px"></div>
+
+    <span class="md-subhead site-picker-list-header">Not on Logistics</span>
+    <md-list style="padding-left:0" class="site-picker-list">
+      <md-list-item ng-repeat="siteId in sites_noDriversYet">
+        <md-button
+            ng-click="listItemClick(sites[siteId].projectSite_id)"
+            class="md-list-item-content">
+          <span class="md-inline-list-icon-label">{{ sites[siteId].name }}</span>
+        </md-button>
+      </md-list-item>
+    </md-list>
+  </md-content>
 </md-bottom-sheet>

@@ -24,9 +24,14 @@
       </md-input-container>
       <md-input-container>
         <label>Carpool Site</label>
-        <md-select ng-model="mySite">
+        <md-select ng-model="mySite" id="mySite" name="mySite" required>
           <md-option ng-repeat="(siteId, info) in carpoolSites" ng-value="info.carpoolSite_id">{{ info.name }}</md-option>
         </md-select>
+        <div ng-messages="loginForm.mySite.$error">
+          <div ng-message="required">
+            Please select a default carpool site.
+          </div>
+        </div>
       </md-input-container>
       <br />
       <md-input-container>

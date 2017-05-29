@@ -1,0 +1,23 @@
+<md-dialog aria-label="confirm seatbelts">
+  <md-toolbar>
+    <h2 class="md-toolbar-tools md-title">Not Enough Seatbelts</h2>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div id="promptText">
+      <span>Logistics slated this volunteer car to have <strong>{{ teerCars[teerCarId].assignedNumPassengers }} people.</strong><span>
+      <br />
+      <span>Our records indicate {{ persons[selectedDriverId].firstName }} might only have <strong>{{ persons[selectedDriverId].numSeatbelts }} seatbelts.</strong></span>
+
+      <br />
+      <br />
+      <span style="font-weight:bold">What do you want to do?</span>
+
+      <div layout="column">
+        <md-button class="md-primary" ng-click="assignAnyway()">Assign anyway</md-button>
+        <md-button class="md-warn" ng-click="cancel()">Cancel</md-button>
+        <md-button ng-click="hasEnoughSeatbelts()">{{ persons[selectedDriverId].firstName }} does have enough seatbelts</md-button>
+      </div>
+    </div>
+  </md-dialog-content>
+</md-dialog>

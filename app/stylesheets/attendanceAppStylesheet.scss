@@ -1,60 +1,72 @@
-.site-picker-list {
-  margin-left: 0; }
-
-.site-picker-list-header {
-  margin: 0; }
+@import 'sitePickerSheet';
 
 @media only screen and (min-width: 768px) {
   #bodyContent {
     width: 70%;
-    margin: auto auto; }
-
+    margin: auto auto;
+  }
   .anchor-button-text {
-    font-size: 16px !important; } }
+    font-size: 16px !important;
+  }
+}
+
 md-toast {
   position: fixed;
-  margin-bottom: 15px; }
+  margin-bottom: 15px;
+}
 
 md-list {
-  width: 95%;
-  margin: auto auto; }
+  width:95%;
+  margin: auto auto;
+}
 
 md-dialog {
-  min-width: 80%; }
+  min-width: 80%;
+}
 
 md-dialog-content {
-  padding: 10px; }
+  padding: 10px;
+}
 
 .primary-text-opacity {
-  color: white; }
+  color: white;
+}
 
 .black-primary-text-opacity {
-  opacity: .87; }
+  opacity: .87;
+}
 
 .secondary-text-opacity {
-  opacity: .54; }
+  opacity: .54;
+}
 
 .iconWhite {
-  color: white; }
+  color: white;
+}
 
 .icon-hint-disabled-opacity {
   opacity: .5;
-  color: white; }
+  color: white;
+}
 
 .dividers-opacity {
-  opacity: .38; }
+  opacity: .38;
+}
 
 .speedDialButton {
   height: auto !important;
   width: auto !important;
   max-width: 36px !important;
-  box-shadow: 0 0 0 0 !important; }
+  box-shadow: 0 0 0 0 !important;
+}
 
 #speedDialTriggerButton {
-  background-color: #00897B; }
+  background-color: #00897B;
+}
 
 .picker-icons {
-  margin-right: 10px !important; }
+  margin-right: 10px !important;
+}
 
 .listIconContainer {
   position: relative;
@@ -62,128 +74,171 @@ md-dialog-content {
   height: auto;
   min-width: 30px;
   min-height: 30px;
-  margin: auto auto; }
+  margin: auto auto;
+}
 
 #listButtonIcon {
   display: -webkit-flex;
   display: -ms-flexbox;
-  display: flex !important; }
+  display: flex !important;
+}
 
 .iconSetContainer {
-  margin: auto auto; }
+  margin:auto auto;
+}
 
 .sidebar_userText {
-  line-height: 14px; }
+  line-height: 14px;
+}
 
 @-webkit-keyframes list-slideout {
   0% {
-    -webkit-transform: translate3d(0px, 0, 0);
-    opacity: 1; }
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
   100% {
-    -webkit-transform: translate3d(1000px, 0, 0);
-    opacity: 0; } }
+    -webkit-transform:translate3d(1000px, 0, 0);
+    opacity: 0;
+  }
+}
+
 @-webkit-keyframes assigned-list-slideout {
   0% {
-    -webkit-transform: translate3d(0px, 0, 0);
-    opacity: 1; }
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
   100% {
-    -webkit-transform: translate3d(-1000px, 0, 0);
-    opacity: 0; } }
+    -webkit-transform:translate3d(-1000px, 0, 0);
+    opacity: 0;
+  }
+}
+
 .listAnimate.ng-leave {
-  -webkit-animation: list-slideout 0.4s ease-in-out;
-  animation: list-slideout 0.4s ease-in-out; }
+    -webkit-animation: list-slideout 0.4s ease-in-out;
+    animation: list-slideout 0.4s ease-in-out;
+  }
 
 .assignedlistAnimate.ng-leave {
-  -webkit-animation: assigned-list-slideout 0.4s ease-in-out;
-  animation: assigned-list-slideout 0.4s ease-in-out; }
+    -webkit-animation: assigned-list-slideout 0.4s ease-in-out;
+    animation: assigned-list-slideout 0.4s ease-in-out;
+  }
 
 /* Have to set height explicity on ui-view
 to prevent collapsing during animation*/
 .ui-view-container {
   position: relative;
-  height: 100px; }
+  height:100px;
+}
 
 .slide.ng-enter, .slide.ng-leave {
   position: absolute !important;
   display: inline;
   left: 0;
-  right: 0; }
+  right: 0;
+}
 
 #bodyContent.ng-enter, #bodyContent.ng-leave, .personsList.ng-enter, .personsList.ng-leave {
   display: inline;
-  position: absolute; }
+  position: absolute;
+}
 
 #bodyContent.ng-enter-active, #bodyContent.ng-leave-active {
-  display: block; }
+  display: block;
+}
 
 @-webkit-keyframes slideout-to-left {
   0% {
-    -webkit-transform: translate3d(0px, 0, 0);
-    opacity: 1; }
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
   100% {
-    -webkit-transform: translate3d(-1000px, 0, 0);
-    opacity: 0; } }
+    -webkit-transform:translate3d(-1000px, 0, 0);
+    opacity: 0;
+  }
+}
+
 @-webkit-keyframes slidein-from-right {
   0% {
-    -webkit-transform: translate3d(1000px, 0, 0);
-    opacity: 0; }
+    -webkit-transform:translate3d(1000px, 0, 0);
+    opacity: 0;
+  }
   100% {
-    -webkit-transform: translate3d(0px, 0, 0);
-    opacity: 1; } }
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
+}
+
 @-webkit-keyframes slideout-to-right {
   0% {
-    -webkit-transform: translate3d(0px, 0, 0);
-    opacity: 1; }
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
   100% {
-    -webkit-transform: translate3d(1000px, 0, 0);
-    opacity: 0; } }
+    -webkit-transform:translate3d(1000px, 0, 0);
+    opacity: 0;
+  }
+}
+
 @-webkit-keyframes slidein-from-left {
   0% {
-    -webkit-transform: translate3d(-1000px, 0, 0);
-    opacity: 0; }
+    -webkit-transform:translate3d(-1000px, 0, 0);
+    opacity: 0;
+  }
   100% {
-    -webkit-transform: translate3d(0px, 0, 0);
-    opacity: 1; } }
+    -webkit-transform:translate3d(0px, 0, 0);
+    opacity: 1;
+  }
+}
+
 .right-to-left.ng-enter {
   -webkit-animation: slidein-from-left 0.3s ease-in-out;
-  animation: slidein-from-left 0.3s ease-in-out; }
+  animation: slidein-from-left 0.3s ease-in-out;
+}
 
 .right-to-left.ng-leave {
   -webkit-animation: slideout-to-right 0.3s ease-in-out;
-  animation: slideout-to-right 0.3s ease-in-out; }
+  animation: slideout-to-right 0.3s ease-in-out;
+}
 
 .left-to-right.ng-enter {
   -webkit-animation: slidein-from-right 0.3s ease-in-out;
-  animation: slidein-from-right 0.3s ease-in-out; }
+  animation: slidein-from-right 0.3s ease-in-out;
+}
 
 .left-to-right.ng-leave {
   -webkit-animation: slideout-to-left 0.3s ease-in-out;
-  animation: slideout-to-left 0.3s ease-in-out; }
+  animation: slideout-to-left 0.3s ease-in-out;
+}
 
 .speedDialPrepare_first {
   opacity: 1;
   z-index: 23;
   transform: translateX(52px);
-  -webkit-transform: translateX(52px); }
+  -webkit-transform: translateX(52px);
+}
 
 .speedDialPrepare_second {
   opacity: 1;
   z-index: 22;
   transform: translateX(104px);
-  -webkit-transform: translateX(104px); }
+  -webkit-transform: translateX(104px);
+}
 
 .speedDialPrepare_third {
   opacity: 1;
   z-index: 21;
   transform: translateX(156px);
-  -webkit-transform: translateX(156px); }
+  -webkit-transform: translateX(156px);
+}
 
 input:not(:focus) {
-  color: black !important; }
+  color: black !important;
+}
 
 md-bottom-sheet {
-  height: 80%; }
-  md-bottom-sheet md-content {
-    height: 100%; }
+  height: 80%;
 
-/*# sourceMappingURL=attendanceAppStylesheet.css.map */
+  md-content {
+    height: 100%
+  }
+}

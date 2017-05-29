@@ -233,3 +233,24 @@ app.factory('updateVan', ['$log', '$q', '$http', '$mdToast', function($log, $q, 
 
   }
 }])
+
+/*
+ * assignToDriver
+ * Updates server to reflect driver assigned to personId
+ * Pre: personId is a valid person who is not an active driver, and driverId is an active driver
+ * Post: personId's driver on the server is set to driverId
+ */
+app.factory('assignToDriver', ['$http', '$log', function($http, $log) {
+  return function(personId, driverId, assignedToSite_id = null, assignedToProject = null) {
+    return $http({
+      method: "GET",
+      url: "app/appServer/assignToDriver.php",
+      params: {
+        personId: personId,
+        driverId: driverId,
+        assignedToSite_id: assignedToSite_id,
+        assignedToProject: assignedToProject
+      }
+    })
+  }
+}])

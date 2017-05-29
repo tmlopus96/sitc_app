@@ -80,7 +80,7 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
           $scope.persons[personId].assignedToProject = 'all'
           deferred.resolve(valuesToUpdate)
         } else {
-          var promise = sitePickerGenerator($scope.carpoolSite, selectedProject)
+          var promise = sitePickerGenerator($scope.carpoolSite, selectedProject, $scope.persons, $scope.drivers)
           promise.then(function(selectedSite) {
             if (selectedSite == 'allSites') {
               $log.log("selectedSite" + selectedSite)
@@ -103,6 +103,7 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
 
       var promise = updateArrays();
       promise.then(function(valuesToUpdate) {
+        $scope.persons[personId].isCheckedIn = 1
         $log.log("site to update: " + valuesToUpdate["site"])
         updateCheckedIn(personId, valuesToUpdate)
         var personIndex = $scope.registeredPersons.indexOf(personId)

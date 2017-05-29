@@ -6,18 +6,14 @@
     <h4>Select a driver to assign to this volunteer car.</h4>
     <span>The driver will automatically be assigned to <strong>{{ projectSites[assignedToSite].name}}</strong></span>
     <md-list>
-      <md-list-item ng-repeat="driverId in drivers" class="md-2-line md-ink-ripple" ng-click="selectWithDriver(driverId)">
+      <md-list-item ng-repeat="driverId in eligibleDrivers" class="md-2-line md-ink-ripple" ng-click="selectWithDriver(driverId)">
           <div class="md-list-item-text">
             <h3>{{ persons[driverId].firstName }} {{ persons[driverId].lastName }}</h3>
-            <span class="md-body-1 secondary-text-opacity">{{ projectSites[persons[driverId].assignedToSite_id].name }}</span>
+            <span ng-hide="persons[driverId].driverStatus == 'isVanDriver' || (persons[driverId].assignedToDriver_id != null || persons[driverId].assignedToDriver_id != '' || persons[driverId].assignedToDriver_id != 0)" class="md-body-1 secondary-text-opacity">{{ projectSites[persons[driverId].assignedToSite_id].name }}</span>
+            <span ng-show="persons[driverId].driverStatus == 'isVanDriver'" class="md-body-1 secondary-text-opacity" style="font-weight:bold">Already assigned as van driver for {{ (persons[driverId].driverStatus == 'isVanDriver') ? vans[getVanDrivenBy(driverId)].name : '' }}</span>
+            <span ng-show="persons[driverId].assignedToDriver_id != null && persons[driverId].assignedToDriver_id != '' && persons[driverId].assignedToDriver_id != 0" class="md-body-1 secondary-text-opacity" style="font-weight:bold">Currently a passenger of {{ (persons[persons[driverId].assignedToDriver_id].driverStatus == 'isVanDriver') ? ' the ' + vans[getVanDrivenBy(driverId)].name : persons[persons[driverId].assignedToDriver_id].firstName + ' ' + persons[persons[driverId].assignedToDriver_id].lastName }}</span>
           </div>
       </md-list-item>
-      <!-- <md-list-item class="md-2-line md-ink-ripple md-warn" ng-click="selectWithDriver('')">
-        <md-icon class="material-icons picker-icons">close</md-icon>
-        <div class="md-list-item-text">
-          <h3 style="font-weight:bold">Un-assign</h3>
-        </div>
-      </md-list-item> -->
     </md-list>
   </md-dialog-title>
 
