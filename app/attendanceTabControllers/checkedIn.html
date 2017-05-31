@@ -54,7 +54,7 @@
               </div> <!--speed dial actions container-->
             </md-fab-speed-dial>
             <md-button ng-if="projectName != 'all'" aria-label="menu" class="md-fab speedDialButton md-primary"  ng-click="checkInPerson(person, projectName, projectName)"> <!--instead of speedDial if project is already set-->
-              <md-icon class="sitc-icon-" style="color:white;">{{ persons[person].assignedToProject}}</md-icon>
+              <md-icon class="sitc-icon-" style="color:white;">{{ projectSites[vanInfo.assignedToSite].project }}</md-icon>
             </md-button>
           </div>
         </div> <!--end listIconSetContainer -->
@@ -106,7 +106,7 @@
               </div> <!--speed dial actions container-->
             </md-fab-speed-dial>
             <md-button ng-if="projectName != 'all'" aria-label="menu" class="md-fab speedDialButton md-primary"  ng-click="checkInPerson(person, projectName, projectName)"> <!--instead of speedDial if project is already set-->
-              <md-icon class="sitc-icon-" style="color:white;">{{ persons[person].assignedToProject}}</md-icon>
+              <md-icon class="sitc-icon-" style="color:white;">{{ projectSites[teerCarInfo.assignedToSite].project }}</md-icon>
             </md-button>
           </div>
         </div> <!--end listIconSetContainer -->

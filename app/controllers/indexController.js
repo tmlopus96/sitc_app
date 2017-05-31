@@ -88,11 +88,11 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
           // set up drivers obj
           if (currentPerson["driverStatus"] == 'isDriver' || currentPerson["driverStatus"] == 'isVanDriver' || currentPerson["driverStatus"] == 'isTeerCarDriver') {
             if ($scope.drivers[myId]) {
-              $scope.drivers[myId].numSeatbelts = currentPerson.numSeatbelts
+              $scope.drivers[myId].numSeatbelts = currentPerson.numSeatbeltsToday
               $scope.drivers[myId].carMake = currentPerson.carMake
             } else {
               $scope.drivers[myId] = {
-                "numSeatbelts": currentPerson.numSeatbelts,
+                "numSeatbelts": currentPerson.numSeatbeltsToday,
                 "passengers": [],
                 "carMake": currentPerson.carMake,
               }
@@ -130,8 +130,8 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
         // $log.log("setVanDriverNumSeatbelts running!")
         angular.forEach($scope.vans, function(vanInfo, vanId) {
           if (vanInfo.driver_person_id) {
-            $scope.persons[vanInfo.driver_person_id].numSeatbelts = vanInfo.numSeatbelts
-            $log.log("vanInfo.driver_person_id: " + vanInfo.driver_person_id)
+            $scope.persons[vanInfo.driver_person_id].numSeatbeltsToday = vanInfo.numSeatbelts
+            $scope.persons[vanInfo.driver_person_id].driverStatus = 'isVanDriver'
           }
         })
       })

@@ -254,3 +254,34 @@ app.factory('assignToDriver', ['$http', '$log', function($http, $log) {
     })
   }
 }])
+
+/*
+ * driverStatus
+ * Updates a person's driver status on the server
+ * Pre: personId is a person who is a driver
+ * Post: The person's driver status on the server is set to newStatus
+ */
+app.factory('driverStatus', ['$http', '$log', function($http, $log) {
+  return function(personId, newStatus) {
+    return $http({
+      method: "GET",
+      url: "app/appServer/driverStatus.php",
+      params: {
+        personId: personId,
+        status: newStatus
+      }
+    })
+  }
+}])
+
+app.factory('deleteFromCheckedIn', ['$http', '$log', function($http, $log) {
+  return function(personId) {
+    return $http({
+      method: "GET",
+      url: "app/appServer/deleteFromCheckedIn.php",
+      params: {
+        personId: personId
+      }
+    })
+  }
+}])

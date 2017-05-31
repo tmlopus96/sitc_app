@@ -35,7 +35,12 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
           $scope.drivers[driver].passengers.forEach(function(currentPassenger) {
             $scope.myPassengers.push(currentPassenger)
           })
-          var emptySeats = $scope.drivers[driver].numSeatbelts - $scope.drivers[driver].passengers.length
+          if ($scope.drivers[driver].numSeatbelts != null && $scope.drivers[driver].numSeatbelts != 0 && $scope.drivers[driver].numSeatbelts != '') {
+            var emptySeats = $scope.drivers[driver].numSeatbelts - $scope.drivers[driver].passengers.length
+          }
+          else {
+            emptySeats = 4 - $scope.drivers[driver].passengers.length
+          }
         } else {
           $log.log('else ran')
           var emptySeats = $scope.persons[driver].numSeatbelts

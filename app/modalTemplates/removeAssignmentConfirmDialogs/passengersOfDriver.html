@@ -1,0 +1,29 @@
+<md-dialog aria-label="confirm seatbelts">
+  <md-toolbar>
+    <h2 class="md-toolbar-tools md-title">What should we do with {{ persons[driverId].firstName}}'s {{ (drivers[driverId].passengers.length == 1) ? 'passenger' : 'passengers'}}?</h2>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div id="notCheckingOutContent" ng-hide="driverIsCheckingOut">
+      <span>Would you like this change to apply to all of {{ persons[driverId].firstName}}'s passengers? Or should we keep their assignements the same?</span>
+
+      <div layout="column">
+        <md-button ng-click="changePassengers()">Make this change to {{persons[driverId].firstName}}'s passengers</md-button>
+        <md-button ng-click="doNotChangePassengers()">Keep their assignements the same</md-button>
+        <md-button class="md-warn" ng-click="cancel()">Cancel</md-button>
+      </div>
+    </div>
+
+    <div id="checkingOutContent" ng-show="driverIsCheckingOut">
+      <span>{{ persons[driverId].firstName}} has {{ drivers[driverId].passengers.length }} {{ (drivers[driverId].passengers.length == 1) ? 'passenger' : 'passengers'}}.<span>
+      <br />
+      <span>Would you also like to check them out? Or keep them checked in?</span>
+
+      <div layout="column">
+        <md-button ng-click="changePassengers()">Check out all of {{ persons[driverId].firstName }}'s passengers</md-button>
+        <md-button ng-click="doNotChangePassengers()">Keep the passenger's checked in</md-button>
+        <md-button class="md-warn" ng-click="cancel()">Cancel</md-button>
+      </div>
+    </div>
+  </md-dialog-content>
+</md-dialog>

@@ -28,9 +28,11 @@
             <div flex="60" class="iconSetContainer" layout="row" layout-align="start cetner">
               <div flex class="listIconContainer" layout-align="start center">
                 <div ng-repeat="v in [0]"> <!--workaround proper display of switch-->
-                  <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0" ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
+                  <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0 || persons[person].driverStatus == 'isTeerCarDriver' || persons[person].driverStatus == 'isVanDriver'" ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
+                  <md-switch ng-show="!screenIsXsmall && !screenIsSmall && persons[person].driverStatus == 'isTeerCarDriver'" ng-model="persons[person].driverStatus" ng-true-value="'isTeerCarDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
+                  <md-switch ng-show="!screenIsXsmall && !screenIsSmall && persons[person].driverStatus == 'isVanDriver'" ng-model="persons[person].driverStatus" ng-true-value="'isVanDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" aria-label="Driver Active" style="margin-left:0"></md-switch>
                 </div>
-                <md-button ng-hide="persons[person].hasCar == 0" ng-disabled="!(persons[person].driverStatus == 'isDriver') && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver'}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
+                <md-button ng-hide="persons[person].hasCar == 0 && persons[person].driverStatus != 'isDriver' && persons[person].driverStatus != 'isVanDriver' && persons[person].driverStatus != 'isTeerCarDriver'" ng-disabled="!(persons[person].driverStatus == 'isDriver' || persons[person].driverStatus == 'isVanDriver' || persons[person].driverStatus == 'isTeerCarDriver') && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': (persons[person].driverStatus == 'isDriver' || persons[person].driverStatus == 'isTeerCarDriver' || persons[person].driverStatus == 'isVanDriver')}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
                   <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
                 </md-button>
               </div>
@@ -41,7 +43,7 @@
                 </md-button>
               </div>
               <div flex class="listIconContainer" layout="row" layout-align="end center">
-                <md-button class="md-fab speedDialButton md-primary"  ng-click="getAssignedSitePicker(person, activeSites[project][siteId].name)"> <!--instead of speedDial if project is already set-->
+                <md-button class="md-fab speedDialButton md-primary"  ng-click="updateAssignment(person, activeSites[project][siteId].name)"> <!--instead of speedDial if project is already set-->
                   <md-icon class="sitc-icon-" style="color:white;">{{ persons[person].assignedToProject}}</md-icon>
                 </md-button>
               </div>

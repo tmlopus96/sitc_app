@@ -13,6 +13,7 @@
   $site = isset($_GET["site"]) ? sanitize($_GET["site"]) : "";
   $driverStatus = isset($_GET["driverStatus"]) ? sanitize($_GET["driverStatus"]) : "";
   $assignedToDriver = isset($_GET["assignedToDriver"]) ? sanitize($_GET["assignedToDriver"]) : "";
+  $numSeatbelts = isset($_GET["numSeatbelts"]) ? sanitize($_GET["numSeatbelts"]) : "";
   $numSeatbeltsToday = isset($_GET["numSeatbeltsToday"]) ? sanitize($_GET["numSeatbeltsToday"]) : "";
   echo $site;
 
@@ -52,6 +53,11 @@
     array_push($queryFields, "assignedToDriver_id");
     array_push($queryValues, $assignedToDriver);
     array_push($updateClauses, "assignedToDriver_id='" . $assignedToDriver . "'");
+  }
+  if ($numSeatbelts != "" && $numSeatbelts != null) {
+    array_push($queryFields, "numSeatbelts");
+    array_push($queryValues, $numSeatbelts);
+    array_push($updateClauses, "numSeatbelts=" . $numSeatbelts);
   }
   if ($numSeatbeltsToday != "" && $numSeatbeltsToday != null) {
     array_push($queryFields, "numSeatbeltsToday");

@@ -1,0 +1,21 @@
+<md-dialog aria-label="confirm seatbelts">
+  <md-toolbar>
+    <h2 class="md-toolbar-tools md-title">What should we do about {{ persons[passengerId].firstName}}'s driver assignment?</h2>
+  </md-toolbar>
+
+  <md-dialog-content>
+    <div>
+      <span>Currently {{ persons[passengerId].firstName }} is assigned to ride with {{ persons[persons[passengerId].assignedToDriver_id].firstName }} {{ persons[persons[passengerId].assignedToDriver_id].lastName}}.</span>
+
+      <br />
+      <br />
+      <span style="font-weight:bold">Do you want to keep this assignment the same?</span>
+
+      <div layout="column">
+        <md-button ng-click="doNotChangeAssignment()">Keep with driver</md-button>
+        <md-button ng-click="changeAssignment()">Unassign from driver</md-button>
+        <md-button class="md-warn" ng-click="cancel()">Cancel</md-button>
+      </div>
+    </div>
+  </md-dialog-content>
+</md-dialog>

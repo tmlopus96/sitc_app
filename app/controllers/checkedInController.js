@@ -142,7 +142,9 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
 
                 $scope.persons[passengerId].assignedToProject = selectedProject
                 $scope.persons[passengerId].assignedToSite_id = selectedSite
-                $scope.projectSitesWithPersons[selectedSite].push(passengerId)
+                if ($scope.projectSitesWithPersons[selectedSite].indexOf(passengerId) < 0) {
+                  $scope.projectSitesWithPersons[selectedSite].push(passengerId)
+                }
               }, function serverFail() {
                 console.error('Failed to update CheckedIn values for person_id:' + passengerId)
               })
@@ -165,11 +167,20 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
     })
   }
 
-  // Driver business
+  /*
+   * updateDriverStatus(personId)
+   * Updates a driver's status when it change
+   * Pre: - personId is a person who is currently a driver
+          - If the driver has passengers, warn the user that this action will cause them to be unassigned and without a driver
+   * Post: - the driver's driverStatus is set to null
+           - If the driver has passengers, their assignedToDriver_id is set to null
+           - The driver is deleted from $scope.drivers
+   */
   $scope.updateDriverStatus = function(personId) {
     // person.drierStatus controlled by switch in checkedIn and assigned directives
     // TODO add a warning about how toggling a driver off will remove their passengers (added Trello card)
     $log.log('calling driverStatus on person ' + personId + 'with isDriver')
+    // this is already the new status because it has been set by an md-switch bound to driverStatus
     var newStatus = $scope.persons[personId].driverStatus
     // update status on server, then update $scope arrays
     var driverPromise = driverStatus(personId, newStatus)
@@ -363,8 +374,9 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
   $scope.vanControlPanel = function(driver, vanId = null) {
     driverControlPanelGenerator(driver, $scope, null, vanId).then(function removeVanDriver() {
       // driver status
-      updateCheckedIn(driver, {'driverStatus': 'NULL'}).then(function () {
+      updateCheckedIn(driver, {'driverStatus': 'NULL', 'numSeatbelts': $scope.persons[driver].numSeatbelts}).then(function () {
         $scope.persons[driver].driverStatus = null
+        $scope.persons[driver].numSeatbeltsToday = $scope.persons[driver].numSeatbelts
       })
 
       // set passengers' assignedToDriver to null
