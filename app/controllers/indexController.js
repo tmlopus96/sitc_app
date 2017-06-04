@@ -211,6 +211,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
     $state.go('attendance.registered')
     $rootScope.currentState = 'attendance.registered'
     $mdToast.showSimple('Loaded carpool site ' + $scope.carpoolSites[$scope.carpoolSite].name)
+    $mdSidenav('left').close()
   }
 
    $scope.toggleLeftMenu = function () {

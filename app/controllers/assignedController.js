@@ -377,7 +377,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
 
              // -- if this driver's car is full, don't add them to the array
              // only run this check if their numSeatbelts is set; for some volunteer drivers, it is not set, so we have no valid data to check against
-             if (parseInt($scope.drivers[id].numSeatbelts) > 0) {
+             if (parseInt($scope.drivers[id])) {
                if (parseInt($scope.drivers[id].passengers.length) >= $scope.drivers[id].numSeatbelts) {
                  continue
                }
