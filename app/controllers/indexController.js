@@ -68,7 +68,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
         // $log.log('getRegistered response: ' + dump(response, 'none'))
         $scope.registrationsResponse = $scope.registrationsResponse.concat(response.data)
 
-        // $log.log("$scope.registrationsResponse: " + dump($scope.registrationsResponse, 'none'))
+        $log.log("$scope.registrationsResponse: " + dump($scope.registrationsResponse, 'none'))
         $scope.registrationsResponse.forEach(function(currentPerson, index) {
           if (currentPerson['preferredProject']) {
             switch (currentPerson["preferredProject"]) {
@@ -88,11 +88,11 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
           // set up drivers obj
           if (currentPerson["driverStatus"] == 'isDriver' || currentPerson["driverStatus"] == 'isVanDriver' || currentPerson["driverStatus"] == 'isTeerCarDriver') {
             if ($scope.drivers[myId]) {
-              $scope.drivers[myId].numSeatbelts = currentPerson.numSeatbeltsToday
+              $scope.drivers[myId].numSeatbelts = parseInt(currentPerson.numSeatbeltsToday)
               $scope.drivers[myId].carMake = currentPerson.carMake
             } else {
               $scope.drivers[myId] = {
-                "numSeatbelts": currentPerson.numSeatbeltsToday,
+                "numSeatbelts": parseInt(currentPerson.numSeatbeltsToday),
                 "passengers": [],
                 "carMake": currentPerson.carMake,
               }
@@ -129,8 +129,21 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
       }).then(function setVanDriverNumSeatbelts() {
         // $log.log("setVanDriverNumSeatbelts running!")
         angular.forEach($scope.vans, function(vanInfo, vanId) {
-          if (vanInfo.driver_person_id) {
+          if (vanInfo.driver_person_id && $scope.persons[vanInfo.driver_person_id]) {
             $scope.persons[vanInfo.driver_person_id].numSeatbeltsToday = vanInfo.numSeatbelts
+            if ($scope.drivers[vanInfo.driver_person_id]) {
+              $scope.drivers[vanInfo.driver_person_id].numSeatbelts = vanInfo.numSeatbelts
+            }
+
+            // if this person has not already been added to $scope.drivers, add them
+            if (!$scope.drivers[vanInfo.driver_person_id]) {
+              $scope.drivers[vanInfo.driver_person_id] = {
+                numSeatbelts: parseInt(vanInfo.numSeatbelts),
+                passengers: [],
+                carMake: null
+              }
+            }
+
             $scope.persons[vanInfo.driver_person_id].driverStatus = 'isVanDriver'
           }
         })

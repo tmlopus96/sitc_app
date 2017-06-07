@@ -9,7 +9,7 @@
   $personId = sanitize($_GET['personId']);
   $driverId = sanitize($_GET['driverId']);
   $assignedToSite_id = (isset($_GET['assignedToSite_id'])) ? sanitize($_GET['assignedToSite_id']) : null;
-  $assignedToProject = (isset($_GET['assignedToProject'])) ? sanitize($GET['assignedToProject']) : null;
+  $assignedToProject = (isset($_GET['assignedToProject'])) ? sanitize($_GET['assignedToProject']) : null;
 
   $query = "UPDATE CheckedIn SET assignedToDriver_id='$driverId'";
 

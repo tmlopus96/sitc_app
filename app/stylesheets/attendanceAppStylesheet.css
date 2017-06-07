@@ -4,6 +4,9 @@
 .site-picker-list-header {
   margin: 0; }
 
+.not-paid {
+  color: red; }
+
 @media only screen and (min-width: 768px) {
   #bodyContent {
     width: 70%;
@@ -43,6 +46,17 @@ md-dialog-content {
 
 .dividers-opacity {
   opacity: .38; }
+
+md-fab-speed-dial {
+  position: absolute;
+  top: 12px;
+  right: 0; }
+
+.first-list-item-workaround {
+  margin-top: 24px !important; }
+
+.fab-button-workaround {
+  position: relative !important; }
 
 .speedDialButton {
   height: auto !important;
@@ -184,6 +198,6 @@ input:not(:focus) {
 md-bottom-sheet {
   height: 80%; }
   md-bottom-sheet md-content {
-    height: 100%; }
+    max-height: 100%; }
 
 /*# sourceMappingURL=attendanceAppStylesheet.css.map */

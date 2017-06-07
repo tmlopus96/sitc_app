@@ -176,6 +176,28 @@ app.factory('updateCheckedIn', ['$http', '$log', '$q', function($http, $log, $q)
   }
 }])
 
+app.factory('updatePersonRegInfo', ['$http', '$log', '$q', function($http, $log, $q) {
+
+  return function(personId, param, value, dbTable) {
+    var defer = $q.defer()
+
+    $http({
+      method: "GET",
+      url: "app/appServer/updatePersonRegInfo.php",
+      params: {
+        person_id: personId,
+        param: param,
+        value: value,
+        dbTable: dbTable
+      }
+    }).then(function success(response) {
+      $log.log("Received response from updatePersonRegInfo: " + dump(response, 'none'))
+      defer.resolve(response)
+    })
+    return defer.promise
+  }
+}])
+
 app.factory('submitTempRegistration', ['$http', '$log', '$q', function($http, $log, $q) {
 
   return function (newTeerInfo) {

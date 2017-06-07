@@ -2,7 +2,7 @@
  * CheckedInController
  * Controls the CheckedIn app tab
  */
-app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToast', '$mdDialog', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getRegistered', 'getTempRegistrations', 'assignTeerCarDriver', 'updateActiveTeerCar', 'updateVan', function($scope, $state, $log, $q, $mdToast, $mdDialog, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getRegistered, getTempRegistrations, assignTeerCarDriver, updateActiveTeerCar, updateVan) {
+app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToast', '$mdDialog', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getRegistered', 'getTempRegistrations', 'assignTeerCarDriver', 'updateActiveTeerCar', 'updateVan', 'editRegInfo', function($scope, $state, $log, $q, $mdToast, $mdDialog, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getRegistered, getTempRegistrations, assignTeerCarDriver, updateActiveTeerCar, updateVan, editRegInfo) {
 
   function hideSpeedDialButtons(){
       var speedDialButton_first = angular.element(document.querySelectorAll('#speedDialActionButton_first')).parent()
@@ -47,6 +47,7 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
          $scope.persons[personId] = personInfo[0]
          $scope.projectsWithPersons['all'].push(personId)
          $scope.persons[personId].assignedToProject = 'all'
+
          $mdToast.showSimple(`Checked in ${personInfo[0].firstName} ${personInfo[0].lastName}.`)
        })
    }
@@ -182,6 +183,7 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
     $log.log('calling driverStatus on person ' + personId + 'with isDriver')
     // this is already the new status because it has been set by an md-switch bound to driverStatus
     var newStatus = $scope.persons[personId].driverStatus
+
     // update status on server, then update $scope arrays
     var driverPromise = driverStatus(personId, newStatus)
     driverPromise.then(function() {
@@ -382,7 +384,7 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
       // set passengers' assignedToDriver to null
       if ($scope.drivers[driver].passengers) {
         angular.forEach($scope.drivers[driver].passengers, function(passenger) {
-          updateCheckedIn(passenger, {'assignedToDriver':$scope.persons[passenger].assignedToDrassignedToDriver_id}).then(function () {
+          updateCheckedIn(passenger, {'assignedToDriver':'NULL'}).then(function () {
             $scope.persons[passenger].assignedToDriver_id = null
           })
         })
@@ -706,7 +708,40 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
   })
 }
 
-  // $scope.teerCarControlPanel = function(teerCar) {
-  //   volunteerCarControlPanel(teerCar, $scope)
-  // }
+$scope.regInfoEdit = function (personId) {
+  editRegInfo(personId, $scope).then(function resolved () {
+    $log.log("editRegInfo resolved")
+  }, function cancelled () {
+    $log.log("editRegInfo rejected")
+  })
+}
+
+$scope.getVanDrivenBy = function (driver) {
+  $log.log("Driver: " + driver)
+  $log.log("Vans: " + dump($scope.vans, 'none'))
+  var keys = Object.keys($scope.vans)
+  $log.log("Keys: " + dump(keys, 'none'))
+  var vanId = null
+  for (var i=0; i < keys.length; i++) {
+    $log.log("i: " + i + "; parseInt(keys[i]): " + parseInt(keys[i]))
+    if ($scope.vans[parseInt(keys[i])].driver_person_id == driver) {
+      vanId = $scope.vans[keys[i]].van_id
+      break
+    }
+  }
+  return vanId
+}
+
+$scope.getTeerCarDrivenBy = function (driver) {
+  $log.log("Driver: " + driver)
+  var keys = Object.keys($scope.teerCars)
+  var teerCarId = null
+  for (var i=0; i < keys.length; i++) {
+    if ($scope.teerCars[keys[i]].driver_person_id == driver) {
+      teerCarId = $scope.teerCars[keys[i]].teerCar_id
+      break
+    }
+  }
+  return teerCarId
+}
 }])

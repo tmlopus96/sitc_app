@@ -11,17 +11,24 @@
     </div>
   </md-toolbar>
   <md-dialog-content>
-    <div ng-hide="teerCarId || vanId">
-      <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[driver].hasCar == 0 || persons[driver].driverStatus == 'isTeerCarDriver' || persons[driver].driverStatus == 'isVanDriver'" ng-model="persons[driver].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
-      <md-switch ng-show="!screenIsXsmall && !screenIsSmall && persons[driver].driverStatus == 'isTeerCarDriver'" ng-model="persons[driver].driverStatus" ng-true-value="'isTeerCarDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
-      <md-switch ng-show="!screenIsXsmall && !screenIsSmall && persons[driver].driverStatus == 'isVanDriver'" ng-model="persons[driver].driverStatus" ng-true-value="'isVanDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
-    </div>
-    <div ng-show="teerCarId || vanId" layout="row" layout-align="start center" style="margin-bottom: 15px">
-      <span class="md-title">Driver: <strong>{{ persons[driver].firstName}} {{ persons[driver].lastName}}</strong></span>
-      <md-button class="md-icon-button" ng-click="unassignDriverFromTeerCar(driver)">
-        <md-icon>close</md-icon>
-      </md-button>
-    </div>
+    <div id="firstRowContainer" layout="row">
+      <div ng-hide="teerCarId || vanId">
+        <md-switch ng-hide="screenIsXsmall || screenIsSmall || persons[driver].hasCar == 0 || persons[driver].driverStatus == 'isTeerCarDriver' || persons[driver].driverStatus == 'isVanDriver'" ng-model="persons[driver].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
+        <md-switch ng-show="!screenIsXsmall && !screenIsSmall && persons[driver].driverStatus == 'isTeerCarDriver'" ng-model="persons[driver].driverStatus" ng-true-value="'isTeerCarDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
+        <md-switch ng-show="!screenIsXsmall && !screenIsSmall && persons[driver].driverStatus == 'isVanDriver'" ng-model="persons[driver].driverStatus" ng-true-value="'isVanDriver'" ng-false-value="null" ng-change="updateDriverStatus(driver)" aria-label="Driver Active" style="margin-left:0">Driving Today</md-switch>
+      </div>
+      <div ng-show="teerCarId || vanId" layout="row" layout-align="start center" style="margin-bottom: 15px">
+        <span class="md-title">Driver: <strong>{{ persons[driver].firstName}} {{ persons[driver].lastName}}</strong></span>
+        <md-button class="md-icon-button" ng-click="unassignDriverFromTeerCar(driver)">
+          <md-icon>close</md-icon>
+        </md-button>
+      </div>
+      <span flex></span>
+      <md-input-container>
+        <label># of Seatbelts</label>
+        <input type="number" ng-model="drivers[driver].numSeatbelts" ng-change="updateNumSeatbelts()"/>
+      </md-input-container>
+    </div> <!-- end #firstRowContainer -->
     <md-title style="padding-bottom:0;height:auto;font-size:16px;font-weight:500">Passengers</md-title>
     <md-content>
       <md-list style="margin-left:0">

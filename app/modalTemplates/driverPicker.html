@@ -1,7 +1,7 @@
-<md-bottom-sheet class="md-list md-has-header" style="position:fixed; height: 80%; margin-bottom:0">
+<md-bottom-sheet class="md-list md-has-header" style="position:fixed; max-height: 80%; margin-bottom:0">
   <md-content class="bottom-sheet-md-content">
     <h2 class="md-title black-primary-text-opacity" style="line-height:20px;padding-left:16px; margin-bottom:9px; margin-top:20px">Assign {{ forPerson.firstName }} to a Driver</h2>
-    <div ng-show="forPerson.assignedToDriver_id != null && forPerson.assignedToDriver_id != ''" layout="row" layout-align="start center" style="padding-left: 16px">
+    <div ng-show="forPerson.assignedToDriver_id != null && forPerson.assignedToDriver_id != '' && forPerson.assignedToDriver_id != 0" layout="row" layout-align="start center" style="padding-left: 16px">
       <span class="md-subhead">Current Driver: <strong>{{ persons[forPerson.assignedToDriver_id].firstName }} {{ persons[forPerson.assignedToDriver_id].lastName}}</strong></span>
       <span flex="5" flex-xs="20"></span>
       <md-button ng-click="selectWithDriver('')">

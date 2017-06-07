@@ -1,0 +1,67 @@
+<md-dialog>
+  <md-toolbar layout="row" layout-align="center center">
+    <div class="md-toolbar-tools">
+      <h2>Edit info for {{ persons[personId].firstName }} {{ persons[personId].lastName }}</h2>
+    </div>
+    <span flex></span>
+    <md-button class="md-icon-button" ng-click="close()">
+      <md-icon>clear</md-icon>
+    </md-button>
+  </md-toolbar>
+  <md-dialog-content layout="column">
+    <div layout-gt-xs="row" style="display:block">
+      <md-input-container>
+        <label>First Name</label>
+        <input type="text" ng-model="persons[personId].firstName" size="30" ng-change="updateParam('firstName', 'Person')"/>
+      </md-input-container>
+      <md-input-container style="margin-left: 15px">
+        <label>Last Name</label>
+        <input type="text" ng-model="persons[personId].lastName" size="30" ng-change="updateParam('lastName', 'Person')"/>
+      </md-input-container>
+    </div>
+    <div>
+      <div layout-gt-xs="row" layout-align="start center">
+          <h4 style="margin-top:0; margin-bottom:0">Has car:</h4>
+          <md-radio-group ng-model="persons[personId].hasCar" layout-gt-xs="row" style="margin-left: 15px" ng-change="updateParam('hasCar', 'Person')">
+            <md-radio-button ng-value="1">Yes</md-radio-button>
+            <md-radio-button ng-value="0">No</md-radio-button>
+          </md-radio-group>
+      </div>
+      <div ng-show="persons[personId].hasCar">
+        <md-input-container style="margin-bottom:0; margin-top: 10px">
+          <label># of Seatbelts</label>
+          <input type="number" ng-model="persons[personId].numSeatbelts" ng-change="updateParam('numSeatbelts', 'Person')" />
+        </md-input-container>
+      </div>
+    </div>
+    <div>
+      <md-input-container>
+        <label>Primary Carpool Site</label>
+        <md-select ng-model="persons[personId].primaryCarpool_id" md-on-close="updateParam('primaryCarpool_id', 'Person')">
+          <md-option ng-repeat="(siteId, siteInfo) in carpoolSites" ng-value="siteId">{{ siteInfo.name }}</md-option>
+        </md-select>
+      </md-input-container>
+    </div>
+    <div>
+      <div layout-gt-xs="row" layout-align="start center" style="margin-bottom: 10px">
+          <h4 style="margin-top:0; margin-bottom:0">Payment Status: </h4>
+          <md-radio-group ng-model="persons[personId].paymentStatus" layout-gt-xs="row" style="margin-left: 15px" ng-change="updateParam('paymentStatus', 'RegistrationInfo')">
+            <md-radio-button ng-value="0">Not paid</md-radio-button>
+            <md-radio-button ng-value="1">Paid</md-radio-button>
+          </md-radio-group>
+      </div>
+      <md-input-container style="margin-top:10px">
+        <label>Payment Method</label>
+        <md-select ng-model="persons[personId].paymentMethod" md-on-close="updateParam('paymentMethod', 'RegistrationInfo')">
+          <md-option ng-repeat="paymentMethod in paymentMethods" ng-value="paymentMethod.value" ng-class="paymentMethod.classToAdd">{{ paymentMethod.displayLabel }}</md-option>
+        </md-select>
+      </md-input-container>
+      <div ng-show="persons[personId].paymentMethod == 'cash_check'">
+        <md-input-container style="margin-bottom:0; margin-top: 10px">
+          <label>Check Number</label>
+          <input type="number" ng-model="persons[personId].checkNumber" ng-change="updateParam('checkNumber', 'RegistrationInfo')" />
+        </md-input-container>
+      </div>
+    </div>
+  </md-dialog-content>
+</md-dialog>

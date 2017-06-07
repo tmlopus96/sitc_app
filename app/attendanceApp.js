@@ -1,4 +1,4 @@
-var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute', 'ui.router', 'ngMessages', 'md.data.table'])
+var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute', 'ui.router', 'ngMessages', 'md.data.table', 'pr.longpress'])
 
 //Config app states (each app tab is a separate state)
 app.config(function($stateProvider) {

@@ -4,7 +4,7 @@
  * Pre: myDriver is a person who is checked in and is an active driver
  * Post:
  */
-app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast', 'driverStatus', 'assignToDriver', function($q, $log, $mdDialog, $mdToast, driverStatus, assignToDriver) {
+app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast', 'driverStatus', 'assignToDriver', 'updateCheckedIn', function($q, $log, $mdDialog, $mdToast, driverStatus, assignToDriver, updateCheckedIn) {
 
   return function(myDriver, $scope, myTeerCarId = null, myVanId = null) {
 
@@ -29,8 +29,9 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
         $scope.teerCarId = teerCarId
         $scope.vanId = vanId
 
+        $scope.drivers[driver].numSeatbelts = parseInt($scope.drivers[driver].numSeatbelts)
+
         if ($scope.drivers[driver]) {
-          $log.log('passengers alledgedly is defined')
           // push each of driver's passengers into array myPassengers on scope of this modal
           $scope.drivers[driver].passengers.forEach(function(currentPassenger) {
             $scope.myPassengers.push(currentPassenger)
@@ -44,6 +45,14 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
         } else {
           $log.log('else ran')
           var emptySeats = $scope.persons[driver].numSeatbelts
+        }
+
+        $scope.updateNumSeatbelts = function() {
+          updateCheckedIn($scope.driver, {numSeatbeltsToday: $scope.drivers[$scope.driver].numSeatbelts}).then(function success() {
+            $log.log("Updated num seatbelts on server.")
+          }, function failure (error) {
+            $log.log("$scope.updateNumSeatbelts, updateCheckedIn: Error - " + error)
+          })
         }
 
         // for each empty seat, push an empty array element to myPassengers so that empty rows will appear in modal, signifying the open seats to the user

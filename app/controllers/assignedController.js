@@ -160,7 +160,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
              confirmDefer.resolve(resolveValue)
            })
          }
-         else if ($scope.persons[id].assignedToDriver_id != null && $scope.persons[id].assignedToDriver_id != '') {
+         else if ($scope.persons[id].assignedToDriver_id != null && $scope.persons[id].assignedToDriver_id != '' && $scope.persons[id].assignedToDriver_id != 0) {
            // ask if this person should be unassigned from their driver, or stay with them
            keepPassengerAssigned(id, $scope).then(function (resolveValue) {
              confirmDefer.resolve(resolveValue)
@@ -334,8 +334,10 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
        // person.drierStatus controlled by switch in checkedIn and assigned directives
        // TODO add a warning about how toggling a driver off will remove their passengers (added Trello card)
        $log.log('calling driverStatus on person ' + personId + 'with isDriver')
+
        // this is already the new status because it has been set by an md-switch bound to driverStatus
        var newStatus = $scope.persons[personId].driverStatus
+
        // update status on server, then update $scope arrays
        var driverPromise = driverStatus(personId, newStatus)
        driverPromise.then(function() {
@@ -400,7 +402,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
        driverPromise.then(function(selectedDriver) {
 
          // if selectedDriver=='', person is being unassigned, so save driver they are being unassigned from for toast message later
-         if ($scope.persons[personId].assignedToDriver_id != '' && $scope.persons[personId].assignedToDriver_id != null) {
+         if ($scope.persons[personId].assignedToDriver_id != '' && $scope.persons[personId].assignedToDriver_id != null && $scope.persons[personId].assignedToDriver_id != 0) {
            var prevDriver = $scope.persons[personId].assignedToDriver_id
          }
 
@@ -858,5 +860,34 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
          })
        })
      })
+   }
+
+   $scope.getVanDrivenBy = function (driver) {
+     $log.log("Driver: " + driver)
+     $log.log("Vans: " + dump($scope.vans, 'none'))
+     var keys = Object.keys($scope.vans)
+     $log.log("Keys: " + dump(keys, 'none'))
+     var vanId = null
+     for (var i=0; i < keys.length; i++) {
+       $log.log("i: " + i + "; parseInt(keys[i]): " + parseInt(keys[i]))
+       if ($scope.vans[parseInt(keys[i])].driver_person_id == driver) {
+         vanId = $scope.vans[keys[i]].van_id
+         break
+       }
+     }
+     return vanId
+   }
+
+   $scope.getTeerCarDrivenBy = function (driver) {
+     $log.log("Driver: " + driver)
+     var keys = Object.keys($scope.teerCars)
+     var teerCarId = null
+     for (var i=0; i < keys.length; i++) {
+       if ($scope.teerCars[keys[i]].driver_person_id == driver) {
+         teerCarId = $scope.teerCars[keys[i]].teerCar_id
+         break
+       }
+     }
+     return teerCarId
    }
 }])
