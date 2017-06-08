@@ -1,4 +1,4 @@
-var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute', 'ui.router', 'ngMessages', 'md.data.table', 'pr.longpress'])
+var app = angular.module('attendanceApp', ['ngMaterial', 'ngAnimate', 'ngRoute', 'ui.router', 'ngMessages', 'md.data.table', 'pr.longpress', 'satellizer', 'trello-api-client'])
 
 //Config app states (each app tab is a separate state)
 app.config(function($stateProvider) {
@@ -43,6 +43,13 @@ app.config(function($stateProvider) {
         data: {requireLogin: true}
       })
 
+    .state('notes', {
+      url: '/notes',
+      templateUrl: 'app/views/trelloNotes.html',
+      controller: 'TrelloNotesController',
+      data: {requireLogin: false}
+    })
+
     .state('goAway', {
       url: '/goAway',
       template: '<h1>Go Away.</h1><h3>You don\'t even go here.</h3>',
@@ -61,6 +68,15 @@ app.config(function($mdThemingProvider) {
     .primaryPalette('cyan')
     .accentPalette('deep-orange');
   })
+
+app.config(function(TrelloClientProvider){
+  TrelloClientProvider.init({
+    key: 'c84b98e85396bac34ad8dff32d0f2248',
+    appName: 'SITC Attendance',
+    tokenExpiration: 'never',
+    scope: ['read', 'write', 'account'],
+  });
+})
 
 //authentication logic by Gabe Scholz on brewhouse.io
 app.run(function($rootScope, $state, $log, loginModal) {
@@ -622,4 +638,11 @@ app.filter("orderByLastName", function(){
         })
         return sortedIds
     };
+});
+
+// filter by Trevor Senior on Stack Overflow
+app.filter('reverse', function() {
+  return function(items) {
+    return items.slice().reverse();
+  };
 });

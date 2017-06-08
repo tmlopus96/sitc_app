@@ -110,4 +110,4 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
         $scope.registeredPersons.splice(personIndex, 1)
       })
     }
-   }])
+}])

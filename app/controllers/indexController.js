@@ -40,15 +40,15 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
       })
       return defer.promise
     }).then(function () {
-      $log.log("myCarpoolSite before getTeerCars: " + $scope.carpoolSite)
+      // $log.log("myCarpoolSite before getTeerCars: " + $scope.carpoolSite)
       return getTeerCars($rootScope.myCarpoolSite).then(function (teerCars) {
         $scope.teerCars = teerCars
-        $log.log("Teer Cars: " + dump($scope.teerCars, 'none'))
+        // $log.log("Teer Cars: " + dump($scope.teerCars, 'none'))
       })
     }).then(function () {
       return getVans($rootScope.myCarpoolSite).then(function (vans) {
         $scope.vans = vans
-        $log.log("Vans: " + dump(vans, 'none'))
+        // $log.log("Vans: " + dump(vans, 'none'))
       })
     }).then(function () {
       return getTempRegistrations($rootScope.myCarpoolSite)
@@ -68,7 +68,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
         // $log.log('getRegistered response: ' + dump(response, 'none'))
         $scope.registrationsResponse = $scope.registrationsResponse.concat(response.data)
 
-        $log.log("$scope.registrationsResponse: " + dump($scope.registrationsResponse, 'none'))
+        // $log.log("$scope.registrationsResponse: " + dump($scope.registrationsResponse, 'none'))
         $scope.registrationsResponse.forEach(function(currentPerson, index) {
           if (currentPerson['preferredProject']) {
             switch (currentPerson["preferredProject"]) {

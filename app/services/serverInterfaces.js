@@ -149,6 +149,33 @@ app.factory('getVans', ['$log', '$q', '$http', function($log, $q, $http) {
 
 }])
 
+app.factory('getTrelloIds', ['$log', '$q', '$http', function($log, $q, $http) {
+
+  return function (carpoolSite) {
+    var defer = $q.defer()
+
+    var paramsToPass = {}
+    if (carpoolSite) {
+      paramsToPass['carpoolSite'] = carpoolSite
+    }
+
+    $http({
+      method: "GET",
+      url: "app/appServer/getTrelloIds.php",
+      params: paramsToPass
+    }).then(function success (response) {
+      var trelloObjs = {}
+      response.data.forEach(function(trelloObj) {
+        trelloObjs[trelloObj.element] = trelloObj
+      })
+      // $log.log("trelloObjs from getTeerCars: " + dump(trelloObjs, 'none'))
+      defer.resolve(trelloObjs)
+    })
+    return defer.promise
+  }
+
+}])
+
 /*** Setters ***/
 
 /*

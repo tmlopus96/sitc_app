@@ -200,4 +200,12 @@ md-bottom-sheet {
   md-bottom-sheet md-content {
     max-height: 100%; }
 
+@-webkit-keyframes note-fade-in {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+.card-container.ng-enter {
+  -webkit-animation: note-fade-in 1.5s; }
+
 /*# sourceMappingURL=attendanceAppStylesheet.css.map */

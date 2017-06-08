@@ -1,0 +1,35 @@
+
+  <md-toolbar layout="row">
+    <div class="md-toolbar-tools">
+      <h3>Notes</h3>
+    </div>
+    <span flex></span>
+    <span>{{ username }}</span>
+  </md-toolbar>
+
+  <md-content style="padding: 10px">
+    <md-button ng-click="authenticate()">Log in</md-button>
+    <md-button ng-click="getCards()">Get Cards</md-button>
+
+    <md-button layout="row" ng-click="showTextarea = !showTextarea" ng-show="!showTextarea">
+      <md-icon>create</md-icon>
+      <h4 style="margin-bottom: 0; margin-top: 0; margin-left: 10px">New note</h4>
+    </md-button>
+    <md-card ng-show="showTextarea">
+      <md-card-content>
+        <md-input-container layout="column" style="margin-bottom: 0">
+          <label>Type note here...</label>
+          <textarea ng-model="newNoteText"></textarea>
+        </md-input-container>
+      </md-card-content>
+      <md-card-actions layout="row" layout-align="end">
+        <md-button ng-click="submitNewNote()">Submit</md-button>
+      </md-card-actions>
+    </md-card>
+
+    <div id="cardsContainer">
+      <div class="card-container" ng-repeat="card in cards | reverse">
+        <h4>{{ card.name }}</h4>
+      </div>
+    </div>
+  </md-content>
