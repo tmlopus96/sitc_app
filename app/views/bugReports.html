@@ -1,0 +1,58 @@
+<md-toolbar id="bugReportToolbar" md-scroll-shrink="true" layout="row" layout-align="center center" style="height: 50px !important">
+  <div class="md-toolbar-tools">
+    <a href="https://trello.com/b/vU52dXsN" target="_blank" layout="column" layout-align="center start">
+      <span class="primary-text-opacity" style="font-size: 12px; margin-bottom: 5px">Powered by</span>
+      <img src="app/images/trello-logo-white.svg" style="width: auto; height: 20px"/>
+    </a>
+  </div>
+  <div flex></div>
+  <div class="md-toolbar-tools" layout="column" layout-align="center end">
+    <div ng-click="authenticate()" style="cursor: pointer">
+      <div ng-show="!isAuthenticated">
+        <span class="primary-text-opacity" style="margin-bottom: 5px">Log in</span>
+      </div>
+      <div ng-show="isAuthenticated" layout="column" layout-align="center end">
+        <span class="primary-text-opacity" style="font-size: 12px; margin-bottom: 0px">Logged in as</span>
+        <h3 class="primary-text-opacity">{{ username }}</h3>
+      </div>
+    </div>
+  </div>
+</md-toolbar>
+
+<md-content flex-gt-sm="70" flex-sm="80" flex-xs="90" style="margin: auto auto">
+  <h2 style="margin-bottom: 0">Submit a Bug Report</h2>
+  <h4 class="md-subhead" style="margin-top: 0">We can only fix the problems we know exist. Thank you for taking the time to alert us to the existence of a new one!</h4>
+
+  <div ng-show="!isAuthenticated" layout="column">
+    <md-button ng-click="authenticate()" class="md-raised" style="background-color: rgb(0, 121, 191)">
+      <span class="primary-text-opacity">Log in</span>
+    </md-button>
+  </div>
+
+  <form name="newBugForm" layout="column" ng-show="!showConfirmation && isAuthenticated">
+    <md-input-container>
+      <label>Subject</label>
+      <input type="text" ng-model="newReport.name" />
+      <br />
+      <div class="bug-report-label" style="margin-top: 14px">A short phrase or sentence describing the problem</div>
+    </md-input-container>
+    <md-input-container>
+      <label>Description</label>
+      <textarea type="text" ng-model="newReport.desc"></textarea>
+      <br />
+      <div class="bug-report-label" style="margin-top: -14px">Describe the problem. Include details, such as what page of the app you encountered the problem on, what you were attempting to do when the problem occurred, and how you were able to solve or work around the problem, if at all.</div>
+    </md-input-container>
+    <md-button ng-click="submitReport()" class="md-raised" style="background-color: #0079BF; width: 88px">
+      <span class="primary-text-opacity">Submit</span>
+    </md-button>
+  </form>
+
+  <div id="confirmationContainer" ng-show="showConfirmation">
+    <h3 style="margin-bottom: 5px">Thanks for reporting this bug!</h3>
+    <span>We'll squash it as soon as possible.</span>
+    <div layout="row" style="margin-top: 15px">
+      <md-button ng-click="showConfirmation = false">Submit another</md-button>
+      <md-button class="md-primary" ng-click="returnToApp()">Return to app</md-button>
+    </div>
+  </div>
+</md-content>

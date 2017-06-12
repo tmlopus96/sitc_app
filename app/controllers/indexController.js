@@ -109,15 +109,18 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
 
           // push person to proper array(s) according to their current assignment status
           $scope.persons[myId] = currentPerson;
-          if ($scope.persons[myId].assignedToSite_id != null && $scope.persons[myId].assignedToSite_id != '') {
+          if ($scope.persons[myId].isCheckedIn != 1 && $scope.persons[myId].isCheckedIn != '1') {
+            $scope.registeredPersons.push(myId)
+          }
+          else if ($scope.persons[myId].assignedToSite_id != null && $scope.persons[myId].assignedToSite_id != '') {
             $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
-          } else if ($scope.persons[myId].assignedToProject != null && $scope.persons[myId].assignedToProject != '') {
+          }
+          else if ($scope.persons[myId].assignedToProject != null && $scope.persons[myId].assignedToProject != '') {
             $scope.projectsWithPersons[$scope.persons[myId].assignedToProject].push(myId)
-          } else if ($scope.persons[myId].isCheckedIn == 1 || $scope.persons[myId].isCheckedIn == '1') {
+          }
+          else {
             $scope.persons[myId].assignedToProject = 'all'
             $scope.projectsWithPersons['all'].push(myId)
-          } else {
-            $scope.registeredPersons.push(myId)
           }
 
           // if last iteration of forEach, resolve promise
@@ -143,7 +146,6 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
                 carMake: null
               }
             }
-
             $scope.persons[vanInfo.driver_person_id].driverStatus = 'isVanDriver'
           }
         })
@@ -165,13 +167,30 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
     }
   }
 
+  getCarpoolSites().then(function (sites) {
+      $scope.carpoolSites = sites
+  })
+  //---end ctrler init logic
+
   $scope.$on('congifPersonsContainers', function() {
     $scope.carpoolSite = $rootScope.myCarpoolSite
     $scope.personsContainersConfig()
     $state.go('attendance.registered')
     $rootScope.currentState = 'attendance.registered'
   })
-  //---end ctrler init logic
+
+  // conditionally determine whether a clear (X) icon button should be shown in the toolbar
+  $scope.$on('$stateChangeSuccess', function(event, toState) {
+    $log.log("on(stateChangeSuccess) running!")
+    $scope.showNotesProgressBar = false
+
+    if (toState.name == 'notes' || toState.name == 'bugReports' || toState.name == 'attendance.getFromOtherCarpoolSite' || toState.name == 'addNewVolunteer') {
+      $scope.showClearButton = true
+    }
+    else {
+      $scope.showClearButton = false
+    }
+  })
 
   //-- Functions for controls to bind to
   $scope.login = function() {
@@ -199,24 +218,29 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
     $mdSidenav('left').close()
   }
 
-  //TODO make carpool sites load dynamically
-  getCarpoolSites().then(function (sites) {
-      $scope.carpoolSites = sites
-  })
-  //
-  // $scope.carpoolSitesNames = {
-  //   'aa': 'Ann Arbor',
-  //   'bf' : 'Bloomfield Hills',
-  //   'brk': 'Berkley',
-  //   'cp': 'Clark Park',
-  //   'drbn': 'Dearborn',
-  //   'gp': 'Grosse Pointe',
-  //   'gro': 'Groves',
-  //   'nf': 'North Farmington',
-  //   'nv': 'Northville',
-  //   'ren': 'Renaissance',
-  //   'troy': 'Troy'
-  // }
+  $scope.goToNotes = function() {
+    $state.get('notes').data['originState'] = $state.current.name
+    $state.go('notes')
+    $mdSidenav('left').close()
+  }
+
+  $scope.goToBugReports = function() {
+    $state.get('bugReports').data['originState'] = $state.current.name
+    $state.go('bugReports')
+    $mdSidenav('left').close()
+  }
+
+  $scope.returnToState = function () {
+    var currentState = $state.current.name
+    if ($state.get(currentState).data.originState) {
+      var destination = $state.get(currentState).data.originState
+    }
+    else {
+      var destination = 'attendance.registered'
+    }
+    $state.go(destination)
+    $mdSidenav('left').close()
+  }
 
   $scope.reconfigPersonsContainers = function() {
     $rootScope.myCarpoolSite = $scope.carpoolSite

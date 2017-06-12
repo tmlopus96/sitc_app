@@ -1,4 +1,4 @@
-app.controller('TrelloNotesController', ['$scope', '$rootScope', '$log', '$q', 'TrelloClient', 'getTrelloIds', function($scope, $rootScope, $log, $q, TrelloClient, getTrelloIds) {
+app.controller('BugReportsController', ['$scope', '$rootScope', '$log', '$q', 'TrelloClient', 'getTrelloIds', function($scope, $rootScope, $log, $q, TrelloClient, getTrelloIds) {
 
   $scope.carpoolSite = $rootScope.myCarpoolSite
   $scope.isAuthenticated = false
@@ -12,10 +12,6 @@ app.controller('TrelloNotesController', ['$scope', '$rootScope', '$log', '$q', '
     $scope.isAuthenticated = true
     TrelloClient.get('/members/me').then(function (response) {
       $scope.username = response.data.username
-      getCards().then(function(response){
-        console.log(response);
-        $scope.cards = response.data
-      })
     })
   } // else the view will show only a button asking the user to sign in
 
@@ -35,31 +31,22 @@ app.controller('TrelloNotesController', ['$scope', '$rootScope', '$log', '$q', '
     }
   )
 
- function getCards () {
-    return TrelloClient.get(`/lists/${$scope.trelloObjs[$scope.carpoolSite].id}/cards`)
-  }
-
- function getBoards () {
-    return TrelloClient.get('/boards/cards')
-  }
-
-  $scope.submitNewNote = function () {
+  $scope.submitReport = function () {
     var config = {
       key: $scope.trelloObjs.api_key.id,
       token: localStorage.getItem('trello_token'),
-      idList: $scope.trelloObjs[$scope.carpoolSite].id,
-      name: $scope.newNoteText
+      idList: $scope.trelloObjs['attendance_bug_reports_list'].id,
+      name: $scope.newReport.name,
+      desc: $scope.newReport.desc,
+      idLabels: "589dc7f0ced82109ff36db44"
     }
     TrelloClient.post('/cards', config).then(function (response) {
-      $scope.cards.push(response.data)
-      $scope.showTextarea = false
-      $scope.newCardText = null
+      $scope.showConfirmation = true
+      $scope.newReport.name = null
+      $scope.newReport.desc = null
       console.log(response)
     })
   }
 
-  getBoards().then(function (response) {
-    console.log(response)
-  })
 
 }])

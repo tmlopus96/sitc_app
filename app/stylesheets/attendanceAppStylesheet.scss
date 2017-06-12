@@ -1,5 +1,16 @@
+/* Colors */
+$primaryColor: rgb(0, 188, 212); // Cyan 500 in official MD palette
+$primaryColor-hue-1: rgb(77, 208, 255); // Cyan 300
+$primaryColor-hue-2: rgb(0, 131, 143); // Cyan 800
+$primaryColor-hue-3: rgb(132, 255, 255); // Cyan 100
+$accentColor: rgba(255,110,64,0.87); // Deep Orange A200
+$accentColor-400: rgb(255, 61, 0); // Deep Orange A400
+$accentColor-700: rgb(221, 44, 0); // Deep Orange A700
+
+@import 'registeredTab.scss';
 @import 'sitePickerSheet';
 @import 'editRegInfo';
+@import 'notes';
 
 @media only screen and (min-width: 768px) {
   #bodyContent {
@@ -8,6 +19,12 @@
   }
   .anchor-button-text {
     font-size: 16px !important;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  #bodyContent {
+    padding: 10px;
   }
 }
 

@@ -1,5 +1,5 @@
 <md-content id="bodyContent">
-  <div id="anchorButtonRow" layout="row">
+  <div id="anchorButtonRow" layout="row" style="overflow-x: scroll">
     <span flex></span>
     <div id="anchorButtonContainer" ng-repeat="(projectName, projectPersons) in projectsWithPersons">
       <md-button ng-click="goToSectionHeader(projectName)" aria-label="Go to {{projectName}}">
@@ -21,16 +21,18 @@
           </div>
           <div flex="70" class="iconSetContainer" layout="row" layout-align="start cetner">
             <div flex class="listIconContainer" layout-align="start center">
-              <div ng-show="(vanInfo.driver_person_id != null && vanInfo.driver_person_id != '') && persons[vanInfo.driver_person_id]">
+              <div ng-show="(vanInfo.driver_person_id != null && vanInfo.driver_person_id != '') && persons[vanInfo.driver_person_id].isCheckedIn == 1">
                 <md-button aria-label="Manage driver" class="md-accent md-hue-1" ng-click="vanControlPanel(vanInfo.driver_person_id, vanId)" style="padding:0 !important; min-width:40px !important">
                   <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
                 </md-button>
-                <span>{{ persons[vanInfo.driver_person_id].firstName }} {{ persons[vanInfo.driver_person_id].lastName }}</span>
               </div>
-              <div ng-hide="(vanInfo.driver_person_id != null && vanInfo.driver_person_id != '') && persons[vanInfo.driver_person_id]">
+              <div ng-hide="(vanInfo.driver_person_id != null && vanInfo.driver_person_id != '') && persons[vanInfo.driver_person_id].isCheckedIn == 1">
                 <md-button ng-hide="" aria-label="Select driver" ng-click="assignVanDriver(vanId, vanInfo.assignedToSite)" style="padding:0 !important; min-width:40px !important">
                   <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
                 </md-button>
+              </div>
+              <div>
+                <span ng-show="(vanInfo.driver_person_id != null && vanInfo.driver_person_id != '')">{{ persons[vanInfo.driver_person_id].firstName }} {{ persons[vanInfo.driver_person_id].lastName }}</span>
               </div>
             </div>
           </div> <!--end listIconSetContainer -->
@@ -107,7 +109,7 @@
                     <md-icon id="listButtonIcon" class="material-icons" aria-label="car">drive_eta</md-icon>
                   </md-button>
                 </div>
-                <div flex="" class="listIconContainer" layout="row" layout-align="end center" style="position: absolute" ng-class="{'fab-button-workaround': projectName != 'all'}">
+                <div flex="" class="listIconContainer" layout="row" layout-align="end center" style="position: relative" ng-class="{'fab-button-workaround': projectName != 'all'}">
                   <md-fab-speed-dial flex ng-if="projectName == 'all'" class="md-fling" md-direction="left" md-open="false" ng-cloak style="height:100%; top: 5px">
                     <md-fab-trigger>
                       <md-button aria-label="menu" class="md-fab speedDialButton md-primary">

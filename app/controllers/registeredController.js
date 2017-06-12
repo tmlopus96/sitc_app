@@ -65,7 +65,7 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
     }
 
     /*
-     * checkInPerson
+       * checkInPerson
      * Updates $scope arrays to reflect changes to persons's checkin status parameters, then updates them on the server.
      * Pre: personId is a valid person; selectedProject is a valid project, or null
      * Post: $scope arrays and server have been updated to reflect changes to person's checkin status parameters. corresponding view updates are automatically triggered by changes to $scope arrays (i.e. person is moved to the correct list in the correct tab).
@@ -73,7 +73,11 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
     $scope.checkInPerson = function(personId, selectedProject) {
       function updateArrays() {
         var deferred = $q.defer();
-        var valuesToUpdate = {"id":personId, "carpoolSite":$scope.carpoolSite, "project":selectedProject}
+        var valuesToUpdate = {
+          "id":personId,
+          "isCheckedIn": 1, 
+          "carpoolSite":$scope.carpoolSite,
+          "project":selectedProject}
 
         if (selectedProject == 'all') {
           $scope.projectsWithPersons['all'].push(personId)

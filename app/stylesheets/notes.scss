@@ -1,0 +1,22 @@
+#notesToolbar, #bugReportToolbar {
+  background-color: #0079BF;
+}
+
+#newNoteContainer:not(.md-input-invalid).md-input-focused {
+
+  label {
+    color: #0079BF;
+  }
+
+  .md-input {
+    border-color: rgb(0, 121, 191);
+  }
+
+}
+
+.bug-report-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+  opacity: .54;
+}

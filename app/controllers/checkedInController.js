@@ -15,7 +15,7 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
     }
 
   $scope.$on('$stateChangeSuccess', function(event, toState) {
-    $log.log('stateChangeSuccess func ran! with toState ' + toState.name)
+    // $log.log('stateChangeSuccess func ran! with toState ' + toState.name)
 
     if (toState.name == 'attendance.registered' || toState.name == 'attendance.checkedIn' || toState.name == 'attendance.assigned') {
       setTimeout(function(){hideSpeedDialButtons()}, 0)
@@ -256,8 +256,17 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
 
       $log.log('about to call assignToDriver on person ' + personId + ' to driver ' + selectedDriver)
 
-      var siteToPass = ($scope.persons[selectedDriver]) ? $scope.persons[selectedDriver].assignedToSite_id : null
-      var projectToPass = ($scope.persons[selectedDriver]) ? $scope.persons[selectedDriver].assignedToProject : null
+      if ($scope.persons[selectedDriver]) {
+        if ($scope.persons[selectedDriver].assignedToSite_id != null && $scope.persons[selectedDriver].assignedToSite_id != '') {
+          var siteToPass = $scope.persons[selectedDriver].assignedToSite_id
+          var projectToPass = $scope.projectSites[$scope.persons[selectedDriver].assignedToSite_id].project
+        }
+        else {
+          var siteToPass = 'NULL'
+          var projectToPass = ($scope.persons[selectedDriver].assignedToProject) ? $scope.persons[selectedDriver].assignedToProject : 'NULL'
+          $log.log("siteToPass: " + siteToPass + ", projectToPass: " + projectToPass)
+        }
+      }
 
       var assignDriverPromise = assignToDriver(personId, selectedDriver, siteToPass, projectToPass)
       assignDriverPromise.then(function mySuccess() {
@@ -275,7 +284,7 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
             var index = $scope.projectSitesWithPersons[$scope.persons[personId].assignedToSite_id].indexOf(personId)
             $scope.projectSitesWithPersons[$scope.persons[personId].assignedToSite_id].splice(index, 1)
           }
-          if ($scope.persons[personId].assignedToProject && $scope.projectsWithPersons[$scope.persons[personId].assignedToProject]) {
+          else if ($scope.persons[personId].assignedToProject && $scope.projectsWithPersons[$scope.persons[personId].assignedToProject]) {
             var index = $scope.projectsWithPersons[$scope.persons[personId].assignedToProject].indexOf(personId)
             $scope.projectsWithPersons[$scope.persons[personId].assignedToProject].splice(index, 1)
           }
@@ -286,7 +295,9 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
             $scope.projectSitesWithPersons[$scope.persons[personId].assignedToSite_id].push(personId)
           }
           else if ($scope.projectsWithPersons[$scope.persons[personId].assignedToProject]) {
+            $log.log("projectsWithPersons Before: " + dump($scope.projectsWithPersons[$scope.persons[personId].assignedToProject], 'none'))
             $scope.projectsWithPersons[$scope.persons[personId].assignedToProject].push(personId)
+            $log.log("projectsWithPersons After: " + dump($scope.projectsWithPersons[$scope.persons[personId].assignedToProject], 'none'))
           }
 
 
@@ -496,11 +507,11 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
           }
 
           // update on the scope the values we just updated on the server
-          $scope.persons[selectedDriverId].driverStatus = 'isDriver'
+          $scope.persons[selectedDriverId].driverStatus = 'isTeerCarDriver'
           $scope.persons[selectedDriverId].assignedToSite_id = assignedToSite
           $scope.persons[selectedDriverId].assignedToProject = $scope.projectSites[assignedToSite].assignedToProject
           if (seatbeltsMessage == 'hasEnoughSeatbelts') {
-            $scope.persons[selectedDriverId].numSeatbeltsToday = $scope.teerCars[teerCarId].assignedNumPassengers
+            $scope.persons[selectedDriverId].numSeatbeltsToday = parseInt($scope.teerCars[teerCarId].assignedNumPassengers)
           }
 
           // push to appropriate xWithPersons arrays
@@ -577,6 +588,7 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
 
           updateActiveTeerCar(teerCarId, paramsToPass).then(function success () {
             $scope.teerCars[teerCarId].driver_person_id = selectedDriverId
+            $log.log("updateActiveTeerCar resolved!")
           })
         })
       }, function cancelAssignment() {

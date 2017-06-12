@@ -3,8 +3,8 @@
     <md-list class="personsList">
 
       <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="person in registeredPersons | orderByLastName:persons">
-       <md-icon ng-show="persons[person].isCrew == 1" style="margin-right:10px" md-svg-src="app/images/icons/crew.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
-       <md-icon ng-show="persons[person].isComing == 1 && persons[person].isCrew != 1" style="margin-right:10px" md-svg-src="app/images/icons/heads_up.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
+       <md-icon id="crewIcon" ng-show="persons[person].isCrew == 1" style="margin-right:10px" md-svg-src="app/images/icons/crew.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
+       <md-icon id="headsUpIcon" ng-show="persons[person].isComing == 1 && persons[person].isCrew != 1" style="margin-right:10px" md-svg-src="app/images/icons/heads_up.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
        <md-icon ng-hide="persons[person].isCrew == 1 || persons[person].isComing == 1" style="margin-right:10px" md-svg-src="app/images/icons/person.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
        <div flex class="md-list-item-text">
          <h3>{{persons[person].firstName}} {{persons[person].lastName}}</h3>
@@ -16,7 +16,7 @@
          <div ng-show="{{persons[person].hasCar}}"><md-icon ng-show="false" id="listButtonIcon" class="material-icons">drive_eta</md-icon></div>
        </div>
        <div flex class="listIconContainer" layout-align="end center">
-         <md-icon class="sitc-icon-" aria-label="{{persons[person].preferredProject}}">{{ persons[person].preferredProject }}</md-icon>
+         <md-icon class="sitc-icon-" aria-label="{{persons[person].preferredProject}}">{{ (persons[person].headsUp_preferredProject) ? persons[person].headsUp_preferredProject : persons[person].preferredProject }}</md-icon>
        </div>
        <div flex class="listIconContainer" layout="row" layout-align="end center" ng-cloak>
           <md-fab-speed-dial flex class="md-fling md-secondary" md-direction="left" md-open="speedDialIsOpen" ng-cloak>

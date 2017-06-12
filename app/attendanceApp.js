@@ -50,6 +50,13 @@ app.config(function($stateProvider) {
       data: {requireLogin: false}
     })
 
+    .state('bugReports', {
+      url: '/bugReports',
+      templateUrl: 'app/views/bugReports.html',
+      controller: 'BugReportsController',
+      data: {requireLogin: false}
+    })
+
     .state('goAway', {
       url: '/goAway',
       template: '<h1>Go Away.</h1><h3>You don\'t even go here.</h3>',

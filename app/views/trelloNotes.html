@@ -1,35 +1,57 @@
 
-  <md-toolbar layout="row">
+  <md-toolbar id="notesToolbar" md-scroll-shrink="true" layout="row" layout-align="center center" style="height: 50px !important">
     <div class="md-toolbar-tools">
-      <h3>Notes</h3>
+      <a href="https://trello.com/b/O4tXYfCa" layout="column" layout-align="center start">
+        <span class="primary-text-opacity" style="font-size: 12px; margin-bottom: 5px">Powered by</span>
+        <img src="app/images/trello-logo-white.svg" style="width: auto; height: 20px"/>
+      </a>
     </div>
-    <span flex></span>
-    <span>{{ username }}</span>
+    <div flex></div>
+    <div class="md-toolbar-tools" layout="column" layout-align="center end">
+      <div ng-click="authenticate()" style="cursor: pointer">
+        <div ng-show="!isAuthenticated">
+          <span class="primary-text-opacity" style="margin-bottom: 5px">Log in</span>
+        </div>
+        <div ng-show="isAuthenticated" layout="column" layout-align="center end">
+          <span class="primary-text-opacity" style="font-size: 12px; margin-bottom: 0px">Logged in as</span>
+          <h3 class="primary-text-opacity">{{ username }}</h3>
+        </div>
+      </div>
+    </div>
   </md-toolbar>
 
   <md-content style="padding: 10px">
-    <md-button ng-click="authenticate()">Log in</md-button>
-    <md-button ng-click="getCards()">Get Cards</md-button>
+    <h2 style="margin-bottom: 0">Notes</h2>
+    <h4 class="md-subhead" style="margin-top: 0">If there's a situation the app can't handle, take a note about it here.</h4>
 
-    <md-button layout="row" ng-click="showTextarea = !showTextarea" ng-show="!showTextarea">
-      <md-icon>create</md-icon>
-      <h4 style="margin-bottom: 0; margin-top: 0; margin-left: 10px">New note</h4>
-    </md-button>
-    <md-card ng-show="showTextarea">
-      <md-card-content>
-        <md-input-container layout="column" style="margin-bottom: 0">
-          <label>Type note here...</label>
-          <textarea ng-model="newNoteText"></textarea>
-        </md-input-container>
-      </md-card-content>
-      <md-card-actions layout="row" layout-align="end">
-        <md-button ng-click="submitNewNote()">Submit</md-button>
-      </md-card-actions>
-    </md-card>
+    <div ng-show="!isAuthenticated" layout="column">
+      <md-button ng-click="authenticate()" class="md-raised" style="background-color: rgb(0, 121, 191)">
+        <span class="primary-text-opacity">Log in</span>
+      </md-button>
+    </div>
 
-    <div id="cardsContainer">
-      <div class="card-container" ng-repeat="card in cards | reverse">
-        <h4>{{ card.name }}</h4>
-      </div>
+    <div ng-show="isAuthenticated">
+      <md-button layout="row" ng-click="showTextarea = !showTextarea" ng-show="!showTextarea" class="md-primary md-raised" style="background-color:#0079BF">
+        <!-- <md-icon>create</md-icon> -->
+        <h4 class="primary-text-opacity" style="margin-bottom: 0; margin-top: 0">New Note</h4>
+      </md-button>
+      <md-card ng-show="showTextarea">
+        <md-card-content style="padding-bottom: 0">
+          <md-input-container id="newNoteContainer" layout="column" style="margin-bottom: 0">
+            <label>Type note here...</label>
+            <textarea ng-model="newNoteText"></textarea>
+          </md-input-container>
+        </md-card-content>
+        <md-card-actions layout="row" layout-align="end">
+          <md-button style="color: #0079BF" ng-click="submitNewNote()">Submit</md-button>
+        </md-card-actions>
+      </md-card>
+
+      <md-list id="cardsContainer">
+        <md-list-item class="card-container" ng-repeat="card in cards | reverse" style="padding-top: 5px; padding-bottom: 5px">
+          <span>{{ card.name }}</span>
+          <md-divider ng-hide=""></md-divider>
+        </md-list-item>
+      </md-list>
     </div>
   </md-content>

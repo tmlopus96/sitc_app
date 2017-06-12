@@ -7,7 +7,7 @@
 <body>
   <?php
 
-    echo password_hash('sitc_2002', PASSWORD_DEFAULT);
+    echo password_hash('sitc1655', PASSWORD_DEFAULT);
 
   ?>
 </body>

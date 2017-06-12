@@ -34,6 +34,7 @@
      <script src="app/controllers/getFromOtherCarpoolSite.js"></script>
      <script src="app/controllers/addNewVolunteerController.js"></script>
      <script src="app/controllers/trelloNotesController.js"></script>
+     <script src="app/controllers/bugReportsController.js"></script>
      <script src="app/services/serverInterfaces.js"></script>
      <script src="app/services/modals/volunteerCarControlPanel.js"></script>
      <script src="app/services/modals/assignTeerCarDriver.js"></script>
@@ -67,26 +68,53 @@
          </div>
        </md-toolbar>
       <md-content layout-padding>
-        <md-input-container id="carpoolSiteInputContainer">
+        <md-input-container id="carpoolSiteInputContainer" style="margin-left: 14px">
           <label>Carpool Site</label>
           <md-select ng-model="carpoolSite" md-on-close="reconfigPersonsContainers()">
             <md-option ng-repeat="(siteId, info) in carpoolSites" ng-value="siteId">{{ info.name }}</md-option>
           </md-select>
         </md-input-container>
 
-        <br  />
-        <md-button id="changePasswordButton" ng-click="changePassword()">Change Password</md-button>
-        <br />
+        <div layout="column">
+          <md-button ng-click="goToGetFromOtherCarpool()" layout="row" layout>
+            <span style="text-transform: initial">Select from other carpool site</span>
+            <span flex></span>
+            <md-icon>arrow_forward</md-icon>
+          </md-button>
+        </div>
 
-        <span class="md-subheader">Select a volunteer from another carpool site</span>
-        <md-button ng-click="goToGetFromOtherCarpool()">
-          Select
-        </md-button>
+        <div layout="column">
+          <md-button ng-click="goToAddNewTeer()" layout="row">
+            <span style="text-transform: initial">Add new volunteer</span>
+            <span flex></span>
+            <md-icon>arrow_forward</md-icon>
+          </md-button>
+        </div>
 
-        <span class="md-subheader">Add new volunteer</span>
-        <md-button ng-click="goToAddNewTeer()">
-          Add new
-        </md-button>
+        <md-divider></md-divider>
+
+        <div layout="column">
+          <md-button ng-click="goToNotes()" layout="row">
+            <span style="text-transform: initial">Notes to directors</span>
+            <span flex></span>
+            <md-icon>arrow_forward</md-icon>
+          </md-button>
+        </div>
+
+        <div layout="column">
+          <md-button ng-click="goToBugReports()" layout="row">
+            <span style="text-transform: initial">Report a bug</span>
+            <span flex></span>
+            <md-icon>arrow_forward</md-icon>
+          </md-button>
+        </div>
+
+        <div layout="column">
+          <md-button id="changePasswordButton" ng-click="changePassword()" layout="row">
+            <span>Change Password</span>
+            <span flex></span>
+          </md-button>
+        </div>
 
 
       </md-content>
@@ -95,15 +123,20 @@
      <md-toolbar>
       <div class="md-toolbar-tools">
         <md-button class="md-icon-button" ng-click="toggleLeftMenu()" aria-label="Go Back">
-          <md-icon class="material-icons icon-hint-disabled-opacity">menu</md-icon>
+          <md-icon class="material-icons">menu</md-icon>
         </md-button>
         <span flex></span>
-        <h2 class="primary-text-opacity">
+        <h2>
           <span>{{ carpoolSites[carpoolSite].name }}</span>
         </h2>
         <span flex></span>
+        <md-button class="md-icon-button" ng-show="showClearButton" ng-click="returnToState()">
+          <md-icon>clear</md-icon>
+        </md-button>
       </div>
     </md-toolbar>
+
+    <md-progress-linear class="md-accent" md-mode="indeterminate" ng-show="showNotesProgressBar"></md-progress-linear>
 
     <div ui-view></div>
 

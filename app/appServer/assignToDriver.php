@@ -11,14 +11,26 @@
   $assignedToSite_id = (isset($_GET['assignedToSite_id'])) ? sanitize($_GET['assignedToSite_id']) : null;
   $assignedToProject = (isset($_GET['assignedToProject'])) ? sanitize($_GET['assignedToProject']) : null;
 
+
+
   $query = "UPDATE CheckedIn SET assignedToDriver_id='$driverId'";
 
   if ($assignedToSite_id) {
-    $query .= ", assignedToSite_id='$assignedToSite_id'";
+    if ($assignedToSite_id == 'NULL') {
+      $query .= ", assignedToSite_id=NULL";
+    }
+    else {
+      $query .= ", assignedToSite_id='$assignedToSite_id'";
+    }
   }
 
   if ($assignedToProject) {
-    $query .= ", assignedToProject='$assignedToProject'";
+    if ($assignedToProject == 'NULL') {
+      $query .= ", assignedToProject=NULL";
+    }
+    else {
+      $query .= ", assignedToProject='$assignedToProject'";
+    }
   }
 
   $query .= "WHERE person_id=$personId";

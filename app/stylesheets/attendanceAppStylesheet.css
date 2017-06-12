@@ -1,3 +1,10 @@
+/* Colors */
+#crewIcon {
+  color: rgba(255, 110, 64, 0.87); }
+
+#headsUpIcon {
+  color: #00bcd4; }
+
 .site-picker-list {
   margin-left: 0; }
 
@@ -7,6 +14,20 @@
 .not-paid {
   color: red; }
 
+#notesToolbar, #bugReportToolbar {
+  background-color: #0079BF; }
+
+#newNoteContainer:not(.md-input-invalid).md-input-focused label {
+  color: #0079BF; }
+#newNoteContainer:not(.md-input-invalid).md-input-focused .md-input {
+  border-color: #0079bf; }
+
+.bug-report-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+  opacity: .54; }
+
 @media only screen and (min-width: 768px) {
   #bodyContent {
     width: 70%;
@@ -14,6 +35,9 @@
 
   .anchor-button-text {
     font-size: 16px !important; } }
+@media only screen and (max-width: 768px) {
+  #bodyContent {
+    padding: 10px; } }
 md-toast {
   position: fixed;
   margin-bottom: 15px; }

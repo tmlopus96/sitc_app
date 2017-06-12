@@ -332,7 +332,6 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
       */
      $scope.updateDriverStatus = function(personId) {
        // person.drierStatus controlled by switch in checkedIn and assigned directives
-       // TODO add a warning about how toggling a driver off will remove their passengers (added Trello card)
        $log.log('calling driverStatus on person ' + personId + 'with isDriver')
 
        // this is already the new status because it has been set by an md-switch bound to driverStatus
@@ -379,7 +378,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
 
              // -- if this driver's car is full, don't add them to the array
              // only run this check if their numSeatbelts is set; for some volunteer drivers, it is not set, so we have no valid data to check against
-             if (parseInt($scope.drivers[id])) {
+             if (parseInt($scope.drivers[id].numSeatbelts) > 0) {
                if (parseInt($scope.drivers[id].passengers.length) >= $scope.drivers[id].numSeatbelts) {
                  continue
                }
@@ -402,7 +401,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
        driverPromise.then(function(selectedDriver) {
 
          // if selectedDriver=='', person is being unassigned, so save driver they are being unassigned from for toast message later
-         if ($scope.persons[personId].assignedToDriver_id != '' && $scope.persons[personId].assignedToDriver_id != null && $scope.persons[personId].assignedToDriver_id != 0) {
+         if ($scope.persons[personId].assignedToDriver_id != '' && $scope.persons[personId].assignedToDriver_id != null) {
            var prevDriver = $scope.persons[personId].assignedToDriver_id
          }
 
@@ -410,8 +409,17 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
 
          $log.log('about to call assignToDriver on person ' + personId + ' to driver ' + selectedDriver)
 
-         var siteToPass = ($scope.persons[selectedDriver]) ? $scope.persons[selectedDriver].assignedToSite_id : null
-         var projectToPass = ($scope.persons[selectedDriver]) ? $scope.persons[selectedDriver].assignedToProject : null
+         if ($scope.persons[selectedDriver]) {
+           if ($scope.persons[selectedDriver].assignedToSite_id != null && $scope.persons[selectedDriver].assignedToSite_id != '') {
+             var siteToPass = $scope.persons[selectedDriver].assignedToSite_id
+             var projectToPass = $scope.projectSites[$scope.persons[selectedDriver].assignedToSite_id].project
+           }
+           else {
+             var siteToPass = 'NULL'
+             var projectToPass = ($scope.persons[selectedDriver].assignedToProject) ? $scope.persons[selectedDriver].assignedToProject : 'NULL'
+             $log.log("siteToPass: " + siteToPass + ", projectToPass: " + projectToPass)
+           }
+         }
 
          var assignDriverPromise = assignToDriver(personId, selectedDriver, siteToPass, projectToPass)
          assignDriverPromise.then(function mySuccess() {
@@ -429,7 +437,7 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
                var index = $scope.projectSitesWithPersons[$scope.persons[personId].assignedToSite_id].indexOf(personId)
                $scope.projectSitesWithPersons[$scope.persons[personId].assignedToSite_id].splice(index, 1)
              }
-             if ($scope.persons[personId].assignedToProject && $scope.projectsWithPersons[$scope.persons[personId].assignedToProject]) {
+             else if ($scope.persons[personId].assignedToProject && $scope.projectsWithPersons[$scope.persons[personId].assignedToProject]) {
                var index = $scope.projectsWithPersons[$scope.persons[personId].assignedToProject].indexOf(personId)
                $scope.projectsWithPersons[$scope.persons[personId].assignedToProject].splice(index, 1)
              }
@@ -440,7 +448,9 @@ app.controller('AssignedController', ['$scope', '$log', '$q', '$mdToast', '$loca
                $scope.projectSitesWithPersons[$scope.persons[personId].assignedToSite_id].push(personId)
              }
              else if ($scope.projectsWithPersons[$scope.persons[personId].assignedToProject]) {
+               $log.log("projectsWithPersons Before: " + dump($scope.projectsWithPersons[$scope.persons[personId].assignedToProject], 'none'))
                $scope.projectsWithPersons[$scope.persons[personId].assignedToProject].push(personId)
+               $log.log("projectsWithPersons After: " + dump($scope.projectsWithPersons[$scope.persons[personId].assignedToProject], 'none'))
              }
 
 

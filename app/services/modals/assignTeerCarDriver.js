@@ -49,10 +49,10 @@ app.factory('assignTeerCarDriver', ['$q', '$log', '$mdDialog', function($q, $log
         }
 
         $scope.getVanDrivenBy = function (driver) {
-          $log.log("Driver: " + driver)
-          $log.log("Vans: " + dump($scope.vans, 'none'))
+          // $log.log("Driver: " + driver)
+          // $log.log("Vans: " + dump($scope.vans, 'none'))
           var keys = Object.keys($scope.vans)
-          $log.log("Keys: " + dump(keys, 'none'))
+          // $log.log("Keys: " + dump(keys, 'none'))
           var vanId = null
           for (var i=0; i < keys.length; i++) {
             $log.log("i: " + i + "; parseInt(keys[i]): " + parseInt(keys[i]))

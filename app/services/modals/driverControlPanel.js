@@ -14,6 +14,7 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
       templateUrl: "app/modalTemplates/driverControlPanelTemplate.html",
       scope: $scope,
       preserveScope: true,
+      clickOutsideToClose: true,
       parent: angular.element(document.body),
       locals: {
         driver: myDriver,
@@ -29,22 +30,27 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
         $scope.teerCarId = teerCarId
         $scope.vanId = vanId
 
-        $scope.drivers[driver].numSeatbelts = parseInt($scope.drivers[driver].numSeatbelts)
 
         if ($scope.drivers[driver]) {
+          $scope.drivers[driver].numSeatbelts = (parseInt($scope.drivers[driver].numSeatbelts > $scope.drivers[driver].passengers.length)) ?  parseInt($scope.drivers[driver].numSeatbelts) : $scope.drivers[driver].passengers.length
           // push each of driver's passengers into array myPassengers on scope of this modal
           $scope.drivers[driver].passengers.forEach(function(currentPassenger) {
             $scope.myPassengers.push(currentPassenger)
           })
           if ($scope.drivers[driver].numSeatbelts != null && $scope.drivers[driver].numSeatbelts != 0 && $scope.drivers[driver].numSeatbelts != '') {
-            var emptySeats = $scope.drivers[driver].numSeatbelts - $scope.drivers[driver].passengers.length
+            var emptySeats = $scope.drivers[driver].numSeatbelts - 1 - $scope.drivers[driver].passengers.length
           }
           else {
-            emptySeats = 4 - $scope.drivers[driver].passengers.length
+            // emptySeats = 4 - parseInt($scope.drivers[driver].passengers.length)
           }
         } else {
           $log.log('else ran')
           var emptySeats = $scope.persons[driver].numSeatbelts
+        }
+
+        // for each empty seat, push an empty array element to myPassengers so that empty rows will appear in modal, signifying the open seats to the user
+        for (var i=0; i < emptySeats; i++) {
+          $scope.myPassengers.push('')
         }
 
         $scope.updateNumSeatbelts = function() {
@@ -55,10 +61,37 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
           })
         }
 
-        // for each empty seat, push an empty array element to myPassengers so that empty rows will appear in modal, signifying the open seats to the user
-        for (var i=0; i < emptySeats; i++) {
-          $scope.myPassengers.push('')
-        }
+        // watches for changes to the driver's numSeatbelts and adjusts the number of empty seats accordingly
+        // If the numSeatbelts is set to a number less than the number of passengers already assigned to the driver, do nothing.
+        // TODO: Maybe warn the user that the number of seatbelts they just entered is too few to accommodate the numeber of passengers aslready assigned to this driver
+        $scope.$watch(
+          function () {
+            if ($scope.drivers[driver]) {
+              return $scope.drivers[$scope.driver].numSeatbelts - 1
+            }
+            else {
+              return null
+            }
+          },
+          function (newVal, oldVal) {
+            if (newVal > oldVal && newVal > $scope.myPassengers.length) {
+              var seatsToAdd = newVal - oldVal
+              for (var k = 0; k < seatsToAdd; k++) {
+                $scope.myPassengers.push('')
+              }
+            }
+            else if (newVal < oldVal) {
+              var seatsToSplice = oldVal - newVal
+              var numSeatsSpliced = 0
+              for (var k = 0; k < $scope.myPassengers.length && numSeatsSpliced < seatsToSplice; k++) {
+                if ($scope.myPassengers[k] == '') {
+                  $scope.myPassengers.splice(k, 1)
+                  numSeatsSpliced++
+                }
+              }
+            }
+          }
+        )
 
         /*
          * updateDriverStatus

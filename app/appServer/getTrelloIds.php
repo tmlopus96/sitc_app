@@ -8,7 +8,7 @@
 
   $carpoolSite = (isset($_GET['carpoolSite'])) ? sanitize($_GET['carpoolSite']) : '';
 
-  $query = "SELECT * FROM TrelloId WHERE element='notes_board' OR element='api_key'";
+  $query = "SELECT * FROM TrelloId WHERE element='notes_board' OR element='api_key' OR element='attendance_bug_reports_list'";
 
   if ($carpoolSite) {
     $query .= " OR element='$carpoolSite'";

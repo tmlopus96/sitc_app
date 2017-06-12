@@ -7,6 +7,7 @@
     die ($connection->connect_error);
 
   $id = isset($_GET["id"]) ? intval(sanitize($_GET["id"])) : "";
+  $isCheckedIn = isset($_GET["isCheckedIn"]) ? intval(sanitize($_GET["isCheckedIn"])) : "";
   $carpoolSite = isset($_GET["carpoolSite"]) ? sanitize($_GET["carpoolSite"]) : "";
   $project = isset($_GET["project"]) ? sanitize($_GET["project"]) : "";
   $projectRaw = isset($_GET["project"]) ? $_GET["project"] : "";
@@ -20,6 +21,12 @@
   $queryFields = ["person_id"];
   $queryValues = [$id];
   $updateClauses = [];
+
+  if ($isCheckedIn != '' && $isCheckedIn != null) {
+    array_push($queryFields, 'isCheckedIn');
+    array_push($queryValues, $isCheckedIn);
+    array_push($updateClauses, "isCheckedIn=" . $isCheckedIn);
+  }
 
   if ($carpoolSite != '' && $carpoolSite != null) {
     array_push($queryFields, 'carpoolSite_id');
@@ -68,7 +75,6 @@
   $fieldsStr = join(', ', $queryFields);
   $valuesStr = join(', ', $queryValues);
   $updateStr = join(', ', $updateClauses);
-  // when person is inserted into CheckedIn, isCheckedIn =1 by default
   $query = "INSERT INTO CheckedIn ($fieldsStr) VALUES ($valuesStr) ON DUPLICATE KEY UPDATE $updateStr";
   echo $query;
 
