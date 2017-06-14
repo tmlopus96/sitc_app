@@ -109,8 +109,8 @@
                     <md-icon id="listButtonIcon" class="material-icons" aria-label="car">drive_eta</md-icon>
                   </md-button>
                 </div>
-                <div flex="" class="listIconContainer" layout="row" layout-align="end center" style="position: relative" ng-class="{'fab-button-workaround': projectName != 'all'}">
-                  <md-fab-speed-dial flex ng-if="projectName == 'all'" class="md-fling" md-direction="left" md-open="false" ng-cloak style="height:100%; top: 5px">
+                <div id="speedDialContainer" flex="" class="listIconContainer" layout="row" layout-align="end center" style="" ng-class="{'fab-button-workaround': projectName != 'all'}">
+                  <md-fab-speed-dial id="speedDial" flex ng-if="projectName == 'all'" class="md-fling" md-direction="left" md-open="false" ng-cloak style="height:100%; top: 5px">
                     <md-fab-trigger>
                       <md-button aria-label="menu" class="md-fab speedDialButton md-primary">
                         <md-icon class="material-icons.md-18" style="color:white;">assignment_turned_in</md-icon>

@@ -50,7 +50,7 @@ app.factory('getRegistered', ['$log', '$q', '$http', function($log, $q, $http) {
       url: "app/appServer/getRegistered.php",
       params: paramsToPass
     }).then(function(response) {
-      $log.log("getRegistered response: " + dump(response, 'none'))
+      // $log.log("getRegistered response: " + dump(response, 'none'))
       if (Array.isArray(response.data)) {
         defer.resolve(response.data)
       }

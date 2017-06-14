@@ -19,11 +19,11 @@
     </div>
   </div>
 
-
   <md-table-container id="volunteersContainer" ng-hide="volunteers.length < 1">
     <table md-table>
       <thead md-head>
         <tr md-row>
+          <th md-column align-rule="left"></th>
           <th md-column align-rule="left">Name</th>
           <th md-column align-rule="left">Carpool Site</th>
           <th md-column align-rule="left">Email</th>
@@ -31,7 +31,12 @@
       </thead>
 
       <tbody md-body>
-        <tr md-row ng-repeat="teer in volunteers" ng-click="goToCheckedIn(teer.person_id)">
+        <tr md-row ng-repeat="teer in volunteers | orderBy: '+lastName'" >
+          <td md-cell style="padding-right: 0; padding-left: 0">
+            <md-button class="md-icon-button"  ng-click="goToCheckedIn(teer.person_id)">
+              <md-icon>done</md-icon>
+            </md-button>
+          </td>
           <td md-cell>{{ teer.firstName }} {{ teer.lastName}}</td>
           <td md-cell>{{ carpoolSites[teer.primaryCarpool_id].name }}</td>
           <td md-cell>{{ teer.email }}</td>

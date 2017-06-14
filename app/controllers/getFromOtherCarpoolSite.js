@@ -14,11 +14,13 @@ app.controller('GetFromOtherCarpoolSiteController', ['$scope', '$rootScope', '$s
       var carpoolSite = $scope.otherCarpoolSite
     }
     getRegistered(carpoolSite).then(function (teersArr) {
+      $log.log("teersArr: " + dump(teersArr, 'none'))
       $scope.volunteers = teersArr
     })
   }
 
   $scope.goToCheckedIn = function (withVolunteer) {
+    $log.log("withVolunteer: " + withVolunteer)
     $state.get('attendance.checkedIn').data['personToCheckInFromOtherSite'] = withVolunteer
     $state.go('attendance.checkedIn', null, {notify: true})
   }

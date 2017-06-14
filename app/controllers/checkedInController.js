@@ -26,23 +26,23 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
    if ($state.current.data.personToCheckInFromOtherSite) {
      var personId = $state.current.data.personToCheckInFromOtherSite
 
-     $log.log("personToCheckInFromOtherSite: " + $state.current.data.personToCheckInFromOtherSite)
+     $log.log("personToCheckInFromOtherSite: " + personId)
 
      var updatePromise = updateCheckedIn(personId, {'carpoolSite': $scope.carpoolSite})
 
      var registeredDefer = $q.defer()
-     if (personId > 0) {
+     if (personId > 0) { // personToCheckIn is from other carpoolSite
        updatePromise.then(function () {
          getRegistered(null, personId).then(function (response) {registeredDefer.resolve(response)})
        })
      }
      else {
-       updatePromise.then(function () {
+       updatePromise.then(function () { // personToCheckIn is tempRegistration, so they have a negative person_id
          getTempRegistrations(null, personId).then(function (response) {registeredDefer.resolve(response)})
        })
      }
      registeredDefer.promise.then(function (personInfo) {
-         $log.log("personInfo from updateCheckedIn: " + dump(personInfo, 'none'))
+        //  $log.log("personInfo from updateCheckedIn: " + dump(personInfo, 'none'))
          // personInfo will be array of only one person
          $scope.persons[personId] = personInfo[0]
          $scope.projectsWithPersons['all'].push(personId)
