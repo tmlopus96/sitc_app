@@ -3,7 +3,7 @@
   require_once 'sitc_workforce_creds.php';
 
   date_default_timezone_set('America/Detroit');
-  $date = new DateTime('2017-06-07');
+  $date = new DateTime('');
   // echo date('Y-m-d', $date->getTimestamp());
   $dateString = date('Y-m-d', $date->getTimestamp());
 
