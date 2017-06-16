@@ -58,8 +58,4 @@ app.controller('TrelloNotesController', ['$scope', '$rootScope', '$log', '$q', '
     })
   }
 
-  getBoards().then(function (response) {
-    console.log(response)
-  })
-
 }])

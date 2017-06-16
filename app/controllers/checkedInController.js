@@ -2,7 +2,7 @@
  * CheckedInController
  * Controls the CheckedIn app tab
  */
-app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToast', '$mdDialog', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getRegistered', 'getTempRegistrations', 'assignTeerCarDriver', 'updateActiveTeerCar', 'updateVan', 'editRegInfo', function($scope, $state, $log, $q, $mdToast, $mdDialog, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getRegistered, getTempRegistrations, assignTeerCarDriver, updateActiveTeerCar, updateVan, editRegInfo) {
+app.controller('CheckedInController', ['$scope', '$rootScope', '$state', '$log', '$q', '$mdToast', '$mdDialog', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getRegistered', 'getTempRegistrations', 'assignTeerCarDriver', 'updateActiveTeerCar', 'updateVan', 'editRegInfo', 'getActiveSites', function($scope, $rootScope, $state, $log, $q, $mdToast, $mdDialog, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getRegistered, getTempRegistrations, assignTeerCarDriver, updateActiveTeerCar, updateVan, editRegInfo, getActiveSites) {
 
   function hideSpeedDialButtons(){
       var speedDialButton_first = angular.element(document.querySelectorAll('#speedDialActionButton_first')).parent()
@@ -50,6 +50,40 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
 
          $mdToast.showSimple(`Checked in ${personInfo[0].firstName} ${personInfo[0].lastName}.`)
        })
+   }
+ })
+
+ var checkActivePaintSitesPromise = getActiveSites($rootScope.myCarpoolSite, 'paint')
+ checkActivePaintSitesPromise.then(function(activeSites) {
+   $log.log("checkActivePaintSites: " + dump(activeSites, 'none'))
+   if (Object.keys(activeSites).length > 0) {
+     $scope.activePaintSites = true
+   }
+   else {
+     $scope.activePaintSites = false
+   }
+ })
+
+ // check if sites are active for each project so that we can conditionally disable the buttons to check people into projects with no active sites
+ var checkActivePlantSitesPromise = getActiveSites($rootScope.myCarpoolSite, 'plant')
+ checkActivePlantSitesPromise.then(function(activeSites) {
+   if (Object.keys(activeSites).length > 0) {
+     $log.log("checkActivePlantSites: " + dump(activeSites, 'none'))
+     $scope.activePlantSites = true
+   }
+   else {
+     $scope.activePlantSites = false
+   }
+ })
+
+ var checkActivePlaySitesPromise = getActiveSites($rootScope.myCarpoolSite, 'play')
+ checkActivePlaySitesPromise.then(function(activeSites) {
+   $log.log("checkActivePlaySites: " + dump(activeSites, 'none'))
+   if (Object.keys(activeSites).length > 0) {
+     $scope.activePlaySites = true
+   }
+   else {
+     $scope.activePlaySites = false
    }
  })
 
@@ -343,7 +377,16 @@ app.controller('CheckedInController', ['$scope', '$state', '$log', '$q', '$mdToa
                 .ok(`Keep them assigned to ${$scope.persons[driver].firstName}`)
                 .cancel('Un-assign them')
 
-        $mdDialog.show(confirm).then(function keep() {
+        if ($scope.drivers[driver] && $scope.drivers[driver].passengers.length > 0) {
+          var confirmDialogPromise = $mdDialog.show(confirm)
+        }
+        else {
+          var confirmDialogDefer = $q.defer()
+          var confirmDialogPromise = confirmDialogDefer.promise
+          confirmDialogDefer.resolve()
+        }
+
+        confirmDialogPromise.then(function keep() {
           updateCheckedIn(driver, {'driverStatus': 'isDriver'}).then(function() {
             $scope.persons[driver].driverStatus = 'isDriver'
           })

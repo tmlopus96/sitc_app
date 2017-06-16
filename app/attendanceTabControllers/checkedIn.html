@@ -84,10 +84,10 @@
               </div>
               <div flex="" class="iconSetContainer" layout="row" layout-align="start cetner">
                 <div flex class="listIconContainer" layout-align="end center" ng-show="persons[person].hasCar == 1 || (persons[person].driverStatus != null && persons[person].driverStatus != '')">
-                  <div id="driverControlButtonsContainer" ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0 || persons[person].driverStatus == 'isTeerCarDriver' || persons[person].driverStatus == 'isVanDriver'" layout="row">
-                    <div ng-repeat="v in [0]"> <!--workaround proper display of switch-->
-                      <md-switch ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" ng-disabled="(persons[person].assignedToDriver_id != null && persons[person].assignedToDriver_id != '' && persons[person].assignedToDriver_id != 0)" aria-label="Driver Active" style="margin-left:0"></md-switch>
-                    </div>
+                  <div id="switchContainer" ng-hide="screenIsXsmall || screenIsSmall || persons[person].hasCar == 0 || persons[person].driverStatus == 'isTeerCarDriver' || persons[person].driverStatus == 'isVanDriver'" ng-repeat="v in [0]"> <!--workaround proper display of switch-->
+                    <md-switch ng-model="persons[person].driverStatus" ng-true-value="'isDriver'" ng-false-value="null" ng-change="updateDriverStatus(person)" ng-disabled="(persons[person].assignedToDriver_id != null && persons[person].assignedToDriver_id != '' && persons[person].assignedToDriver_id != 0)" aria-label="Driver Active" style="margin-left:0"></md-switch>
+                  </div>
+                  <div id="driverControlButtonsContainer" ng-hide="persons[person].hasCar == 0 || persons[person].driverStatus == 'isTeerCarDriver' || persons[person].driverStatus == 'isVanDriver'" layout="row">
                     <md-button aria-label="Manage driver" ng-disabled="!(persons[person].driverStatus == 'isDriver' || persons[person].driverStatus == 'isTeerCarDriver' || persons[person].driverStatus == 'isVanDriver') && (persons[person].assignedToDriver_id != null && persons[person].assignedToDriver_id != '' && persons[person].assignedToDriver_id != 0) && !screenIsSmall && !screenIsXsmall" ng-class="{'md-accent md-hue-1': persons[person].driverStatus == 'isDriver' || persons[person].driverStatus == 'isVanDriver' || persons[person].driverStatus == 'isTeerCarDriver'}" ng-click="driverControlPanel(person)" style="padding:0 !important; min-width:40px !important">
                       <md-icon id="listButtonIcon" md-svg-src="app/images/icons/steeringWheel.svg"></md-icon>
                     </md-button>
@@ -118,13 +118,13 @@
                     </md-fab-trigger>
                     <div>
                       <md-fab-actions>
-                        <md-button aria-label="Paint" id="speedDialActionButton_first" ng-click="checkInPerson(person, 'paint', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                        <md-button aria-label="Paint" id="speedDialActionButton_first" ng-click="checkInPerson(person, 'paint', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton" ng-disabled="!activePaintSites">
                           <md-icon class="sitc-icon-" style="color:white;" aria-label="Paint">paint</md-icon>
                         </md-button>
-                        <md-button aria-label="Plant" id="speedDialActionButton_second" ng-click="checkInPerson(person, 'plant', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                        <md-button aria-label="Plant" id="speedDialActionButton_second" ng-click="checkInPerson(person, 'plant', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton" ng-disabled="!activePlantSites">
                           <md-icon class="sitc-icon-" style="color:white;" aria-label="Plant">plant</md-icon>
                         </md-button>
-                        <md-button aria-label="Play" id="speedDialActionButton_third" ng-click="checkInPerson(person, 'play', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton">
+                        <md-button aria-label="Play" id="speedDialActionButton_third" ng-click="checkInPerson(person, 'play', projectName)" class="md-fab md-raised md-mini md-primary md-hue-1 speedDialButton" ng-disabled="!activePlaySites">
                           <md-icon class="sitc-icon-" style="color:white;" aria-label="Play">play</md-icon>
                         </md-button>
                       </md-fab-actions>

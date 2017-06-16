@@ -32,7 +32,8 @@ app.factory('driverControlPanelGenerator', ['$q', '$log', '$mdDialog', '$mdToast
 
 
         if ($scope.drivers[driver]) {
-          $scope.drivers[driver].numSeatbelts = (parseInt($scope.drivers[driver].numSeatbelts > $scope.drivers[driver].passengers.length)) ?  parseInt($scope.drivers[driver].numSeatbelts) : $scope.drivers[driver].passengers.length
+          $log.log("This driver's info: " + dump($scope.drivers[driver], 'none'))
+          $scope.drivers[driver].numSeatbelts = (parseInt($scope.drivers[driver].numSeatbelts) > parseInt($scope.drivers[driver].passengers.length)) ?  parseInt($scope.drivers[driver].numSeatbelts) : $scope.drivers[driver].passengers.length
           // push each of driver's passengers into array myPassengers on scope of this modal
           $scope.drivers[driver].passengers.forEach(function(currentPassenger) {
             $scope.myPassengers.push(currentPassenger)

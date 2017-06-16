@@ -56,7 +56,8 @@ md-list {
   margin: auto auto; }
 
 md-dialog {
-  min-width: 80%; }
+  min-width: 80%;
+  position: relative; }
 
 md-dialog-content {
   padding: 10px; }
