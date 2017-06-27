@@ -125,6 +125,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
 
           // if last iteration of forEach, resolve promise
           if (index == $scope.registrationsResponse.length - 1) {
+            $log.log("Last iteration of $scope.persons construction")
             defer.resolve()
           }
         });
@@ -184,7 +185,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
     $log.log("on(stateChangeSuccess) running!")
     $scope.showNotesProgressBar = false
 
-    if (toState.name == 'notes' || toState.name == 'bugReports' || toState.name == 'attendance.getFromOtherCarpoolSite' || toState.name == 'addNewVolunteer') {
+    if (toState.name == 'notes' || toState.name == 'bugReports' || toState.name == 'attendance.getFromOtherCarpoolSite' || toState.name == 'addNewVolunteer' || toState.name == 'attendance.logistics') {
       $scope.showClearButton = true
     }
     else {
@@ -206,6 +207,11 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
 
   $scope.changePassword = function() {
     changePasswordModal($rootScope.currentUser.username)
+  }
+
+  $scope.goToLogistics = function () {
+    $state.go('attendance.logistics')
+    $mdSidenav('left').close()
   }
 
   $scope.goToGetFromOtherCarpool = function () {

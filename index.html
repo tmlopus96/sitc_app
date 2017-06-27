@@ -31,6 +31,7 @@
      <script src="app/controllers/registeredController.js"></script>
      <script src="app/controllers/checkedInController.js"></script>
      <script src="app/controllers/assignedController.js"></script>
+     <script src="app/controllers/logisticsController.js"></script>
      <script src="app/controllers/getFromOtherCarpoolSite.js"></script>
      <script src="app/controllers/addNewVolunteerController.js"></script>
      <script src="app/controllers/trelloNotesController.js"></script>
@@ -74,6 +75,14 @@
             <md-option ng-repeat="(siteId, info) in carpoolSites" ng-value="siteId">{{ info.name }}</md-option>
           </md-select>
         </md-input-container>
+
+        <div layout="column">
+          <md-button ng-click="goToLogistics()" layout="row" layout>
+            <span style="text-transform: initial">Logistics</span>
+            <span flex></span>
+            <md-icon>arrow_forward</md-icon>
+          </md-button>
+        </div>
 
         <div layout="column">
           <md-button ng-click="goToGetFromOtherCarpool()" layout="row" layout>

@@ -30,6 +30,12 @@ app.config(function($stateProvider) {
         data: {requireLogin: true}
       })
 
+      .state('attendance.logistics', {
+        url: '/logistics',
+        templateUrl: 'app/views/logistics.html',
+        controller: 'LogisticsController',
+        data: {requireLogin: true}
+      })
       .state('attendance.getFromOtherCarpoolSite', {
         url: '/otherCarpool',
         templateUrl: 'app/views/getFromOtherCarpool.html',
