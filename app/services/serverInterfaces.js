@@ -83,6 +83,7 @@ app.factory('getTempRegistrations', ['$log', '$q', '$http', function($log, $q, $
       url: "app/appServer/getTempRegistrations.php",
       params: paramsToPass
     }).then(function(response) {
+      // $log.log("getTempRegistrations response: " + dump(response, 'none'))
       if (Array.isArray(response.data)) {
         defer.resolve(response.data)
       }
@@ -331,6 +332,25 @@ app.factory('deleteFromCheckedIn', ['$http', '$log', function($http, $log) {
       params: {
         personId: personId
       }
+    })
+  }
+}])
+
+app.factory('updatePaymentStatus', ['$http', '$log', function($http, $log) {
+  return function(personId, amountPaid, checkNumber=0) {
+    var paramsToPass = {
+      personId: personId,
+      amountPaid: amountPaid
+    }
+
+    if (checkNumber > 0) {
+      paramsToPass['checkNumber'] = checkNumber
+    }
+
+    return $http({
+      method: "GET",
+      url: "app/appServer/updatePaymentStatus.php",
+      params: paramsToPass
     })
   }
 }])

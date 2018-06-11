@@ -9,7 +9,7 @@
   $personId = sanitize($_GET['personId']);
   $status = sanitize($_GET['status']);
 
-  $query = "UPDATE CheckedIn SET driverStatus='$status' WHERE person_id='$personId'";
+  $query = "UPDATE CheckedIn SET isDriver='$status' WHERE person_id='$personId'";
   $result_logisticsSched = $connection->query($query);
   if ($connection->error)
     die ($connection->error);

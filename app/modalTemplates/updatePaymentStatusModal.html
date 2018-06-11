@@ -1,0 +1,29 @@
+<md-dialog>
+  <md-toolbar layout="row" layout-align="center center">
+    <div class="md-toolbar-tools">
+      <h2>Update payment info for {{ personsCopy[personId].firstName }} {{ personsCopy[personId].lastName }}</h2>
+    </div>
+    <span flex></span>
+    <md-button class="md-icon-button" ng-click="cancel()">
+      <md-icon>clear</md-icon>
+    </md-button>
+  </md-toolbar>
+  <md-dialog-content layout="row" flex='nogrow'>
+    <div layout="column" flex-gt-xs="40">
+      <md-checkbox ng-model="hasPaid">Paid</md-checkbox>
+      <md-input-container flex="nogrow" ng-show="hasPaid">
+        <label>Amount</label>
+        <input ng-model="amountPaid" type="number" size="2"/>
+      </md-input-container>
+      <md-input-container ng-show="hasPaid">
+        <label>Check Number</label>
+        <input type="number" ng-model="checkNumber" placeholder="If applicable" />
+      </md-input-container>
+    </div>
+    <div flex-gt-xs="30"></div>
+  </md-dialog-content>
+  <md-dialog-actions>
+    <md-button ng-click="cancel()">Cancel</md-button>
+    <md-button ng-click="okay()" class="md-primary">Save</md-button>
+  </md-dialog-actions>
+</md-dialog>

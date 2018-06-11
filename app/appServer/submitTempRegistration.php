@@ -38,7 +38,7 @@
   }
   else {
     echo $myPersonId;
-    sendEmail($personInfo);
+    sendEmail($myPersonId, $personInfo);
   }
 
 
@@ -48,7 +48,7 @@
 
 <?php
 
-  function sendEmail($personInfo) {
+  function sendEmail($myPersonId, $personInfo) {
     //SMTP needs accurate times, and the PHP time zone MUST be set
     //This should be done in your php.ini, but this is how to do it if you don't have access to that
     date_default_timezone_set('Etc/UTC');
@@ -72,6 +72,9 @@
     // format data
     ucwords($firstName);
     ucwords($lastName);
+
+    // get unique URL
+    $myUniqueUrl = constructURL($myPersonId, $personInfo);
 
     //Tell PHPMailer to use SMTP
     $mail->isSMTP();
@@ -124,8 +127,8 @@
     $message .= "<h3 style='font-family:Helvetica; opacity: .85'>We're glad you could join us today!</h3>";
     $message .= "<h4 style='font-family:Helvetica; opacity: .85'>Now make it official by filling out the registration form!</h4>";
     $message .= "<span style='font-family: Helvetica'>Hi, $firstName!</span>";
-    $message .= "<span style='font-family: Helvetica'>&nbsp;We're glad you were able to join us today. Right now, your registration is only temporary. We look forward to seeing you again soon. Just be sure to fill out the registration form at the link below so that you're all set next time you show up at your nearest carpool site.</span>";
-    $message .= "<a href='http://registration.summerinthecity.com' style='text-decoration: none'><div style=' width: 125px; height: 40px; background-color: rgb(85, 73, 142); border-radius: 10px; margin: auto auto; margin-top: 20px; '>";
+    $message .= "<span style='font-family: Helvetica'>&nbsp;We're glad you were able to join us today. Right now, your registration is only temporary. We look forward to seeing you again soon. Just be sure to fill out the registration form <strong>using the link below</strong> so that you're all set next time you show up at your nearest carpool site. It is important that you use this link to access the registration form — otherwise you might not get credited for your service hours earned today.</span>";
+    $message .= "<a href='$myUniqueUrl' style='text-decoration: none'><div style=' width: 125px; height: 40px; background-color: rgb(85, 73, 142); border-radius: 10px; margin: auto auto; margin-top: 20px; '>";
     $message .= "<div style=' height: 40px; line-height: 40px; font-family: Helvetica; font-weight: 400; color: white; opacity: .85; text-align: center; margin: auto auto; position: relative'>Register</div></div></a>";
     $message .= "<div style='font-family: Helvetica;margin-top: 20px'><span>We can't wait to see you back at SITC soon!</span><br /><br /><span><em>The SITC Team</em></span></div>";
     $message .= "<hr style='margin-top: 30px'/>";
@@ -144,6 +147,22 @@
     }
   }
 
+?>
+
+<?php
+  function constructURL($personId, $personInfo) {
+    $idForUrl = $personId * -1;
+    $myUrl = "https://www.registration.summerinthecity.com/#!/registration/volunteerInfo?isTempReg=1";
+    $myUrl .= "&person_id=$idForUrl";
+    $myUrl .= "&firstName={$personInfo['firstName']}&lastName={$personInfo['lastName']}";
+    $myUrl .= "&phone={$personInfo['phone']}&altPhone=${$personInfo['altPhone']}";
+    $myUrl .= "&email={$personInfo['email']}";
+    $myUrl .= "&carpoolSite_id={$personInfo['carpoolSite_id']}";
+    $myUrl .= "&emerCon_firstName={$personInfo['emerCon_firstName']}&emerCon_lastName={$personInfo['emerCon_lastName']}";
+    $myUrl .= "&emerCon_phone={$personInfo['emerCon_phone']}&emerCon_altPhone={$emerCon_altPhone}";
+
+    return $myUrl;
+  }
 ?>
 
 <?php

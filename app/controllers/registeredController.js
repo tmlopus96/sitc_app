@@ -2,7 +2,7 @@
  * RegisteredController
  * Controls the Registered app tab
  */
-app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 'sitePickerGenerator', 'updateCheckedIn', 'getActiveSites', function($scope, $rootScope, $log, $q, sitePickerGenerator, updateCheckedIn, getActiveSites) {
+app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', '$mdToast', 'sitePickerGenerator', 'updateCheckedIn', 'getActiveSites', 'updatePaymentStatusModal', 'updatePaymentStatus', function($scope, $rootScope, $log, $q, $mdToast, sitePickerGenerator, updateCheckedIn, getActiveSites, updatePaymentStatusModal, updatePaymentStatus) {
 
   function hideSpeedDialButtons(){
       var speedDialButton_first = angular.element(document.querySelectorAll('#speedDialActionButton_first')).parent()
@@ -25,7 +25,7 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
     // $scope.testAttenCtrlAccess = "I can access RegisteredController!"
     var checkActivePaintSitesPromise = getActiveSites($rootScope.myCarpoolSite, 'paint')
     checkActivePaintSitesPromise.then(function(activeSites) {
-      $log.log("checkActivePaintSites: " + dump(activeSites, 'none'))
+      // $log.log("checkActivePaintSites: " + dump(activeSites, 'none'))
       if (Object.keys(activeSites).length > 0) {
         $scope.activePaintSites = true
       }
@@ -37,7 +37,7 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
     var checkActivePlantSitesPromise = getActiveSites($rootScope.myCarpoolSite, 'plant')
     checkActivePlantSitesPromise.then(function(activeSites) {
       if (Object.keys(activeSites).length > 0) {
-        $log.log("checkActivePlantSites: " + dump(activeSites, 'none'))
+        // $log.log("checkActivePlantSites: " + dump(activeSites, 'none'))
         $scope.activePlantSites = true
       }
       else {
@@ -47,7 +47,7 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
 
     var checkActivePlaySitesPromise = getActiveSites($rootScope.myCarpoolSite, 'play')
     checkActivePlaySitesPromise.then(function(activeSites) {
-      $log.log("checkActivePlaySites: " + dump(activeSites, 'none'))
+      // $log.log("checkActivePlaySites: " + dump(activeSites, 'none'))
       if (Object.keys(activeSites).length > 0) {
         $scope.activePlaySites = true
       }
@@ -70,48 +70,37 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', 's
      * Pre: personId is a valid person; selectedProject is a valid project, or null
      * Post: $scope arrays and server have been updated to reflect changes to person's checkin status parameters. corresponding view updates are automatically triggered by changes to $scope arrays (i.e. person is moved to the correct list in the correct tab).
      */
-    $scope.checkInPerson = function(personId, selectedProject) {
-      function updateArrays() {
-        var deferred = $q.defer();
-        var valuesToUpdate = {
-          "id":personId,
-          "isCheckedIn": 1, 
-          "carpoolSite":$scope.carpoolSite,
-          "project":selectedProject}
+    $scope.checkInPerson = function(personId) {
+      $log.log(personId)
 
-        if (selectedProject == 'all') {
-          $scope.projectsWithPersons['all'].push(personId)
-          $scope.persons[personId].assignedToProject = 'all'
-          deferred.resolve(valuesToUpdate)
-        } else {
-          var promise = sitePickerGenerator($scope.carpoolSite, selectedProject, $scope.persons, $scope.drivers)
-          promise.then(function(selectedSite) {
-            if (selectedSite == 'allSites') {
-              $log.log("selectedSite" + selectedSite)
-              $scope.projectsWithPersons[selectedProject].push(personId)
-              $scope.persons[personId].assignedToProject = selectedProject
-              deferred.resolve(valuesToUpdate)
-            }
-            else {
-              $log.log('**selectedSite is' + selectedSite)
-              $scope.projectSitesWithPersons[selectedSite].push(personId)
-              $scope.persons[personId].assignedToProject = selectedProject
-              $scope.persons[personId].assignedToSite_id = selectedSite
-              valuesToUpdate["site"] = selectedSite;
-              deferred.resolve(valuesToUpdate)
-            }
-          })
-        }
-        return deferred.promise
+      var valuesToUpdate = {
+        "id":personId,
+        "isCheckedIn": 1,
+        "carpoolSite":$scope.carpoolSite
       }
 
-      var promise = updateArrays();
-      promise.then(function(valuesToUpdate) {
-        $scope.persons[personId].isCheckedIn = 1
-        $log.log("site to update: " + valuesToUpdate["site"])
-        updateCheckedIn(personId, valuesToUpdate)
-        var personIndex = $scope.registeredPersons.indexOf(personId)
-        $scope.registeredPersons.splice(personIndex, 1)
+      // update data on server
+      updateCheckedIn(personId, valuesToUpdate)
+
+      // update data locally
+      $scope.persons[personId].isCheckedIn = 1
+      $scope.checkedInPersons.push(personId)
+      var personIndex = $scope.registeredPersons.indexOf(personId)
+      $scope.registeredPersons.splice(personIndex, 1)
+    }
+
+    $scope.launchUpdatePaymenStatus = function(personId) {
+      updatePaymentStatusModal(personId, $scope).then(function(result) {
+        var adjustedAmountPaid = result.amountPaid * 100
+        updatePaymentStatus(personId, adjustedAmountPaid, result.checkNumber).then(function() {
+          $mdToast.showSimple(`Updated ${$scope.persons[personId].firstName}'s payment status`)
+        }, function () {
+
+        }, function () {
+
+        })
       })
     }
+
+
 }])

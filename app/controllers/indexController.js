@@ -21,6 +21,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
     $scope.projectSites = {}
     // TODO have active projects and sites dynamically load from logistics report
     $scope.registeredPersons = [];
+    $scope.checkedInPersons = [];
     $scope.projectsWithPersons = {all: [], paint: [], plant: [], play: []}
     $scope.projectSitesWithPersons = {}
 
@@ -63,6 +64,7 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
         url: "app/appServer/getRegistered.php",
         params: {carpoolSite: $rootScope.myCarpoolSite}
       }).then(function mySuccess(response) {
+
         var defer = $q.defer()
 
         // $log.log('getRegistered response: ' + dump(response, 'none'))
@@ -112,16 +114,19 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
           if ($scope.persons[myId].isCheckedIn != 1 && $scope.persons[myId].isCheckedIn != '1') {
             $scope.registeredPersons.push(myId)
           }
-          else if ($scope.persons[myId].assignedToSite_id != null && $scope.persons[myId].assignedToSite_id != '') {
-            $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
-          }
-          else if ($scope.persons[myId].assignedToProject != null && $scope.persons[myId].assignedToProject != '') {
-            $scope.projectsWithPersons[$scope.persons[myId].assignedToProject].push(myId)
-          }
           else {
-            $scope.persons[myId].assignedToProject = 'all'
-            $scope.projectsWithPersons['all'].push(myId)
+            $scope.checkedInPersons.push(myId)
           }
+          // else if ($scope.persons[myId].assignedToSite_id != null && $scope.persons[myId].assignedToSite_id != '') {
+          //   $scope.projectSitesWithPersons[$scope.persons[myId].assignedToSite_id].push(myId)
+          // }
+          // else if ($scope.persons[myId].assignedToProject != null && $scope.persons[myId].assignedToProject != '') {
+          //   $scope.projectsWithPersons[$scope.persons[myId].assignedToProject].push(myId)
+          // }
+          // else {
+          //   $scope.persons[myId].assignedToProject = 'all'
+          //   $scope.projectsWithPersons['all'].push(myId)
+          // }
 
           // if last iteration of forEach, resolve promise
           if (index == $scope.registrationsResponse.length - 1) {

@@ -6,13 +6,13 @@
   if ($connection->connect_error)
     die ($connection->connect_error);
 
-  $query = "SELECT ch.person_id, tr.firstName, tr.lastName, tr.isDriver, ch.isCheckedIn, ch.isOnLogistics, ch.assignedToProject, ch.assignedToSite_id, ch.driverStatus, ch.assignedToDriver_id FROM TempRegistration tr LEFT JOIN CheckedIn ch ON tr.temp_person_id=ch.person_id";
+  $query = "SELECT ch.person_id, tr.firstName, tr.lastName, tr.isDriver FROM TempRegistration tr LEFT JOIN CheckedIn ch ON tr.temp_person_id=ch.person_id";
 
-  if (isset($_GET['carpoolSite'])) {
-    // echo "Condition evaled to true";
-    $carpoolSite = $_GET['carpoolSite'];
-    $query = $query . " WHERE ch.carpoolSite_id='$carpoolSite'";
-  }
+  // if (isset($_GET['carpoolSite'])) {
+  //   // echo "Condition evaled to true";
+  //   $carpoolSite = $_GET['carpoolSite'];
+  //   $query = $query . " WHERE ch.carpoolSite_id='$carpoolSite'";
+  // }
 
   // Note: if both carpoolSite and person_id are set, an empty set may be returned if that person's primaryCarpool_id != carpoolSite
   if (isset($_GET['temp_person_id'])) {
