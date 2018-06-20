@@ -89,10 +89,16 @@ app.controller('RegisteredController', ['$scope', '$rootScope', '$log', '$q', '$
       $scope.registeredPersons.splice(personIndex, 1)
     }
 
-    $scope.launchUpdatePaymenStatus = function(personId) {
-      updatePaymentStatusModal(personId, $scope).then(function(result) {
+    $scope.launchUpdatePaymenStatus = function (personId) {
+      updatePaymentStatusModal(personId, $scope).then(function (result) {
         var adjustedAmountPaid = result.amountPaid * 100
-        updatePaymentStatus(personId, adjustedAmountPaid, result.checkNumber).then(function() {
+        updatePaymentStatus(personId, adjustedAmountPaid, result.checkNumber).then(function () {
+          $scope.$parent.persons[personId].paymentStatus = 1
+          $scope.$parent.persons[personId].paymentAmount = result.amountPaid
+          if (result.checkNumber) {
+            $scope.persons[personId].checkNumber = result.checkNumber
+          }
+
           $mdToast.showSimple(`Updated ${$scope.persons[personId].firstName}'s payment status`)
         }, function () {
 

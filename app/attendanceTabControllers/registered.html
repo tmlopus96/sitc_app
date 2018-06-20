@@ -13,10 +13,10 @@
        <div></div>
        <div flex="50" class="iconSetContainer" layout="row" layout-align="start cetner">
        <div flex class="listIconContainer" layout-align="end center">
-         <div ng-show="{{persons[person].paymentMethod == 'cash_check' && persons[person].paymentStatus != 1}}" ng-click="launchUpdatePaymenStatus(person)"><md-icon ng-show="false" class="md-warn" id="listButtonIcon" class="material-icons">attach_money</md-icon></div>
+         <div ng-hide="persons[person].paymentMethod != 'cash_check' || persons[person].paymentStatus == 1" ng-click="launchUpdatePaymenStatus(person)"><md-icon ng-show="false" class="md-warn" id="listButtonIcon" class="material-icons">attach_money</md-icon></div>
        </div>
        <div flex class="listIconContainer" layout-align="end center">
-         <div ng-show="{{persons[person].hasCar}}"><md-icon ng-show="false" id="listButtonIcon" class="material-icons">drive_eta</md-icon></div>
+         <div ng-show="persons[person].hasCar"><md-icon ng-show="false" id="listButtonIcon" class="material-icons">drive_eta</md-icon></div>
        </div>
        <div flex class="listIconContainer" layout-align="end center">
          <md-button ng-click="checkInPerson(person)">
