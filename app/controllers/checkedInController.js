@@ -4,6 +4,42 @@
  */
 app.controller('CheckedInController', ['$scope', '$rootScope', '$state', '$log', '$q', '$mdToast', '$mdDialog', '$location', '$anchorScroll', 'sitePickerGenerator', 'updateCheckedIn', 'driverStatus', 'driverPickerGenerator', 'assignToDriver', 'driverControlPanelGenerator', 'getRegistered', 'getTempRegistrations', 'assignTeerCarDriver', 'updateActiveTeerCar', 'updateVan', 'editRegInfo', 'getActiveSites', 'deleteFromCheckedIn', function($scope, $rootScope, $state, $log, $q, $mdToast, $mdDialog, $location, $anchorScroll, sitePickerGenerator, updateCheckedIn, driverStatus, driverPickerGenerator, assignToDriver, driverControlPanelGenerator, getRegistered, getTempRegistrations, assignTeerCarDriver, updateActiveTeerCar, updateVan, editRegInfo, getActiveSites, deleteFromCheckedIn) {
 
+  $scope.totalCount = 0
+  $scope.crewCount = 0
+  $scope.driversCount = 0
+
+  $scope.$watchGroup(function () {
+    var totalCount = 0
+    var crewCount = 0
+    var driverCount = 0
+
+    Object.keys($scope.persons).forEach(function (personId) {
+      if ($scope.persons[personId].isCheckedIn == 1) {
+        totalCount++
+      }
+
+      if ($scope.persons[personId].isCrew == 1) {
+        crewCount++
+      }
+
+      if ($scope.persons[personId].hasCar == 1) {
+        driverCount++
+      }
+
+
+    })
+
+    return [totalCount, crewCount, driverCount]
+  }, function (newValue, oldValue) {
+    $log.log("Found a new value!")
+    console.log(newValue)
+
+    $scope.totalCount = newValue[0]
+    $scope.crewCount = newValue[1]
+    $scope.driverCount = newValue[2]
+
+  })
+
   function hideSpeedDialButtons(){
       var speedDialButton_first = angular.element(document.querySelectorAll('#speedDialActionButton_first')).parent()
       var speedDialButton_second = angular.element(document.querySelectorAll('#speedDialActionButton_second')).parent()
@@ -31,7 +67,7 @@ app.controller('CheckedInController', ['$scope', '$rootScope', '$state', '$log',
      var updatePromise = updateCheckedIn(personId, {'carpoolSite': $scope.carpoolSite})
 
      var registeredDefer = $q.defer()
-     if (personId > 0) { // personToCheckIn is from other carpoolSite
+     if (parseInt(personId) > 0) { // personToCheckIn is from other carpoolSite
        updatePromise.then(function () {
          getRegistered(null, personId).then(function (response) {registeredDefer.resolve(response)})
        })

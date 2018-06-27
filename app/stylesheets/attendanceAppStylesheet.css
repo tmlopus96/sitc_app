@@ -86,6 +86,10 @@ md-fab-speed-dial {
   top: 12px;
   right: 0; }
 
+.registered-list {
+  border-radius: 7px;
+  padding-left: 10px; }
+
 .first-list-item-workaround {
   margin-top: 24px !important; }
 
@@ -213,6 +217,9 @@ to prevent collapsing during animation*/
   z-index: 23;
   transform: translateX(52px);
   -webkit-transform: translateX(52px); }
+
+.list-gray-background {
+  background-color: rgba(0, 0, 0, 0.15); }
 
 .speedDialPrepare_second {
   opacity: 1;

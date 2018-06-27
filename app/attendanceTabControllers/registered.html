@@ -2,7 +2,7 @@
 
     <md-list class="personsList">
 
-      <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="person in registeredPersons | orderByLastName:persons">
+      <md-list-item class="md-2-line listAnimate registered-list" layout="row" layout-align="start center" ng-repeat="person in registeredPersons | orderByLastName:persons" ng-class-odd="'list-gray-background'">
        <md-icon id="crewIcon" ng-show="persons[person].isCrew == 1" style="margin-right:10px" md-svg-src="app/images/icons/crew.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
        <md-icon id="headsUpIcon" ng-show="persons[person].isComing == 1 && persons[person].isCrew != 1" style="margin-right:10px" md-svg-src="app/images/icons/heads_up.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
        <md-icon ng-hide="persons[person].isCrew == 1 || persons[person].isComing == 1" style="margin-right:10px" md-svg-src="app/images/icons/person.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
@@ -16,12 +16,12 @@
          <div ng-hide="persons[person].paymentMethod != 'cash_check' || persons[person].paymentStatus == 1" ng-click="launchUpdatePaymenStatus(person)"><md-icon ng-show="false" class="md-warn" id="listButtonIcon" class="material-icons">attach_money</md-icon></div>
        </div>
        <div flex class="listIconContainer" layout-align="end center">
-         <div ng-show="persons[person].hasCar"><md-icon ng-show="false" id="listButtonIcon" class="material-icons">drive_eta</md-icon></div>
+         <div ng-show="persons[person].hasCar == 1 || persons[person].hasCar == '1'"><md-icon ng-show="false" id="listButtonIcon" class="material-icons">drive_eta</md-icon></div>
        </div>
        <div flex class="listIconContainer" layout-align="end center">
-         <md-button ng-click="checkInPerson(person)">
+         <md-icon-button ng-click="checkInPerson(person)">
            <md-icon class="material-icons" aria-label="{{persons[person].preferredProject}}">check</md-icon>
-         </md-button>
+         </md-icon-button>
        </div>
      </div> <!--end iconSetContainer-->
      </md-list-item>
