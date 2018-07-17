@@ -6,7 +6,7 @@
 
     <md-list class="personsList">
 
-      <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="person in checkedInPersons | orderByLastName:persons">
+      <md-list-item class="md-2-line listAnimate" layout="row" layout-align="start center" ng-repeat="person in checkedInPersons track by $index | orderByLastName:persons">
        <md-icon id="crewIcon" ng-show="persons[person].isCrew == 1" style="margin-right:10px" md-svg-src="app/images/icons/crew.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
        <md-icon id="headsUpIcon" ng-show="persons[person].isComing == 1 && persons[person].isCrew != 1" style="margin-right:10px" md-svg-src="app/images/icons/heads_up.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
        <md-icon ng-hide="persons[person].isCrew == 1 || persons[person].isComing == 1" style="margin-right:10px" md-svg-src="app/images/icons/person.svg" ng-class="{'first-list-item-workaround': $index == 0}"></md-icon>
