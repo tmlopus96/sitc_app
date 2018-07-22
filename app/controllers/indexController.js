@@ -72,6 +72,8 @@ app.controller('IndexController', ['$scope', '$rootScope', '$http', '$mdToast', 
 
         // $log.log("$scope.registrationsResponse: " + dump($scope.registrationsResponse, 'none'))
         $scope.registrationsResponse.forEach(function(currentPerson, index) {
+          $log.log(currentPerson['person_id']);
+
           if (currentPerson['preferredProject']) {
             switch (currentPerson["preferredProject"]) {
               case "paint":
